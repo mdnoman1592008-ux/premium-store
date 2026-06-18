@@ -98,38 +98,42 @@ export const LatestOrders = () => (
 );
 
 const REVIEWS = [
-  { name: 'Rahim', initial: 'R', color: '#2563eb', text: 'Very fast delivery. Recommended.' },
-  { name: 'Karim', initial: 'K', color: '#10a37f', text: 'Genuine account and excellent support.' },
-  { name: 'Noman', initial: 'N', color: '#e50914', text: 'Best premium store I have used.' },
+  { name: 'Sultana Yesmin', initial: 'S', color: '#1f2937', text: 'Thanks Premium Account Store for the instant delivery. Of course, I got the best service for being a regular customer.', designation: 'Housewife' },
+  { name: 'Ayesha Khan', initial: 'A', color: '#4b5563', text: '২য় বার Premium Account Store থেকে অর্ডার করলাম। আগের মতো এবারও দারুণ কোয়ালিটি আর দ্রুত ডেলিভারি পেয়েছি। একদম সন্তুষ্ট।', designation: 'Banker' },
+  { name: 'Fariha Akter Tumpa', initial: 'F', color: '#111827', text: 'এই অবিশ্বাসের জগতে আস্থাশীল একটি প্রতিষ্ঠান Premium Account Store।', designation: 'Entrepreneur' },
 ];
 
 export const CustomerReviews = () => (
-  <section className="container" style={{ padding: '0 0 60px' }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
-      <div>
-        <h3 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>Customer Reviews</h3>
-        <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '4px 0 0' }}>What our customers say about us</p>
-      </div>
-      <button style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.9rem', background: 'none', border: 'none', cursor: 'pointer' }}>View All Reviews →</button>
-    </div>
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-      {REVIEWS.map((r, i) => (
-        <div key={i} style={{
-          background: 'white', borderRadius: '20px', padding: '28px',
-          border: '1px solid #f1f5f9', position: 'relative',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-        }}>
-          <div style={{ position: 'absolute', top: '24px', right: '24px', color: '#e2e8f0', fontSize: '3.5rem', fontFamily: 'Georgia, serif', lineHeight: 1 }}>"</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
-            <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: r.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: '1.1rem', flexShrink: 0 }}>{r.initial}</div>
-            <div>
-              <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>{r.name}</h4>
-              <div style={{ color: '#FBBF24', fontSize: '1rem', letterSpacing: '1px' }}>★★★★★</div>
+  <section style={{ background: '#faf9f6', padding: '60px 0', marginBottom: '60px' }}>
+    <div className="container">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+        {REVIEWS.map((r, i) => (
+          <div key={i} style={{
+            background: 'white', 
+            borderRadius: '12px', 
+            padding: '28px',
+            border: '1px solid #e5e7eb',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+          }}>
+            <p style={{ color: '#4b5563', fontSize: '1rem', lineHeight: 1.6, margin: '0 0 32px 0' }}>{r.text}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: r.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: '1.2rem', flexShrink: 0 }}>{r.initial}</div>
+              <div>
+                <h4 style={{ fontSize: '1.05rem', fontWeight: 600, margin: 0, color: '#1f2937' }}>{r.name}</h4>
+                <p style={{ color: '#6b7280', fontSize: '0.85rem', margin: '4px 0 0' }}>{r.designation}</p>
+              </div>
             </div>
           </div>
-          <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>{r.text}</p>
-        </div>
-      ))}
+        ))}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '32px' }}>
+        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f97316' }}></div>
+        <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1px solid #f97316', background: 'transparent' }}></div>
+        <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1px solid #f97316', background: 'transparent' }}></div>
+      </div>
     </div>
   </section>
 );
