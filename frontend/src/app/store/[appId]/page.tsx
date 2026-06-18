@@ -182,12 +182,20 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
         if (data && !data.message) {
           if (data.appId?.toLowerCase() === 'gemini' && data.plans) {
             let ultraPlan = data.plans.find((p: any) => p.planName.toLowerCase().includes('ultra'));
-            if (!ultraPlan && data.plans.length > 0) ultraPlan = data.plans[0];
             if (ultraPlan) {
               ultraPlan.features = [
                 "5x higher usage limits than Pro plan | Get usage limits that are 5x higher than the Google AI Pro plan",
                 "Higher access to our Pro model | Get the advanced reasoning of our Gemini 3 Pro model for complex maths and coding problems",
                 "Access Deep Think and more features | Get access to our most advanced features like Deep Think"
+              ];
+            }
+            let proPlan = data.plans.find((p: any) => p.planName.toLowerCase().includes('pro') || p.planName.toLowerCase().includes('advanced'));
+            if (!proPlan && !ultraPlan && data.plans.length > 0) proPlan = data.plans[0];
+            if (proPlan) {
+              proPlan.features = [
+                "4x higher usage limits | Get usage limits that are 4x higher than without a Google AI plan",
+                "Access to our Pro model | Get the advanced reasoning of our Gemini 3 Pro model for complex maths and coding problems",
+                "Access Deep Research, video generation and more features | Get access to more advanced features like Deep Research and video generation"
               ];
             }
           }
@@ -368,23 +376,40 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
               {app.appId?.toLowerCase() === 'gemini' && (
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#f1f5f9', padding: '6px 14px', borderRadius: '50px', fontSize: '0.85rem', fontWeight: 500, color: '#0f172a', marginBottom: '28px' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                  20 TB storage²
+                  {plan.planName.toLowerCase().includes('ultra') ? '20 TB storage²' : '5 TB storage²'}
                 </div>
               )}
 
               {/* Features List */}
               <div style={{ flex: 1, paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  What is included:
-                </h4>
-                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {app.appId?.toLowerCase() === 'gemini' ? (
+                  <h4 style={{ fontSize: '1.25rem', fontWeight: 500, color: '#0f172a', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 0L14.4 9.6L24 12L14.4 14.4L12 24L9.6 14.4L0 12L9.6 9.6L12 0Z" fill="url(#sparkle-gradient)"/>
+                      <defs>
+                        <linearGradient id="sparkle-gradient" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stopColor="#fbbc04"/>
+                          <stop offset="33%" stopColor="#ea4335"/>
+                          <stop offset="66%" stopColor="#4285f4"/>
+                          <stop offset="100%" stopColor="#34a853"/>
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    Gemini
+                  </h4>
+                ) : (
+                  <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    What is included:
+                  </h4>
+                )}
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {plan.features && plan.features.map((feature: string, j: number) => {
               const parts = feature.split(' | ');
               const title = parts[0];
               const desc = parts.length > 1 ? parts.slice(1).join(' | ') : null;
               return (
-                <li key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '0.95rem', color: '#475569' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <li key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '0.95rem', color: '#475569' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={app.appId?.toLowerCase() === 'gemini' ? '#334155' : 'var(--primary)'} strokeWidth={app.appId?.toLowerCase() === 'gemini' ? '2.5' : '3'} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <span style={{ fontWeight: desc ? 600 : 400, color: '#0f172a' }}>{title}</span>
                     {desc && <span style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '2px' }}>{desc}</span>}
