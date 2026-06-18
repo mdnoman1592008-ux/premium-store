@@ -480,6 +480,14 @@ button {
   box-shadow: 0 6px 20px rgba(147, 51, 234, 0.35);
 }
 
+.desktop-btn-text {
+  display: inline;
+}
+
+.mobile-btn-text {
+  display: none;
+}
+
 @media (max-width: 640px) {
   .app-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -533,8 +541,4 @@ button {
   .mobile-btn-text {
     display: inline;
   }
-}
-
-.mobile-btn-text {
-  display: none;
 }
