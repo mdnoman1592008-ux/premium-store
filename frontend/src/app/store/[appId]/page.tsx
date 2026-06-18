@@ -264,6 +264,25 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 "Organize listening queue"
               ];
             });
+          } else if (data.appId?.toLowerCase() === 'grok' && data.plans) {
+            let litePlan = data.plans.find((p: any) => p.planName.toLowerCase().includes('lite'));
+            if (!litePlan && data.plans.length > 0) {
+              litePlan = {
+                planName: 'SuperGrok Lite',
+                description: 'Essential access to Grok AI features',
+                durations: data.plans[0].durations,
+                features: []
+              };
+              data.plans.unshift(litePlan); // Make it the first plan
+            }
+            if (litePlan) {
+              litePlan.features = [
+                "icon:grokrocket|2x longer conversations in Chat",
+                "icon:grokbrain|1x AI agent on Expert mode",
+                "icon:grokmedia|Try out AI image & video creation",
+                "icon:grokarrow|Increased limits at regular speed"
+              ];
+            }
           }
           setApp(data);
         } else {
@@ -511,10 +530,30 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                   {iconName === 'projectsplus' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M16 14v8M12 18h8"/></svg>}
                   {iconName === 'chatloop' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/><path d="M8 10h8"/></svg>}
                   {iconName === 'imagesparkle' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/><path d="M21 2l1 2 2 1-2 1-1 2-1-2-2-1 2-1z" strokeWidth="1.5"/></svg>}
+                  {iconName === 'grokrocket' && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #e2e8f0', flexShrink: 0, marginTop: '-4px', background: '#ffffff' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#475569' }}><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2l.5-.5a5.4 5.4 0 0 0 1-1.5L18.4 8.6c.77-.77 1.26-1.85 1.55-2.9.23-1.04.05-2.02-.38-2.67-.43-.65-1.25-1.07-2.3-1.12-1.04-.04-2.14.33-3 1.18L5.3 12.1a5.4 5.4 0 0 0-1.5 1l-.8.9z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+                    </div>
+                  )}
+                  {iconName === 'grokbrain' && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #e2e8f0', flexShrink: 0, marginTop: '-4px', background: '#ffffff' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#475569' }}><path d="M9.5 2c-1.38 0-2.5 1.12-2.5 2.5 0 .42.1.81.29 1.16C5.55 6.07 4 7.66 4 9.5 4 11.23 4.96 12.72 6.36 13.5c-.23.47-.36 1-.36 1.5 0 1.93 1.57 3.5 3.5 3.5.4 0 .78-.07 1.14-.19.64 1.25 1.95 2.19 3.36 2.19 1.41 0 2.72-.94 3.36-2.19.36.12.74.19 1.14.19 1.93 0 3.5-1.57 3.5-3.5 0-.5-.13-1.03-.36-1.5C23.04 12.72 24 11.23 24 9.5c0-1.84-1.55-3.43-3.29-3.84.19-.35.29-.74.29-1.16 0-1.38-1.12-2.5-2.5-2.5z"/><path d="M12 3v18" /></svg>
+                    </div>
+                  )}
+                  {iconName === 'grokmedia' && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #e2e8f0', flexShrink: 0, marginTop: '-4px', background: '#ffffff' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#475569' }}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><path d="M18 2v4M20 4h-4" /></svg>
+                    </div>
+                  )}
+                  {iconName === 'grokarrow' && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #e2e8f0', flexShrink: 0, marginTop: '-4px', background: '#ffffff' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#475569' }}><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 8v8"/></svg>
+                    </div>
+                  )}
                   {!hasIcon && app.appId?.toLowerCase() !== 'spotify' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={app.appId?.toLowerCase() === 'gemini' ? '#334155' : 'var(--primary)'} strokeWidth={app.appId?.toLowerCase() === 'gemini' ? '2.5' : '3'} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>}
                   <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                     <span style={{ 
-                      fontWeight: desc ? 600 : (app.appId?.toLowerCase() === 'spotify' ? 600 : 400), 
+                      fontWeight: desc ? 600 : (app.appId?.toLowerCase() === 'spotify' ? 600 : (app.appId?.toLowerCase() === 'grok' ? 600 : 400)), 
                       color: app.appId?.toLowerCase() === 'spotify' ? '#1e293b' : '#0f172a',
                       borderBottom: app.appId?.toLowerCase() === 'spotify' ? '1.5px dotted #94a3b8' : 'none',
                       display: 'inline-block',
