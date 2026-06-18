@@ -216,3 +216,56 @@ button {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: var(--text-dark);
+}
+/* --- RESPONSIVE UTILITIES --- */
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: flex !important;
+    align-items: center;
+  }
+  .mobile-col {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .mobile-col-reverse {
+    flex-direction: column-reverse !important;
+  }
+  .mobile-text-center {
+    text-align: center !important;
+    align-items: center !important;
+  }
+  .mobile-p-sm {
+    padding: 20px 10px !important;
+  }
+  .mobile-title-lg {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+  }
+  .mobile-hidden {
+    display: none !important;
+  }
+  .mobile-nav-menu {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    display: flex !important;
+    background: white;
+    flex-direction: column !important;
+    padding: 20px !important;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    border-top: 1px solid #f1f5f9;
+  }
+  [data-theme='dark'] .mobile-nav-menu {
+    background: var(--bg);
+    border-top: 1px solid var(--glass-border);
+  }
+}

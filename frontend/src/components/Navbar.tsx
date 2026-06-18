@@ -10,6 +10,7 @@ const Navbar = () => {
   const pathname = usePathname();
   const containerRef = useRef<HTMLDivElement>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -73,9 +74,31 @@ const Navbar = () => {
           </div>
         </Link>
         
+        {/* Mobile Hamburger Button */}
+        <button 
+          className="mobile-menu-btn" 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {isMobileMenuOpen ? (
+              <>
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </>
+            ) : (
+              <>
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </>
+            )}
+          </svg>
+        </button>
+
         {/* Menu Links */}
         <div 
           ref={containerRef}
+          className={isMobileMenuOpen ? 'mobile-nav-menu' : 'mobile-hidden'}
           style={{ position: 'relative', display: 'flex', gap: '24px', alignItems: 'center', fontWeight: '500', fontSize: '0.9rem' }}
         >
           {[
@@ -93,19 +116,23 @@ const Navbar = () => {
                 key={link.name}
                 href={link.href}
                 data-active={isActive ? "true" : "false"}
+                onClick={() => setIsMobileMenuOpen(false)}
                 style={{
                   padding: '8px 0',
                   color: isActive ? 'var(--primary)' : 'var(--text-dark)',
                   textDecoration: 'none',
                   transition: 'color 0.3s ease',
+                  width: '100%',
+                  textAlign: 'left'
                 }}
               >
                 {link.name}
               </Link>
             );
           })}
-          {/* Sliding Underline Indicator */}
+          {/* Sliding Underline Indicator (hidden on mobile) */}
           <span
+            className="mobile-hidden"
             style={{
               position: 'absolute',
               bottom: '-2px',
@@ -123,7 +150,7 @@ const Navbar = () => {
         </div>
         
         {/* Authentication Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className={isMobileMenuOpen ? 'mobile-nav-menu' : 'mobile-hidden'} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {userToken ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600, background: '#f1f5f9', padding: '6px 12px', borderRadius: '8px' }}>

@@ -57,7 +57,7 @@ const Hero = () => {
         }
       `}</style>
 
-      <div className="container" style={{
+      <div className="container mobile-col-reverse mobile-text-center" style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -66,7 +66,7 @@ const Hero = () => {
       }}>
 
         {/* ── LEFT SIDE ── */}
-        <div style={{ flex: '1 1 480px', maxWidth: '560px' }}>
+        <div className="mobile-col mobile-text-center" style={{ flex: '1 1 480px', maxWidth: '560px', display: 'flex', flexDirection: 'column' }}>
 
           {/* Trusted Badge */}
           <div style={{
@@ -76,14 +76,15 @@ const Hero = () => {
             fontWeight: 700, fontSize: '0.78rem', marginBottom: '28px',
             letterSpacing: '1px', textTransform: 'uppercase',
             border: '1px solid #bfdbfe',
-          }}>
+            alignSelf: 'flex-start'
+          }} className="mobile-hidden">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>
             </svg>
             Trusted By Thousands
           </div>
 
-          <h1 style={{
+          <h1 className="mobile-title-lg" style={{
             fontSize: 'clamp(2.2rem, 5vw, 3.5rem)',
             lineHeight: 1.15, fontWeight: 800,
             color: '#0f172a', marginBottom: '20px',

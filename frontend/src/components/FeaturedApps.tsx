@@ -105,7 +105,7 @@ const FeaturedApps = () => {
   }, []);
 
   return (
-    <section style={{ padding: '80px 0', background: '#f8fafc' }}>
+    <section className="mobile-p-sm" style={{ padding: '80px 0', background: 'var(--bg)' }}>
       <div className="container">
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>
