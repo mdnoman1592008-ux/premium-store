@@ -84,14 +84,14 @@ const Hero = () => {
             Trusted By Thousands
           </div>
 
-          <h1 className="mobile-title-lg" style={{
+          <h1 style={{
             fontFamily: 'var(--font-noto-bengali), sans-serif',
-            fontSize: 'clamp(1.2rem, 4vw, 2.1rem)',
+            fontSize: 'clamp(1.2rem, 4.5vw, 2.1rem)',
             lineHeight: 1.4, fontWeight: 800,
             color: '#0f172a', marginBottom: '24px',
             letterSpacing: '-0.5px'
           }}>
-            <span style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>🚀 মার্কেটের সবচেয়ে কম দামে</span><br />
+            <span style={{ display: 'inline-block', wordBreak: 'keep-all' }}>🚀 মার্কেটের সবচেয়ে কম দামে</span><br />
             <span style={{ 
               background: 'linear-gradient(90deg, #2563eb 0%, #9333ea 100%)', 
               WebkitBackgroundClip: 'text', 
