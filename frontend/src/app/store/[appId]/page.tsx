@@ -205,6 +205,21 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 "Access to our Flash Thinking model | Get the speed and intelligence of our Gemini 3 Flash Thinking model for complex problems"
               ];
             }
+
+            // Sort plans: Plus -> Pro -> Ultra
+            if (data.plans && Array.isArray(data.plans)) {
+              data.plans.sort((a: any, b: any) => {
+                const aName = a.planName.toLowerCase();
+                const bName = b.planName.toLowerCase();
+                const getOrder = (name: string) => {
+                  if (name.includes('plus')) return 1;
+                  if (name.includes('pro') || name.includes('advanced')) return 2;
+                  if (name.includes('ultra')) return 3;
+                  return 4;
+                };
+                return getOrder(aName) - getOrder(bName);
+              });
+            }
           }
           setApp(data);
         } else {
