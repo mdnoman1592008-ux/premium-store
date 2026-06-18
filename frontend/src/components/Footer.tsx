@@ -31,16 +31,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>Quick Links</h4>
-            <Link href="/" style={{ color: '#64748b' }}>Home</Link>
-            <Link href="/store" style={{ color: '#64748b' }}>Store</Link>
-            <Link href="/orders" style={{ color: '#64748b' }}>My Orders</Link>
-            <Link href="/contact" style={{ color: '#64748b' }}>Contact</Link>
-            <Link href="/admin/login" style={{ color: '#64748b', fontWeight: 600 }}>Admin Portal</Link>
-          </div>
-
           {/* Legal */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>Legal</h4>
