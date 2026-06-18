@@ -252,27 +252,15 @@ export default function StorePage() {
               return (
                 <div
                   key={app._id}
+                  className="glass-card"
                   style={{
                     position: 'relative',
-                    background: 'white',
-                    borderRadius: '24px',
                     padding: '32px 24px',
-                    border: '1px solid #f1f5f9',
-                    boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     textAlign: 'center',
-                    transition: 'transform 0.25s ease, box-shadow 0.25s ease',
                     cursor: 'pointer',
-                  }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.transform = 'translateY(-6px)';
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 20px 40px rgba(0,0,0,0.10)';
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 24px rgba(0,0,0,0.04)';
                   }}
                 >
                   {/* Stock Status Badge */}
