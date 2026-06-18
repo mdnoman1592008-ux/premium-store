@@ -11,7 +11,8 @@ export const WeAccept = () => {
           justifyContent: 'center',
           alignItems: 'center',
           width: '100%',
-          maxWidth: '800px',
+          maxWidth: '950px',
+          height: '150px',
           margin: '0 auto',
           borderRadius: '24px',
           overflow: 'hidden',
@@ -32,9 +33,10 @@ export const WeAccept = () => {
           alt="We Accept All Major Payment Methods" 
           style={{ 
             width: '100%', 
-            height: 'auto', 
+            height: '100%', 
             display: 'block', 
             objectFit: 'cover',
+            objectPosition: 'center',
             borderRadius: '24px'
           }} 
         />
