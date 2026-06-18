@@ -34,9 +34,9 @@ const Footer = () => {
           {/* Legal */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>Legal</h4>
-            <Link href="#" style={{ color: '#64748b' }}>Privacy Policy</Link>
-            <Link href="#" style={{ color: '#64748b' }}>Terms & Conditions</Link>
-            <Link href="#" style={{ color: '#64748b' }}>Refund Policy</Link>
+            <Link href="/privacy-policy" style={{ color: '#64748b', textDecoration: 'none' }}>Privacy Policy</Link>
+            <Link href="/terms" style={{ color: '#64748b', textDecoration: 'none' }}>Terms & Conditions</Link>
+            <Link href="/refund-policy" style={{ color: '#64748b', textDecoration: 'none' }}>Refund Policy</Link>
           </div>
 
           {/* Contact Us */}
