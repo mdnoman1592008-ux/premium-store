@@ -389,6 +389,8 @@ button {
     font-size: 0.7rem;
     font-weight: 700;
   }
+}
+
 /* App Grid & Cards for Mobile */
 .app-grid {
   display: grid;
