@@ -144,10 +144,10 @@ export default function DurationPage() {
                 {d.discount > 0 ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
                     <span style={{ background: '#ecfdf5', color: '#10b981', fontSize: '0.8rem', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
-                      Save {d.discount}%
+                      Save ৳{d.discount}
                     </span>
                     <span style={{ color: '#64748b', fontSize: '0.85rem' }}>
-                      Saved ৳{d.saved} compared to monthly rate
+                      Discounted from <s>৳{d.price + d.discount}</s>
                     </span>
                   </div>
                 ) : (

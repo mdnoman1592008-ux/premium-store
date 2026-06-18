@@ -65,6 +65,11 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
   const [copied, setCopied] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [paymentSetting, setPaymentSetting] = useState<{ number: string, qrCodeUrl: string }>({ number: '', qrCodeUrl: '' });
+  
+  const [couponCode, setCouponCode] = useState('');
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponMessage, setCouponMessage] = useState('');
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -127,6 +132,38 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setApplyingCoupon(true);
+    setCouponMessage('');
+    try {
+      const token = localStorage.getItem('userToken');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/coupons/validate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token || ''}`
+        },
+        body: JSON.stringify({ code: couponCode })
+      });
+      const result = await res.json();
+      if (res.ok) {
+        setCouponDiscount(result.discountPercentage);
+        setCouponMessage(`Coupon applied! ${result.discountPercentage}% off.`);
+      } else {
+        setCouponDiscount(0);
+        setCouponMessage(result.message || 'Invalid coupon');
+      }
+    } catch (err) {
+      setCouponDiscount(0);
+      setCouponMessage('Error validating coupon');
+    }
+    setApplyingCoupon(false);
+  };
+
+  const basePrice = Number(data.price) || 0;
+  const finalPrice = couponDiscount > 0 ? Math.round(basePrice - (basePrice * (couponDiscount / 100))) : basePrice;
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setSubmitting(true);
@@ -136,7 +173,7 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
       formData.append('appName', data.appName);
       formData.append('planName', data.planName);
       formData.append('duration', data.duration);
-      formData.append('price', data.price);
+      formData.append('price', String(finalPrice));
       formData.append('paymentMethod', params.method);
       formData.append('senderNumber', senderNumber);
       formData.append('transactionId', transactionId);
@@ -295,6 +332,33 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
                   <span style={{ color: '#64748b' }}>Billing Cycle:</span> 
                   <strong style={{ color: '#334155' }}>{data.duration}</strong>
                 </div>
+
+                {/* Coupon Code Section */}
+                <div style={{ marginTop: '16px', padding: '16px', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Have a promo code?</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input 
+                      type="text" 
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      placeholder="Enter coupon code"
+                      style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '0.9rem' }}
+                    />
+                    <button 
+                      onClick={handleApplyCoupon}
+                      disabled={applyingCoupon || !couponCode}
+                      style={{ padding: '8px 16px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '0.9rem', opacity: (applyingCoupon || !couponCode) ? 0.7 : 1 }}
+                    >
+                      {applyingCoupon ? '...' : 'Apply'}
+                    </button>
+                  </div>
+                  {couponMessage && (
+                    <p style={{ margin: '8px 0 0', fontSize: '0.8rem', color: couponDiscount > 0 ? '#10b981' : '#ef4444', fontWeight: 600 }}>
+                      {couponMessage}
+                    </p>
+                  )}
+                </div>
+
                 <div style={{ 
                   display: 'flex', 
                   justifyContent: 'space-between', 
@@ -304,7 +368,10 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
                   alignItems: 'baseline'
                 }}>
                   <span style={{ color: '#0f172a', fontWeight: 700 }}>Total Payable:</span> 
-                  <strong style={{ fontSize: '1.6rem', color: brandColor, fontWeight: 800 }}>৳{data.price}</strong>
+                  <div style={{ textAlign: 'right' }}>
+                    {couponDiscount > 0 && <span style={{ fontSize: '1rem', color: '#94a3b8', textDecoration: 'line-through', marginRight: '8px' }}>৳{basePrice}</span>}
+                    <strong style={{ fontSize: '1.6rem', color: brandColor, fontWeight: 800 }}>৳{finalPrice}</strong>
+                  </div>
                 </div>
               </div>
             </div>
@@ -316,7 +383,7 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
                 <li>Open your <strong>{params.method}</strong> app or dial code.</li>
                 <li>Choose <strong>Send Money</strong> option.</li>
                 <li>Enter the payment number or scan the QR Code above.</li>
-                <li>Send exactly <strong style={{ color: 'var(--primary)', fontWeight: 700 }}>৳{data.price}</strong>.</li>
+                <li>Send exactly <strong style={{ color: 'var(--primary)', fontWeight: 700 }}>৳{finalPrice}</strong>.</li>
                 <li>Copy the <strong>Transaction ID</strong> and paste it in the form.</li>
               </ol>
             </div>

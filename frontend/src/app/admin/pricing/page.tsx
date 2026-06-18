@@ -81,7 +81,12 @@ export default function PricingPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {plan.durations?.map((duration: any, idx: number) => (
+                            {((plan.durations && plan.durations.length > 0 && plan.durations[0].label) ? plan.durations : [
+                              { months: 1, label: '1 Month', price: 0, discount: 0 },
+                              { months: 3, label: '3 Months', price: 0, discount: 0 },
+                              { months: 6, label: '6 Months', price: 0, discount: 0 },
+                              { months: 12, label: '12 Months', price: 0, discount: 0 }
+                            ]).map((duration: any, idx: number) => (
                               <tr key={idx} style={{ borderBottom: '1px solid #f8fafc' }}>
                                 <td style={{ padding: '12px 0', fontWeight: 600 }}>{duration.label}</td>
                                 <td style={{ padding: '12px 0' }}>
@@ -110,7 +115,13 @@ export default function PricingPage() {
                             className="btn-primary" 
                             style={{ padding: '10px 24px', borderRadius: '8px', fontSize: '0.95rem' }}
                             onClick={() => {
-                              const updatedDurations = plan.durations.map((d: any, idx: number) => ({
+                              const targetDurations = (plan.durations && plan.durations.length > 0 && plan.durations[0].label) ? plan.durations : [
+                                { months: 1, label: '1 Month', price: 0, discount: 0 },
+                                { months: 3, label: '3 Months', price: 0, discount: 0 },
+                                { months: 6, label: '6 Months', price: 0, discount: 0 },
+                                { months: 12, label: '12 Months', price: 0, discount: 0 }
+                              ];
+                              const updatedDurations = targetDurations.map((d: any, idx: number) => ({
                                 ...d,
                                 price: Number((document.getElementById(`price-${plan._id}-${idx}`) as HTMLInputElement).value),
                                 discount: Number((document.getElementById(`discount-${plan._id}-${idx}`) as HTMLInputElement).value)
