@@ -16,6 +16,7 @@ app.use('/uploads', express.static('uploads'));
 connectDB();
 
 import authRoutes from './routes/auth';
+import userRoutes from './routes/user';
 import productRoutes from './routes/products';
 import orderRoutes from './routes/orders';
 import adminRoutes from './routes/admin';
@@ -24,6 +25,7 @@ import paymentSettingRoutes from './routes/paymentSettings';
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);

@@ -31,17 +31,41 @@ const Navbar = () => {
   }, [pathname]);
 
   // Load user login state
+  const [userProfile, setUserProfile] = useState<any>(null);
+
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       if (typeof window !== 'undefined') {
-        setUserToken(localStorage.getItem('userToken'));
+        const token = localStorage.getItem('userToken');
+        setUserToken(token);
         setUserPhone(localStorage.getItem('userPhone'));
+
+        if (token) {
+          try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/profile`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+              const data = await res.json();
+              setUserProfile(data);
+            }
+          } catch (err) {
+            console.error('Failed to fetch profile', err);
+          }
+        } else {
+          setUserProfile(null);
+        }
       }
     };
     checkAuth();
     // Listen to changes in localStorage
     window.addEventListener('storage', checkAuth);
-    return () => window.removeEventListener('storage', checkAuth);
+    // Custom event to trigger re-fetch from profile page
+    window.addEventListener('profileUpdate', checkAuth);
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      window.removeEventListener('profileUpdate', checkAuth);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -153,9 +177,21 @@ const Navbar = () => {
         <div className={isMobileMenuOpen ? 'mobile-nav-menu' : 'mobile-hidden'} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {userToken ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600, background: '#f1f5f9', padding: '6px 12px', borderRadius: '8px' }}>
-                👤 {userPhone}
-              </span>
+              <Link href="/profile" title="My Profile" style={{ display: 'flex', alignItems: 'center' }}>
+                {userProfile?.photo ? (
+                  <img 
+                    src={userProfile.photo.startsWith('http') ? userProfile.photo : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${userProfile.photo}`} 
+                    alt="Profile" 
+                    style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} 
+                  />
+                ) : (
+                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                  </div>
+                )}
+              </Link>
               <button 
                 onClick={handleLogout} 
                 className="btn-secondary" 
