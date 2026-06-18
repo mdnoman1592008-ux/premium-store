@@ -11,7 +11,7 @@ export const WeAccept = () => {
           justifyContent: 'center',
           alignItems: 'center',
           width: '100%',
-          maxWidth: '1100px',
+          maxWidth: '800px',
           margin: '0 auto',
           borderRadius: '24px',
           overflow: 'hidden',
