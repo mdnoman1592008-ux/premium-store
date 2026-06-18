@@ -283,6 +283,17 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 "icon:grokarrow|Increased limits at regular speed"
               ];
             }
+            let grokPlan = data.plans.find((p: any) => p.planName.toLowerCase() === 'supergrok' || (p.planName.toLowerCase().includes('grok') && !p.planName.toLowerCase().includes('lite')));
+            if (!grokPlan && data.plans.length > 1) grokPlan = data.plans[1];
+            if (grokPlan) {
+              grokPlan.features = [
+                "icon:grokcode|Access to Grok Build",
+                "icon:grokrocket|5x longer conversations in Chat",
+                "icon:grokmedia|More usage, at lightning-fast speed | With HD 720p, 30-second video",
+                "icon:grokfile|Upload more files for smarter help",
+                "icon:groklightning|Lightning-fast replies"
+              ];
+            }
           }
           setApp(data);
         } else {
@@ -548,6 +559,21 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                   {iconName === 'grokarrow' && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #e2e8f0', flexShrink: 0, marginTop: '-4px', background: '#ffffff' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#475569' }}><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 8v8"/></svg>
+                    </div>
+                  )}
+                  {iconName === 'grokcode' && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #e2e8f0', flexShrink: 0, marginTop: '-4px', background: '#ffffff' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#475569' }}><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    </div>
+                  )}
+                  {iconName === 'grokfile' && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #e2e8f0', flexShrink: 0, marginTop: '-4px', background: '#ffffff' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#475569' }}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
+                    </div>
+                  )}
+                  {iconName === 'groklightning' && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #e2e8f0', flexShrink: 0, marginTop: '-4px', background: '#ffffff' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#475569' }}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                     </div>
                   )}
                   {!hasIcon && app.appId?.toLowerCase() !== 'spotify' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={app.appId?.toLowerCase() === 'gemini' ? '#334155' : 'var(--primary)'} strokeWidth={app.appId?.toLowerCase() === 'gemini' ? '2.5' : '3'} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>}
