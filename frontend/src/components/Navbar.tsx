@@ -129,7 +129,7 @@ const Navbar = () => {
             {[
               { name: 'Home', href: '/' },
               { name: 'Store', href: '/store' },
-              { name: 'My Orders', href: '/orders' },
+              { name: 'History', href: '/orders' },
               { name: 'Contact', href: '/contact' },
               { name: 'About Us', href: '/about' },
             ].map(link => {

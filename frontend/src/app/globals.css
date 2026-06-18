@@ -251,7 +251,8 @@ button {
 .desktop-nav-menu {
   display: flex;
   flex: 1;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 48px;
   align-items: center;
   margin-left: 32px;
 }
