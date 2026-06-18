@@ -71,7 +71,7 @@ const APP_DATA: Record<string, { bg: string; icon: React.ReactNode; desc: string
   },
   'nordvpn': {
     bg: '#4559F4',
-    icon: <svg viewBox="0 0 24 24" fill="white" width="48" height="48"><path d="M12 1l5.5 10L21 8l2 15H1L3 8l3.5 3L12 1z"/></svg>,
+    icon: <img src="/nordvpn_icon.png" alt="NordVPN" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px', borderRadius: '20px' }} />,
     desc: 'Fast and secure VPN service.'
   },
   'expressvpn': {
