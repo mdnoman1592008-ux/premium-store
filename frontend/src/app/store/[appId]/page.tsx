@@ -256,12 +256,12 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
           } else if (data.appId?.toLowerCase() === 'spotify' && data.plans) {
             data.plans.forEach((plan: any) => {
               plan.features = [
-                "Ad-free music listening",
-                "Download songs",
-                "Play songs in any order",
-                "High quality audio",
-                "Listen with friends in real time",
-                "Organize listening queue"
+                "🎧 Ad-free music listening",
+                "⬇️ Download songs",
+                "🔀 Play songs in any order",
+                "🔊 High quality audio",
+                "👥 Listen with friends in real time",
+                "📋 Organize listening queue"
               ];
             });
           } else if (data.appId?.toLowerCase() === 'grok' && data.plans) {
@@ -419,10 +419,10 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
 
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: app.plans.length === 1 ? 'max-width(450px)' : 'repeat(auto-fit, minmax(320px, 1fr))', 
+          gridTemplateColumns: app.plans.length === 1 ? 'minmax(320px, 450px)' : (app.appId?.toLowerCase() === 'spotify' ? 'repeat(auto-fit, minmax(380px, 1fr))' : 'repeat(auto-fit, minmax(320px, 1fr))'), 
           gap: '30px',
           justifyContent: 'center',
-          maxWidth: app.plans.length === 1 ? '500px' : '1000px',
+          maxWidth: app.plans.length === 1 ? '500px' : (app.appId?.toLowerCase() === 'spotify' ? '1200px' : '1000px'),
           margin: '0 auto'
         }}>
           {app.plans.map((plan: any, i: number) => (
@@ -537,8 +537,7 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                   gap: hasIcon ? '14px' : '12px', 
                   fontSize: '0.95rem', 
                   color: '#475569',
-                  paddingBottom: app.appId?.toLowerCase() === 'spotify' ? '16px' : '0',
-                  borderBottom: app.appId?.toLowerCase() === 'spotify' ? '1px solid #e2e8f0' : 'none'
+                  paddingBottom: app.appId?.toLowerCase() === 'spotify' ? '12px' : '0'
                 }}>
                   {iconName === 'sparkles' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M19 14l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/></svg>}
                   {iconName === 'image' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>}
@@ -606,7 +605,6 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                     <span style={{ 
                       fontWeight: desc ? 600 : (app.appId?.toLowerCase() === 'spotify' ? 600 : (app.appId?.toLowerCase() === 'grok' ? 600 : 400)), 
                       color: app.appId?.toLowerCase() === 'spotify' ? '#1e293b' : '#0f172a',
-                      borderBottom: app.appId?.toLowerCase() === 'spotify' ? '1.5px dotted #94a3b8' : 'none',
                       display: 'inline-block',
                       width: 'fit-content',
                       paddingBottom: app.appId?.toLowerCase() === 'spotify' ? '2px' : '0'
