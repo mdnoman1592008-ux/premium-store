@@ -3,43 +3,60 @@ import React from 'react';
 import Link from 'next/link';
 
 export const WeAccept = () => {
+  const methods = [
+    { name: 'bKash', img: '/bkash_logo.png' },
+    { name: 'Nagad', img: '/nagad_logo.png' },
+    { name: 'Rocket', img: '/rocket_logo.png' },
+    { name: 'Upay', img: '/upay_logo.png' },
+    { name: 'Cellfin', img: '/cellfin_logo.png' },
+    { name: 'VISA', isVisa: true },
+    { name: 'Mastercard', isMastercard: true }
+  ];
+
   return (
     <section className="container" style={{ padding: '20px 0 60px' }}>
-      <div 
-        style={{
-          display: 'flex', 
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: '100%',
-          maxWidth: '950px',
-          height: '150px',
-          margin: '0 auto',
-          borderRadius: '24px',
-          overflow: 'hidden',
-          transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-          cursor: 'pointer'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.02) translateY(-5px)';
-          e.currentTarget.style.boxShadow = '0 25px 50px rgba(59, 130, 246, 0.25)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1) translateY(0)';
-          e.currentTarget.style.boxShadow = 'none';
-        }}
-      >
-        <img 
-          src="/payment-banner.png" 
-          alt="We Accept All Major Payment Methods" 
-          style={{ 
-            width: '100%', 
-            height: '100%', 
-            display: 'block', 
-            objectFit: 'cover',
-            objectPosition: 'center',
-            borderRadius: '24px'
-          }} 
-        />
+      <div style={{
+        background: '#0a0a0a',
+        borderRadius: '20px', 
+        padding: '40px',
+        border: '1px solid #262626', 
+        display: 'flex', 
+        flexDirection: 'column',
+        alignItems: 'center', 
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h3 style={{ fontSize: '2.4rem', fontWeight: 700, margin: '0 0 8px 0', color: '#ffffff', letterSpacing: '-0.5px' }}>We Accept</h3>
+          <p style={{ fontSize: '1.1rem', margin: 0, color: '#a3a3a3', letterSpacing: '0.2px' }}>All Major Payment Methods</p>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', width: '100%' }}>
+          {methods.map(m => (
+            <div key={m.name} style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              background: 'white',
+              borderRadius: '14px',
+              width: '130px',
+              height: '80px',
+              padding: '16px',
+            }}>
+              {m.isVisa ? (
+                <span style={{ fontWeight: 900, color: '#1A1F71', fontSize: '2rem', fontStyle: 'italic', letterSpacing: '-1px' }}>VISA</span>
+              ) : m.isMastercard ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', position: 'relative', width: '42px', height: '26px' }}>
+                    <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: '#EB001B', position: 'absolute', left: 0, mixBlendMode: 'multiply' }}></div>
+                    <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: '#FF5F00', position: 'absolute', right: 0, mixBlendMode: 'multiply' }}></div>
+                  </div>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#111', marginTop: '4px', letterSpacing: '-0.2px' }}>mastercard</span>
+                </div>
+              ) : (
+                <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
