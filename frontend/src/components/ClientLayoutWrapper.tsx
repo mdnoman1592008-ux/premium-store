@@ -12,7 +12,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   return (
     <>
       {!isAdminPath && <Navbar />}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <main style={{ flex: 1 }}>
         {children}
       </main>
       {!isAdminPath && <Footer />}
