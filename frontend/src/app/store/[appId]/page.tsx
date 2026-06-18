@@ -264,6 +264,19 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 "📋 Organize listening queue"
               ];
             });
+          } else if (data.appId?.toLowerCase() === 'claude' && data.plans) {
+            let proPlan = data.plans.find((p: any) => p.planName.toLowerCase().includes('pro'));
+            if (!proPlan && data.plans.length > 0) proPlan = data.plans[0];
+            if (proPlan) {
+              proPlan.description = 'Research, code, and organize';
+              proPlan.features = [
+                "icon:claudemark|Claude Code directly in your codebase",
+                "icon:claudemark|Power through tasks with Cowork",
+                "icon:claudemark|Higher usage limits",
+                "icon:claudemark|Access to more Claude models",
+                "icon:claudemark|Memory that carries across conversations"
+              ];
+            }
           } else if (data.appId?.toLowerCase() === 'grok' && data.plans) {
             let litePlan = data.plans.find((p: any) => p.planName.toLowerCase().includes('lite'));
             if (!litePlan && data.plans.length > 0) {
@@ -488,7 +501,11 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
 
               {/* Features List */}
               <div style={{ flex: 1, paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
-                {app.appId?.toLowerCase() === 'chatgpt' && plan.planName.toLowerCase().includes('pro') ? (
+                {app.appId?.toLowerCase() === 'claude' && plan.planName.toLowerCase().includes('pro') ? (
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 500, color: '#3f3f46', marginBottom: '12px', letterSpacing: '0.2px' }}>
+                    Everything in Free and:
+                  </h4>
+                ) : app.appId?.toLowerCase() === 'chatgpt' && plan.planName.toLowerCase().includes('pro') ? (
                   <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: '#0f172a', marginBottom: '16px', letterSpacing: '0.2px' }}>
                     Everything in Plus and:
                   </h4>
@@ -550,6 +567,7 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                   {iconName === 'projectsplus' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M16 14v8M12 18h8"/></svg>}
                   {iconName === 'chatloop' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/><path d="M8 10h8"/></svg>}
                   {iconName === 'imagesparkle' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/><path d="M21 2l1 2 2 1-2 1-1 2-1-2-2-1 2-1z" strokeWidth="1.5"/></svg>}
+                  {iconName === 'claudemark' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#71717a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="5 12 10 17 20 7"/></svg>}
                   {iconName === 'grokrocket' && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #e2e8f0', flexShrink: 0, marginTop: '-4px', background: '#ffffff' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#475569' }}><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2l.5-.5a5.4 5.4 0 0 0 1-1.5L18.4 8.6c.77-.77 1.26-1.85 1.55-2.9.23-1.04.05-2.02-.38-2.67-.43-.65-1.25-1.07-2.3-1.12-1.04-.04-2.14.33-3 1.18L5.3 12.1a5.4 5.4 0 0 0-1.5 1l-.8.9z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
