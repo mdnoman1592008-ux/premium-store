@@ -337,30 +337,40 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 (e.currentTarget as HTMLElement).style.borderColor = 'rgba(59, 130, 246, 0.4)';
               }}
             >
-              {/* Popular Tag (for the first plan if multiple, or for premium design look) */}
-              {i === 0 && app.plans.length > 1 && (
-                <div style={{
-                  position: 'absolute',
-                  top: '20px',
-                  right: '24px',
-                  background: 'var(--primary)',
-                  color: 'white',
-                  padding: '4px 12px',
-                  borderRadius: '50px',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.5px'
-                }}>
-                  Most Popular
+              {/* RECOMMENDED badge */}
+              {i === 0 && (
+                <div style={{ color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.5px', marginBottom: '6px', textTransform: 'uppercase' }}>
+                  Recommended
                 </div>
               )}
 
-              <h3 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>
-                {plan.planName}
+              <h3 style={{ fontSize: '1.8rem', fontWeight: 500, color: '#0f172a', marginBottom: '12px', display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', letterSpacing: '-0.5px' }}>
+                {(() => {
+                  const words = plan.planName.split(' ');
+                  if (words.length > 1) {
+                    const lastWord = words.pop();
+                    return (
+                      <>
+                        <span>{words.join(' ')}</span>
+                        <span style={{ color: '#3b82f6' }}>{lastWord}</span>
+                      </>
+                    );
+                  }
+                  return plan.planName;
+                })()}
               </h3>
-              <p style={{ color: '#64748b', fontSize: '0.95rem', marginBottom: '28px', lineHeight: 1.5, minHeight: '44px' }}>
+              
+              <p style={{ color: '#475569', fontSize: '0.95rem', marginBottom: app.appId?.toLowerCase() === 'gemini' ? '16px' : '28px', lineHeight: 1.5, minHeight: app.appId?.toLowerCase() === 'gemini' ? 'auto' : '44px' }}>
                 {plan.description}
               </p>
+
+              {/* Special Pill for Gemini */}
+              {app.appId?.toLowerCase() === 'gemini' && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#f1f5f9', padding: '6px 14px', borderRadius: '50px', fontSize: '0.85rem', fontWeight: 500, color: '#0f172a', marginBottom: '28px' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                  20 TB storage²
+                </div>
+              )}
 
               {/* Features List */}
               <div style={{ flex: 1, paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
