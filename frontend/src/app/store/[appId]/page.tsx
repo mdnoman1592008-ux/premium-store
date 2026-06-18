@@ -253,6 +253,17 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 "icon:imagesparkle|Unlimited and faster image creation"
               ];
             }
+          } else if (data.appId?.toLowerCase() === 'spotify' && data.plans) {
+            data.plans.forEach((plan: any) => {
+              plan.features = [
+                "Ad-free music listening",
+                "Download songs",
+                "Play songs in any order",
+                "High quality audio",
+                "Listen with friends in real time",
+                "Organize listening queue"
+              ];
+            });
           }
           setApp(data);
         } else {
@@ -480,7 +491,15 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
               }
 
               return (
-                <li key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: hasIcon ? '14px' : '12px', fontSize: '0.95rem', color: '#475569' }}>
+                <li key={j} style={{ 
+                  display: 'flex', 
+                  alignItems: 'flex-start', 
+                  gap: hasIcon ? '14px' : '12px', 
+                  fontSize: '0.95rem', 
+                  color: '#475569',
+                  paddingBottom: app.appId?.toLowerCase() === 'spotify' ? '16px' : '0',
+                  borderBottom: app.appId?.toLowerCase() === 'spotify' ? '1px solid #e2e8f0' : 'none'
+                }}>
                   {iconName === 'sparkles' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M19 14l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/></svg>}
                   {iconName === 'image' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>}
                   {iconName === 'brain' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><path d="M9.5 2c-1.38 0-2.5 1.12-2.5 2.5 0 .42.1.81.29 1.16C5.55 6.07 4 7.66 4 9.5 4 11.23 4.96 12.72 6.36 13.5c-.23.47-.36 1-.36 1.5 0 1.93 1.57 3.5 3.5 3.5.4 0 .78-.07 1.14-.19.64 1.25 1.95 2.19 3.36 2.19 1.41 0 2.72-.94 3.36-2.19.36.12.74.19 1.14.19 1.93 0 3.5-1.57 3.5-3.5 0-.5-.13-1.03-.36-1.5C23.04 12.72 24 11.23 24 9.5c0-1.84-1.55-3.43-3.29-3.84.19-.35.29-.74.29-1.16 0-1.38-1.12-2.5-2.5-2.5z"/></svg>}
@@ -492,9 +511,16 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                   {iconName === 'projectsplus' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M16 14v8M12 18h8"/></svg>}
                   {iconName === 'chatloop' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/><path d="M8 10h8"/></svg>}
                   {iconName === 'imagesparkle' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/><path d="M21 2l1 2 2 1-2 1-1 2-1-2-2-1 2-1z" strokeWidth="1.5"/></svg>}
-                  {!hasIcon && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={app.appId?.toLowerCase() === 'gemini' ? '#334155' : 'var(--primary)'} strokeWidth={app.appId?.toLowerCase() === 'gemini' ? '2.5' : '3'} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>}
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontWeight: desc ? 600 : 400, color: '#0f172a' }}>{title}</span>
+                  {!hasIcon && app.appId?.toLowerCase() !== 'spotify' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={app.appId?.toLowerCase() === 'gemini' ? '#334155' : 'var(--primary)'} strokeWidth={app.appId?.toLowerCase() === 'gemini' ? '2.5' : '3'} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                  <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                    <span style={{ 
+                      fontWeight: desc ? 600 : (app.appId?.toLowerCase() === 'spotify' ? 600 : 400), 
+                      color: app.appId?.toLowerCase() === 'spotify' ? '#1e293b' : '#0f172a',
+                      borderBottom: app.appId?.toLowerCase() === 'spotify' ? '1.5px dotted #94a3b8' : 'none',
+                      display: 'inline-block',
+                      width: 'fit-content',
+                      paddingBottom: app.appId?.toLowerCase() === 'spotify' ? '2px' : '0'
+                    }}>{title}</span>
                     {desc && <span style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '2px' }}>{desc}</span>}
                   </div>
                 </li>
