@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-
+import { WeAccept } from '../../components/HomeSections';
 // App data with real brand colors & SVG icons
 const APP_DATA: Record<string, { bg: string; icon: React.ReactNode; desc: string }> = {
   'youtube': {
@@ -355,24 +355,8 @@ export default function StorePage() {
       </div>
 
       {/* We Accept Banner */}
-      <div className="container" style={{ paddingBottom: '60px' }}>
-        <div style={{ background: 'white', borderRadius: '24px', padding: '28px 40px', border: '1px solid #f1f5f9', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px' }}>
-          <div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>We Accept</h3>
-            <p style={{ fontSize: '0.85rem', margin: 0, color: '#64748b' }}>100% Secure Payment Methods</p>
-          </div>
-          <div style={{ display: 'flex', gap: '32px', alignItems: 'center', flexWrap: 'wrap' }}>
-            {[
-              { name: 'bKash', color: '#E2136E' },
-              { name: 'Nagad', color: '#F05A28' },
-              { name: 'Rocket', color: '#8B2FC9' },
-              { name: 'Upay', color: '#00A651' },
-              { name: 'Cellfin', color: '#005BAA' },
-            ].map(m => (
-              <span key={m.name} style={{ fontWeight: 700, color: m.color, fontSize: '1rem' }}>{m.name}</span>
-            ))}
-          </div>
-        </div>
+      <div style={{ paddingBottom: '20px' }}>
+        <WeAccept />
       </div>
     </div>
   );
