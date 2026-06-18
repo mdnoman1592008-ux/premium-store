@@ -108,12 +108,9 @@ const FeaturedApps = () => {
     <section className="mobile-p-sm" style={{ padding: '80px 0', background: 'var(--bg)' }}>
       <div className="container">
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>
-            Our <span style={{ background: 'linear-gradient(90deg, #3b82f6 0%, #a855f7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block' }}>Premium</span> Store
+          <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '0' }}>
+            Top Selling Accounts
           </h2>
-          <p style={{ color: '#64748b', fontSize: '1.1rem' }}>
-            Choose from the most popular digital services
-          </p>
         </div>
 
         {loading ? (
