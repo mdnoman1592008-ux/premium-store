@@ -89,16 +89,16 @@ const Hero = () => {
             lineHeight: 1.15, fontWeight: 800,
             color: '#0f172a', marginBottom: '20px',
           }}>
-            Premium Accounts<br />
-            For Your <span style={{ color: 'var(--primary)' }}>Digital Life</span>
+            আপনার ডিজিটাল জীবনের জন্য<br />
+            <span style={{ color: 'var(--primary)' }}>প্রিমিয়াম অ্যাকাউন্টস</span>
           </h1>
 
           <p style={{
             fontSize: '1.05rem', color: '#64748b',
             marginBottom: '36px', lineHeight: 1.7, maxWidth: '480px',
           }}>
-            Get premium accounts, subscriptions and digital services
-            at the best price. Fast delivery, 100% secure and reliable.
+            সেরা দামে পান প্রিমিয়াম অ্যাকাউন্ট, সাবস্ক্রিপশন এবং ডিজিটাল সার্ভিস। 
+            ফাস্ট ডেলিভারি, ১০০% নিরাপদ এবং নির্ভরযোগ্য।
           </p>
 
           {/* CTA Buttons */}
