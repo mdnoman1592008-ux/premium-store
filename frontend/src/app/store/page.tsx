@@ -1,6 +1,7 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { WeAccept } from '../../components/HomeSections';
 // App data with real brand colors & SVG icons
 const APP_DATA: Record<string, { bg: string; icon: React.ReactNode; desc: string }> = {
@@ -132,6 +133,15 @@ export default function StorePage() {
       });
   }, []);
 
+  const pathname = usePathname();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (pathname === '/search' && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [pathname]);
+
   const categories = ['all', 'AI Tools', 'Streaming', 'Design', 'Tools', 'VPN'];
   const filtered = apps.filter((app: any) => {
     const matchesCategory = filter === 'all' || app.category === filter;
@@ -142,19 +152,28 @@ export default function StorePage() {
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       {/* Page Header */}
-      <div style={{ textAlign: 'center', padding: '60px 20px 40px' }}>
-        <h1 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>
-          Our <span style={{ background: 'linear-gradient(90deg, #3b82f6 0%, #a855f7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block' }}>Premium</span> Store
-        </h1>
-        <p style={{ color: '#64748b', fontSize: '1.1rem' }}>
-          Choose from the most popular digital services
-        </p>
-      </div>
+      {pathname !== '/search' ? (
+        <div style={{ textAlign: 'center', padding: '60px 20px 40px' }}>
+          <h1 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>
+            Our <span style={{ background: 'linear-gradient(90deg, #3b82f6 0%, #a855f7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block' }}>Premium</span> Store
+          </h1>
+          <p style={{ color: '#64748b', fontSize: '1.1rem' }}>
+            Choose from the most popular digital services
+          </p>
+        </div>
+      ) : (
+        <div style={{ textAlign: 'center', padding: '40px 20px 20px' }}>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>
+            Search Apps
+          </h1>
+        </div>
+      )}
 
       {/* Search Bar */}
       <div className="container" style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px' }}>
         <div style={{ position: 'relative', width: '100%', maxWidth: '480px' }}>
           <input
+            ref={searchInputRef}
             type="text"
             placeholder="Search premium apps..."
             value={searchQuery}
