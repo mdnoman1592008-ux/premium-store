@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Admin from '../models/Admin';
 import User from '../models/User';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
 const generateToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET as string, { expiresIn: '30d' });
@@ -52,7 +53,9 @@ export const resetUserPassword = async (req: Request, res: Response) => {
       return;
     }
 
-    user.password = newPassword; // Will be hashed by pre-save hook in User model
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    
     await user.save();
     
     res.json({ message: 'Password reset successfully' });
