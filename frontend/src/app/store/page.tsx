@@ -246,7 +246,8 @@ export default function StorePage() {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '24px' }}>
             {filtered.map((app: any) => {
-              const appKey = app.appId?.toLowerCase() || app.appName?.toLowerCase();
+              const rawKey = app.appId?.toLowerCase() || app.appName?.toLowerCase() || '';
+              const appKey = rawKey.replace(/\s+/g, '');
               const appInfo = APP_DATA[appKey] || DEFAULT_APP;
               const inStock = app.inStock !== false; // Default to true if undefined
               return (
