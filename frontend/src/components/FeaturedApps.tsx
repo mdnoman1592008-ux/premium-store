@@ -121,7 +121,7 @@ const FeaturedApps = () => {
           </div>
         ) : (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '24px' }}>
+            <div className="app-grid">
               {apps.slice(0, 8).map((app: any) => {
                 const key = (app.appId || app.appName || '').toLowerCase();
                 const info = APP_DATA[key] || DEFAULT_APP;
@@ -129,75 +129,36 @@ const FeaturedApps = () => {
                 return (
                   <div
                     key={app._id}
-                    className="glass-card"
-                    style={{
-                      position: 'relative',
-                      padding: '32px 24px',
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-                    }}
+                    className="glass-card app-card"
                   >
                     {/* Stock Status Badge */}
-                    <div style={{
-                      position: 'absolute',
-                      top: '16px',
-                      right: '16px',
-                      padding: '6px 12px',
-                      borderRadius: '50px',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
+                    <div className="app-card-badge" style={{
                       background: inStock ? '#dcfce7' : '#fee2e2',
                       color: inStock ? '#16a34a' : '#ef4444',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
                       border: `1px solid ${inStock ? '#bbf7d0' : '#fecaca'}`
                     }}>
                       <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }}></span>
-                      {inStock ? 'In Stock' : 'Stock Out'}
+                      <span className="app-card-badge-text">{inStock ? 'In Stock' : 'Stock Out'}</span>
                     </div>
 
-                    <div style={{
-                      width: '90px', height: '90px', borderRadius: '24px',
-                      background: info.bg, marginBottom: '20px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      boxShadow: '0 10px 25px rgba(0,0,0,0.08)',
-                      overflow: 'hidden',
-                      marginTop: '8px'
-                    }}>
+                    <div className="app-card-icon" style={{ background: info.bg }}>
                       {info.icon}
                     </div>
-                    <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '8px', color: '#0f172a' }}>
+                    <h3 className="app-card-title">
                       {app.appName}
                     </h3>
-                    <div style={{ color: '#FBBF24', fontSize: '1.1rem', marginBottom: '12px', letterSpacing: '2px' }}>
+                    <div className="app-card-rating">
                       ★★★★★
                     </div>
-                    <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '24px', lineHeight: '1.5', flex: 1 }}>
+                    <p className="app-card-desc">
                       {info.desc}
                     </p>
                     <Link
                       href={`/store/${app.appId}`}
-                      style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                        width: '100%', padding: '14px 20px', textAlign: 'center',
-                        borderRadius: '50px',
-                        background: 'linear-gradient(90deg, #a855f7 0%, #3b82f6 100%)',
-                        color: 'white', fontWeight: 700, fontSize: '0.95rem',
-                        transition: 'all 0.25s ease', textDecoration: 'none',
-                        boxShadow: '0 4px 15px rgba(59, 130, 246, 0.2)',
-                        border: 'none',
-                      }}
-                      onMouseEnter={e => {
-                        (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)';
-                        (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(147, 51, 234, 0.35)';
-                      }}
-                      onMouseLeave={e => {
-                        (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-                        (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.2)';
-                      }}
+                      className="app-card-btn"
                     >
                       <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" style={{ flexShrink: 0 }}><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.06 1.35-2.45h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                      Buy Subscription
+                      <span>Buy Subscription</span>
                     </Link>
                   </div>
                 );

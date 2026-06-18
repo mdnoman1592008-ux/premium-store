@@ -389,4 +389,140 @@ button {
     font-size: 0.7rem;
     font-weight: 700;
   }
+/* App Grid & Cards for Mobile */
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.app-card {
+  position: relative;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+}
+
+.app-card-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 6px 12px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.app-card-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.app-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+}
+
+.app-card-rating {
+  color: #FBBF24;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  letter-spacing: 2px;
+}
+
+.app-card-desc {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.app-card-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  text-align: center;
+  border-radius: 50px;
+  background: linear-gradient(90deg, #a855f7 0%, #3b82f6 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+  border: none;
+}
+
+.app-card-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(147, 51, 234, 0.35);
+}
+
+@media (max-width: 640px) {
+  .app-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .app-card {
+    padding: 16px 12px;
+  }
+  .app-card-badge {
+    top: 8px;
+    right: 8px;
+    padding: 4px 6px;
+    font-size: 0.6rem;
+    gap: 4px;
+  }
+  .app-card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    margin-top: 4px;
+  }
+  .app-card-icon svg {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .app-card-title {
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+  }
+  .app-card-rating {
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .app-card-desc {
+    display: none;
+  }
+  .app-card-btn {
+    padding: 10px 8px;
+    font-size: 0.75rem;
+    gap: 4px;
+  }
+  .app-card-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
 }
