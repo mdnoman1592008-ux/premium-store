@@ -277,6 +277,18 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 "icon:claudemark|Memory that carries across conversations"
               ];
             }
+            let maxPlan = data.plans.find((p: any) => p.planName.toLowerCase().includes('max'));
+            if (!maxPlan && data.plans.length > 1) maxPlan = data.plans[1];
+            if (maxPlan) {
+              maxPlan.description = 'Higher limits, priority access';
+              maxPlan.features = [
+                "icon:claudemark|Up to 20x more usage than Pro*",
+                "icon:claudemark|Recommended for Claude Code & Cowork",
+                "icon:claudemark|Early access to advanced Claude features",
+                "icon:claudemark|Higher output limits for all tasks",
+                "icon:claudemark|Priority access at high traffic times"
+              ];
+            }
           } else if (data.appId?.toLowerCase() === 'grok' && data.plans) {
             let litePlan = data.plans.find((p: any) => p.planName.toLowerCase().includes('lite'));
             if (!litePlan && data.plans.length > 0) {
@@ -504,6 +516,10 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 {app.appId?.toLowerCase() === 'claude' && plan.planName.toLowerCase().includes('pro') ? (
                   <h4 style={{ fontSize: '0.95rem', fontWeight: 500, color: '#3f3f46', marginBottom: '12px', letterSpacing: '0.2px' }}>
                     Everything in Free and:
+                  </h4>
+                ) : app.appId?.toLowerCase() === 'claude' && plan.planName.toLowerCase().includes('max') ? (
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 500, color: '#3f3f46', marginBottom: '12px', letterSpacing: '0.2px' }}>
+                    Everything in Pro, plus:
                   </h4>
                 ) : app.appId?.toLowerCase() === 'chatgpt' && plan.planName.toLowerCase().includes('pro') ? (
                   <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: '#0f172a', marginBottom: '16px', letterSpacing: '0.2px' }}>
