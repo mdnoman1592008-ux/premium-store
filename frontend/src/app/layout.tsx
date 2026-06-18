@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import ClientLayoutWrapper from "../components/ClientLayoutWrapper";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,9 +31,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className} style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "#f8fafc" }}>
-        <Navbar />
-        <main style={{ flex: 1 }}>{children}</main>
-        <Footer />
+        <ClientLayoutWrapper>
+          {children}
+        </ClientLayoutWrapper>
       </body>
     </html>
   );

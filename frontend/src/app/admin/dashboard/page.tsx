@@ -37,109 +37,13 @@ export default function AdminDashboardPage() {
   }, [router]);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '60px 0 100px' }}>
-      <div className="container" style={{ maxWidth: '1000px' }}>
+    <div>
+      <div className="container" style={{ maxWidth: '1000px', width: '100%' }}>
         
-        {/* Header Section */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '48px', flexWrap: 'wrap', gap: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
           <div>
-            <div style={{ display: 'inline-flex', padding: '4px 12px', background: 'white', color: 'var(--primary)', border: '1px solid #e2e8f0', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
-              Management Portal
-            </div>
-            <h1 style={{ fontSize: '2.6rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Admin Dashboard</h1>
-          </div>
-          <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-            <Link 
-              href="/admin/orders" 
-              className="btn-secondary" 
-              style={{ 
-                padding: '12px 24px', 
-                borderRadius: '12px', 
-                fontWeight: 600, 
-                fontSize: '0.95rem',
-                border: '1.5px solid #cbd5e1',
-                background: 'white',
-                color: '#374151'
-              }}
-            >
-              Manage Orders
-            </Link>
-            <Link 
-              href="/admin/pricing" 
-              className="btn-secondary" 
-              style={{ 
-                padding: '12px 24px', 
-                borderRadius: '12px', 
-                fontWeight: 600, 
-                fontSize: '0.95rem',
-                border: '1.5px solid #cbd5e1',
-                background: 'white',
-                color: '#374151'
-              }}
-            >
-              Manage Pricing
-            </Link>
-            <Link 
-              href="/admin/coupons" 
-              className="btn-secondary" 
-              style={{ 
-                padding: '12px 24px', 
-                borderRadius: '12px', 
-                fontWeight: 600, 
-                fontSize: '0.95rem',
-                border: '1.5px solid #cbd5e1',
-                background: 'white',
-                color: '#374151'
-              }}
-            >
-              Manage Coupons
-            </Link>
-            <Link 
-              href="/admin/users" 
-              className="btn-secondary" 
-              style={{ 
-                padding: '12px 24px', 
-                borderRadius: '12px', 
-                fontWeight: 600, 
-                fontSize: '0.95rem',
-                border: '1.5px solid #cbd5e1',
-                background: 'white',
-                color: '#374151'
-              }}
-            >
-              Manage Users
-            </Link>
-            <Link 
-              href="/admin/payments" 
-              className="btn-secondary" 
-              style={{ 
-                padding: '12px 24px', 
-                borderRadius: '12px', 
-                fontWeight: 600, 
-                fontSize: '0.95rem',
-                border: '1.5px solid #cbd5e1',
-                background: 'white',
-                color: '#374151'
-              }}
-            >
-              Manage Payments
-            </Link>
-            <button 
-              onClick={() => { localStorage.removeItem('adminToken'); router.push('/admin/login'); }} 
-              className="btn-primary" 
-              style={{ 
-                background: '#ef4444', 
-                borderColor: '#ef4444',
-                color: 'white', 
-                padding: '12px 24px', 
-                borderRadius: '12px',
-                fontWeight: 600, 
-                fontSize: '0.95rem',
-                boxShadow: '0 4px 12px rgba(239,68,68,0.2)'
-              }}
-            >
-              Sign Out
-            </button>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Dashboard Overview</h1>
+            <p style={{ color: '#64748b', marginTop: '8px' }}>Welcome back, here is what's happening today.</p>
           </div>
         </div>
 

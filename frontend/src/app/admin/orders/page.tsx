@@ -63,32 +63,13 @@ export default function AdminOrdersPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '60px 0 100px' }}>
-      <div className="container" style={{ maxWidth: '1100px' }}>
+    <div>
+      <div className="container" style={{ maxWidth: '1100px', width: '100%' }}>
         
-        {/* Header Section */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
           <div>
-            <div style={{ display: 'inline-flex', padding: '4px 12px', background: 'white', color: 'var(--primary)', border: '1px solid #e2e8f0', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
-              Management Portal
-            </div>
-            <h1 style={{ fontSize: '2.6rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Order Management</h1>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Order Management</h1>
           </div>
-          <Link 
-            href="/admin/dashboard" 
-            className="btn-secondary" 
-            style={{ 
-              padding: '12px 24px', 
-              borderRadius: '12px', 
-              fontWeight: 600, 
-              fontSize: '0.95rem',
-              border: '1.5px solid #cbd5e1',
-              background: 'white',
-              color: '#374151'
-            }}
-          >
-            ← Back to Dashboard
-          </Link>
         </div>
 
         {/* Table/Cards Container */}

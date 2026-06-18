@@ -52,13 +52,10 @@ export default function PricingPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '40px 0 100px' }}>
-      <div className="container" style={{ maxWidth: '1000px' }}>
+    <div>
+      <div className="container" style={{ maxWidth: '1000px', width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
           <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a' }}>Manage Pricing</h1>
-          <Link href="/admin/dashboard" className="btn-secondary" style={{ padding: '10px 20px', borderRadius: '10px' }}>
-            Back to Dashboard
-          </Link>
         </div>
 
         {loading ? (
