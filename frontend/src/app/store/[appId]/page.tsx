@@ -198,6 +198,13 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 "Access Deep Research, video generation and more features | Get access to more advanced features like Deep Research and video generation"
               ];
             }
+            let plusPlan = data.plans.find((p: any) => p.planName.toLowerCase().includes('plus'));
+            if (plusPlan) {
+              plusPlan.features = [
+                "2x higher usage limits | Get usage limits that are 2x higher than without a Google AI plan",
+                "Access to our Flash Thinking model | Get the speed and intelligence of our Gemini 3 Flash Thinking model for complex problems"
+              ];
+            }
           }
           setApp(data);
         } else {
@@ -376,7 +383,7 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
               {app.appId?.toLowerCase() === 'gemini' && (
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#f1f5f9', padding: '6px 14px', borderRadius: '50px', fontSize: '0.85rem', fontWeight: 500, color: '#0f172a', marginBottom: '28px' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                  {plan.planName.toLowerCase().includes('ultra') ? '20 TB storage²' : '5 TB storage²'}
+                  {plan.planName.toLowerCase().includes('ultra') ? '20 TB storage²' : plan.planName.toLowerCase().includes('plus') ? '400 GB storage²' : '5 TB storage²'}
                 </div>
               )}
 
