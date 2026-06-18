@@ -242,6 +242,17 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 "icon:projects|Projects and custom GPTs"
               ];
             }
+            let proPlan = data.plans.find((p: any) => p.planName.toLowerCase().includes('pro'));
+            if (proPlan) {
+              proPlan.features = [
+                "icon:chart|5x or 20x more usage than Plus",
+                "icon:sparkles|Frontier Pro model",
+                "icon:smilebot|Maximum access to Codex",
+                "icon:projectsplus|Maximum deep research",
+                "icon:chatloop|Unlimited core chat",
+                "icon:imagesparkle|Unlimited and faster image creation"
+              ];
+            }
           }
           setApp(data);
         } else {
@@ -426,7 +437,11 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
 
               {/* Features List */}
               <div style={{ flex: 1, paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
-                {app.appId?.toLowerCase() === 'gemini' ? (
+                {app.appId?.toLowerCase() === 'chatgpt' && plan.planName.toLowerCase().includes('pro') ? (
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: '#0f172a', marginBottom: '16px', letterSpacing: '0.2px' }}>
+                    Everything in Plus and:
+                  </h4>
+                ) : app.appId?.toLowerCase() === 'gemini' ? (
                   <h4 style={{ fontSize: '1.25rem', fontWeight: 500, color: '#0f172a', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M12 0L14.4 9.6L24 12L14.4 14.4L12 24L9.6 14.4L0 12L9.6 9.6L12 0Z" fill="url(#sparkle-gradient)"/>
@@ -472,6 +487,11 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                   {iconName === 'bot' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>}
                   {iconName === 'telescope' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><path d="M22 12l-4-4-6 6 4 4 6-6zm-7-1l-3-3m-1 3l-3 3c-.4.4-1 .4-1.4 0l-1.6-1.6c-.4-.4-.4-1 0-1.4l3-3m-1 5l-2.5 2.5a2 2 0 102.8 2.8l2.5-2.5" /></svg>}
                   {iconName === 'projects' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14l6 6m0-6l-6 6"/></svg>}
+                  {iconName === 'chart' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>}
+                  {iconName === 'smilebot' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><circle cx="12" cy="12" r="10"/><path d="M8 10a2 2 0 0 1 2-2M14 10a2 2 0 0 1 2-2M8 16h8"/></svg>}
+                  {iconName === 'projectsplus' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M16 14v8M12 18h8"/></svg>}
+                  {iconName === 'chatloop' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/><path d="M8 10h8"/></svg>}
+                  {iconName === 'imagesparkle' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/><path d="M21 2l1 2 2 1-2 1-1 2-1-2-2-1 2-1z" strokeWidth="1.5"/></svg>}
                   {!hasIcon && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={app.appId?.toLowerCase() === 'gemini' ? '#334155' : 'var(--primary)'} strokeWidth={app.appId?.toLowerCase() === 'gemini' ? '2.5' : '3'} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>}
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <span style={{ fontWeight: desc ? 600 : 400, color: '#0f172a' }}>{title}</span>
