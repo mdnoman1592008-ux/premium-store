@@ -132,7 +132,7 @@ export default function StorePage() {
       });
   }, []);
 
-  const categories = ['all', 'AI Tools', 'Streaming', 'Design', 'Tools'];
+  const categories = ['all', 'AI Tools', 'Streaming', 'Design', 'Tools', 'VPN'];
   const filtered = apps.filter((app: any) => {
     const matchesCategory = filter === 'all' || app.category === filter;
     const matchesSearch = app.appName.toLowerCase().includes(searchQuery.toLowerCase());
