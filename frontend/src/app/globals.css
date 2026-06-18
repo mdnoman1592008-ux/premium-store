@@ -525,4 +525,14 @@ button {
     width: 14px !important;
     height: 14px !important;
   }
+  .desktop-btn-text {
+    display: none;
+  }
+  .mobile-btn-text {
+    display: inline;
+  }
+}
+
+.mobile-btn-text {
+  display: none;
 }
