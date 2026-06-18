@@ -4,6 +4,7 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import MobileBottomNav from './MobileBottomNav';
 
 export default function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -15,7 +16,12 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
       <main style={{ flex: 1 }}>
         {children}
       </main>
-      {!isAdminPath && <Footer />}
+      {!isAdminPath && (
+        <>
+          <Footer />
+          <MobileBottomNav />
+        </>
+      )}
     </>
   );
 }
