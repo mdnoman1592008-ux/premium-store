@@ -247,8 +247,26 @@ button {
   cursor: pointer;
   color: var(--text-dark);
 }
+
+.desktop-nav-menu {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 32px;
+}
+.desktop-nav-menu .nav-links-container {
+  display: flex;
+}
+.desktop-nav-menu .nav-auth-container {
+  display: flex;
+}
+
 /* --- RESPONSIVE UTILITIES --- */
 @media (max-width: 768px) {
+  .desktop-nav-menu {
+    display: none !important;
+  }
   .mobile-menu-btn {
     display: flex !important;
     align-items: center;
@@ -282,9 +300,21 @@ button {
     display: flex !important;
     background: white;
     flex-direction: column !important;
-    padding: 20px !important;
+    padding: 24px !important;
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     border-top: 1px solid #f1f5f9;
+  }
+  .mobile-nav-menu .nav-links-container {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    width: 100%;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 24px;
+  }
+  .mobile-nav-menu .nav-auth-container {
+    width: 100%;
+    justify-content: flex-start;
   }
   [data-theme='dark'] .mobile-nav-menu {
     background: var(--bg);

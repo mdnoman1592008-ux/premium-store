@@ -119,122 +119,122 @@ const Navbar = () => {
           </svg>
         </button>
 
-        {/* Menu Links */}
-        <div 
-          ref={containerRef}
-          className={isMobileMenuOpen ? 'mobile-nav-menu' : 'mobile-hidden'}
-          style={{ position: 'relative', display: 'flex', gap: '24px', alignItems: 'center', fontWeight: '500', fontSize: '0.9rem' }}
-        >
-          {[
-            { name: 'Home', href: '/' },
-            { name: 'Store', href: '/store' },
-            { name: 'My Orders', href: '/orders' },
-            { name: 'Contact', href: '/contact' },
-            { name: 'About Us', href: '/about' },
-          ].map(link => {
-            const isActive = link.href === '/' 
-              ? pathname === '/' 
-              : pathname?.startsWith(link.href);
-            return (
-              <Link
-                key={link.name}
-                href={link.href}
-                data-active={isActive ? "true" : "false"}
-                onClick={() => setIsMobileMenuOpen(false)}
-                style={{
-                  padding: '8px 0',
-                  color: isActive ? 'var(--primary)' : 'var(--text-dark)',
-                  textDecoration: 'none',
-                  transition: 'color 0.3s ease',
-                  width: '100%',
-                  textAlign: 'left',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {link.name}
-              </Link>
-            );
-          })}
-          {/* Sliding Underline Indicator (hidden on mobile) */}
-          <span
-            className="mobile-hidden"
-            style={{
-              position: 'absolute',
-              bottom: '-2px',
-              left: 0,
-              width: `${indicatorStyle.width}px`,
-              height: '3px',
-              background: 'var(--primary)',
-              borderRadius: '10px',
-              transform: `translateX(${indicatorStyle.left}px)`,
-              transition: 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), width 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease',
-              opacity: indicatorStyle.opacity,
-              pointerEvents: 'none',
-            }}
-          />
-        </div>
-        
-        {/* Authentication Actions */}
-        <div className={isMobileMenuOpen ? 'mobile-nav-menu' : 'mobile-hidden'} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {userToken ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <Link href="/profile" title="My Profile" style={{ display: 'flex', alignItems: 'center' }}>
-                {userProfile?.photo ? (
-                  <img 
-                    src={userProfile.photo.startsWith('http') ? userProfile.photo : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${userProfile.photo}`} 
-                    alt="Profile" 
-                    style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} 
-                  />
-                ) : (
-                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
-                  </div>
-                )}
-              </Link>
-              <button 
-                onClick={handleLogout} 
-                className="btn-secondary" 
-                style={{ padding: '8px 16px', fontSize: '0.85rem', border: '1.5px solid #cbd5e1', background: 'white', color: '#374151', borderRadius: '8px', cursor: 'pointer' }}
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Link 
-                href="/login" 
-                style={{ 
-                  padding: '8px 16px', 
-                  fontSize: '0.85rem', 
-                  fontWeight: 600, 
-                  color: 'var(--primary)', 
-                  border: '1.5px solid var(--primary)', 
-                  borderRadius: '8px', 
-                  textAlign: 'center',
-                  background: 'transparent'
-                }}
-              >
-                Login
-              </Link>
-              <Link 
-                href="/signup" 
-                className="btn-primary"
-                style={{ 
-                  padding: '8px 16px', 
-                  fontSize: '0.85rem', 
-                  fontWeight: 600, 
-                  borderRadius: '8px', 
-                  textAlign: 'center'
-                }}
-              >
-                Sign Up
-              </Link>
-            </div>
-          )}
-
-
+        <div className={isMobileMenuOpen ? 'mobile-nav-menu' : 'desktop-nav-menu'}>
+          {/* Menu Links */}
+          <div 
+            ref={containerRef}
+            className="nav-links-container"
+            style={{ position: 'relative', display: 'flex', gap: '24px', alignItems: 'center', fontWeight: '500', fontSize: '0.9rem' }}
+          >
+            {[
+              { name: 'Home', href: '/' },
+              { name: 'Store', href: '/store' },
+              { name: 'My Orders', href: '/orders' },
+              { name: 'Contact', href: '/contact' },
+              { name: 'About Us', href: '/about' },
+            ].map(link => {
+              const isActive = link.href === '/' 
+                ? pathname === '/' 
+                : pathname?.startsWith(link.href);
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  data-active={isActive ? "true" : "false"}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  style={{
+                    padding: '8px 0',
+                    color: isActive ? 'var(--primary)' : 'var(--text-dark)',
+                    textDecoration: 'none',
+                    transition: 'color 0.3s ease',
+                    width: '100%',
+                    textAlign: 'left',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
+            {/* Sliding Underline Indicator (hidden on mobile) */}
+            <span
+              className="mobile-hidden"
+              style={{
+                position: 'absolute',
+                bottom: '-2px',
+                left: 0,
+                width: `${indicatorStyle.width}px`,
+                height: '3px',
+                background: 'var(--primary)',
+                borderRadius: '10px',
+                transform: `translateX(${indicatorStyle.left}px)`,
+                transition: 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), width 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease',
+                opacity: indicatorStyle.opacity,
+                pointerEvents: 'none',
+              }}
+            />
+          </div>
+          
+          {/* Authentication Actions */}
+          <div className="nav-auth-container" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {userToken ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <Link href="/profile" title="My Profile" style={{ display: 'flex', alignItems: 'center' }}>
+                  {userProfile?.photo ? (
+                    <img 
+                      src={userProfile.photo.startsWith('http') ? userProfile.photo : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${userProfile.photo}`} 
+                      alt="Profile" 
+                      style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} 
+                    />
+                  ) : (
+                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                      </svg>
+                    </div>
+                  )}
+                </Link>
+                <button 
+                  onClick={handleLogout} 
+                  className="btn-secondary" 
+                  style={{ padding: '8px 16px', fontSize: '0.85rem', border: '1.5px solid #cbd5e1', background: 'white', color: '#374151', borderRadius: '8px', cursor: 'pointer' }}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Link 
+                  href="/login" 
+                  style={{ 
+                    padding: '8px 16px', 
+                    fontSize: '0.85rem', 
+                    fontWeight: 600, 
+                    color: 'var(--primary)', 
+                    border: '1.5px solid var(--primary)', 
+                    borderRadius: '8px', 
+                    textAlign: 'center',
+                    background: 'transparent'
+                  }}
+                >
+                  Login
+                </Link>
+                <Link 
+                  href="/signup" 
+                  className="btn-primary"
+                  style={{ 
+                    padding: '8px 16px', 
+                    fontSize: '0.85rem', 
+                    fontWeight: 600, 
+                    borderRadius: '8px', 
+                    textAlign: 'center'
+                  }}
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
 
       </div>
