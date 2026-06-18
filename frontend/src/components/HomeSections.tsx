@@ -68,34 +68,59 @@ const LATEST_ORDERS = [
   { app: 'YouTube', bg: '#FF0000', icon: <svg viewBox="0 0 24 24" fill="white" width="22" height="22"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg> },
   { app: 'Gemini', bg: 'linear-gradient(135deg,#4285F4,#9C27B0)', icon: <svg viewBox="0 0 24 24" fill="white" width="22" height="22"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5z"/></svg> },
   { app: 'Netflix', bg: '#E50914', icon: <svg viewBox="0 0 24 24" fill="white" width="22" height="22"><path d="M5.398 0v.006c3.028 8.556 5.37 15.175 8.348 23.596 2.344.058 4.85.398 4.854.398-2.8-7.924-5.923-16.747-8.487-24zm8.489 0v9.63L18.6 24c.557-.07 3.811-.298 4.387-.573zM.026 0l-.003 24 4.341-.032V0z"/></svg> },
+  { app: 'Canva', bg: '#00C4CC', icon: <div style={{ fontWeight: 800, fontSize: '18px', color: 'white', fontStyle: 'italic', letterSpacing: '-1px' }}>Canva</div> },
+  { app: 'Prime Video', bg: '#00A8E1', icon: <div style={{ fontWeight: 800, fontSize: '14px', color: 'white' }}>prime</div> },
+  { app: 'Surfshark', bg: '#00D1B2', icon: <div style={{ fontWeight: 800, fontSize: '18px', color: 'white' }}>S</div> },
+  { app: 'Cursor', bg: '#000000', icon: <div style={{ fontWeight: 800, fontSize: '16px', color: 'white' }}>&gt;_</div> },
 ];
 
-export const LatestOrders = () => (
-  <section className="container" style={{ padding: '0 0 60px' }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-      <h3 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>Latest Orders</h3>
-      <Link href="/orders" style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none' }}>View All Orders →</Link>
-    </div>
-    <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '8px' }}>
-      {LATEST_ORDERS.map((o, i) => (
-        <div key={i} style={{
-          background: 'white', borderRadius: '16px', padding: '16px 20px',
-          border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '14px', minWidth: '210px',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
-          flex: '0 0 auto',
-        }}>
-          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: o.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            {o.icon}
-          </div>
-          <div>
-            <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>{o.app}</h4>
-            <p style={{ fontSize: '0.8rem', margin: 0, color: '#10b981', fontWeight: 600 }}>✓ Delivered</p>
-          </div>
+export const LatestOrders = () => {
+  return (
+    <section className="container" style={{ padding: '0 0 60px' }}>
+      <style>{`
+        @keyframes autoScroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(calc(-50% - 8px)); }
+        }
+        .scroll-track:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h3 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>Latest Orders</h3>
+        <Link href="/orders" style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none' }}>View All Orders →</Link>
+      </div>
+      <div style={{ overflow: 'hidden', width: '100%', WebkitMaskImage: 'linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent)' }}>
+        <div 
+          className="scroll-track"
+          style={{ 
+            display: 'flex', 
+            gap: '16px', 
+            width: 'max-content',
+            animation: 'autoScroll 25s linear infinite'
+          }}
+        >
+          {[...LATEST_ORDERS, ...LATEST_ORDERS].map((o, i) => (
+            <div key={i} style={{
+              background: 'white', borderRadius: '16px', padding: '16px 20px',
+              border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '14px', minWidth: '210px',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+              flex: '0 0 auto',
+            }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: o.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                {o.icon}
+              </div>
+              <div>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>{o.app}</h4>
+                <p style={{ fontSize: '0.8rem', margin: 0, color: '#10b981', fontWeight: 600 }}>✓ Delivered</p>
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  </section>
-);
+      </div>
+    </section>
+  );
+};
 
 const REVIEWS = [
   { name: 'Sultana Yesmin', initial: 'S', color: '#1f2937', text: 'Thanks Premium Account Store for the instant delivery. Of course, I got the best service for being a regular customer.', designation: 'Housewife' },
