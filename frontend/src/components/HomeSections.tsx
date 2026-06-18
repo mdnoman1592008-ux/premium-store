@@ -3,76 +3,31 @@ import React from 'react';
 import Link from 'next/link';
 
 export const WeAccept = () => {
-  const methods = [
-    { name: 'bKash', img: '/bkash_logo.png' },
-    { name: 'Nagad', img: '/nagad_logo.png' },
-    { name: 'Rocket', img: '/rocket_logo.png' },
-    { name: 'Upay', img: '/upay_logo.png' },
-    { name: 'Cellfin', img: '/cellfin_logo.png' },
-    { name: 'VISA', isVisa: true },
-    { name: 'Mastercard', isMastercard: true }
-  ];
-
   return (
     <section className="container" style={{ padding: '20px 0 60px' }}>
       <div style={{
-        background: '#040b16',
-        borderRadius: '16px', 
-        padding: '36px 40px',
-        border: '1px solid rgba(59, 130, 246, 0.4)', 
-        boxShadow: '0 0 20px rgba(59, 130, 246, 0.15), inset 0 0 20px rgba(59, 130, 246, 0.05)',
         display: 'flex', 
-        flexDirection: 'column',
-        alignItems: 'center', 
-        position: 'relative',
-        overflow: 'hidden'
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        maxWidth: '1000px',
+        margin: '0 auto',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        boxShadow: '0 8px 32px rgba(59, 130, 246, 0.2)',
+        border: '1px solid rgba(59, 130, 246, 0.3)',
+        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
       }}>
-        {/* Top & Bottom glowing line decoration */}
-        <div style={{ position: 'absolute', top: 0, left: '25%', right: '25%', height: '2px', background: 'linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.8), transparent)' }}></div>
-        <div style={{ position: 'absolute', bottom: 0, left: '25%', right: '25%', height: '2px', background: 'linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.8), transparent)' }}></div>
-
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', justifyContent: 'center' }}>
-            <div style={{ height: '2px', width: '60px', background: 'linear-gradient(90deg, transparent, #3b82f6)' }}></div>
-            <h3 style={{ fontSize: '2.2rem', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '0.5px' }}>We Accept</h3>
-            <div style={{ height: '2px', width: '60px', background: 'linear-gradient(270deg, transparent, #3b82f6)' }}></div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center', marginTop: '8px' }}>
-            <div style={{ height: '1px', width: '40px', background: 'linear-gradient(90deg, transparent, #64748b)' }}></div>
-            <p style={{ fontSize: '1.05rem', margin: 0, color: '#cbd5e1' }}>All Major Payment Methods</p>
-            <div style={{ height: '1px', width: '40px', background: 'linear-gradient(270deg, transparent, #64748b)' }}></div>
-          </div>
-        </div>
-        
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', width: '100%' }}>
-          {methods.map(m => (
-            <div key={m.name} style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              background: 'white',
-              borderRadius: '12px',
-              width: '120px',
-              height: '70px',
-              padding: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
-            }}>
-              {m.isVisa ? (
-                <span style={{ fontWeight: 900, color: '#1A1F71', fontSize: '1.8rem', fontStyle: 'italic', letterSpacing: '-1px' }}>VISA</span>
-              ) : m.isMastercard ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', position: 'relative', width: '38px', height: '24px' }}>
-                    <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#EB001B', position: 'absolute', left: 0, mixBlendMode: 'multiply' }}></div>
-                    <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#FF5F00', position: 'absolute', right: 0, mixBlendMode: 'multiply' }}></div>
-                  </div>
-                  <span style={{ fontSize: '0.65rem', fontWeight: 600, color: '#111', marginTop: '2px' }}>mastercard</span>
-                </div>
-              ) : (
-                <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-              )}
-            </div>
-          ))}
-        </div>
+        <img 
+          src="/payment-banner.png" 
+          alt="We Accept All Major Payment Methods" 
+          style={{ 
+            width: '100%', 
+            height: 'auto', 
+            display: 'block', 
+            objectFit: 'contain'
+          }} 
+        />
       </div>
     </section>
   );
