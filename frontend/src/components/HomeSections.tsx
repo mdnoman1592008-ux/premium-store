@@ -101,42 +101,95 @@ const REVIEWS = [
   { name: 'Sultana Yesmin', initial: 'S', color: '#1f2937', text: 'Thanks Premium Account Store for the instant delivery. Of course, I got the best service for being a regular customer.', designation: 'Housewife' },
   { name: 'Ayesha Khan', initial: 'A', color: '#4b5563', text: '২য় বার Premium Account Store থেকে অর্ডার করলাম। আগের মতো এবারও দারুণ কোয়ালিটি আর দ্রুত ডেলিভারি পেয়েছি। একদম সন্তুষ্ট।', designation: 'Banker' },
   { name: 'Fariha Akter Tumpa', initial: 'F', color: '#111827', text: 'এই অবিশ্বাসের জগতে আস্থাশীল একটি প্রতিষ্ঠান Premium Account Store।', designation: 'Entrepreneur' },
+  { name: 'Rakib Hasan', initial: 'R', color: '#2563eb', text: 'অনেক ফাস্ট ডেলিভারি। আমি নেটফ্লিক্স নিয়েছি, সবকিছু ঠিকঠাক কাজ করছে। সাপোর্ট টিমও অনেক হেল্পফুল।', designation: 'Student' },
+  { name: 'Noman', initial: 'N', color: '#059669', text: 'Best service in Bangladesh! Highly recommended for all kinds of premium accounts.', designation: 'Freelancer' },
 ];
 
-export const CustomerReviews = () => (
-  <section style={{ background: '#faf9f6', padding: '60px 0', marginBottom: '60px' }}>
-    <div className="container">
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-        {REVIEWS.map((r, i) => (
-          <div key={i} style={{
-            background: 'white', 
-            borderRadius: '12px', 
-            padding: '28px',
-            border: '1px solid #e5e7eb',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
-          }}>
-            <p style={{ color: '#4b5563', fontSize: '1rem', lineHeight: 1.6, margin: '0 0 32px 0' }}>{r.text}</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: r.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: '1.2rem', flexShrink: 0 }}>{r.initial}</div>
-              <div>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 600, margin: 0, color: '#1f2937' }}>{r.name}</h4>
-                <p style={{ color: '#6b7280', fontSize: '0.85rem', margin: '4px 0 0' }}>{r.designation}</p>
+export const CustomerReviews = () => {
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [itemsPerView, setItemsPerView] = React.useState(3);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) setItemsPerView(1);
+      else if (window.innerWidth < 1024) setItemsPerView(2);
+      else setItemsPerView(3);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const maxIndex = Math.max(0, REVIEWS.length - itemsPerView);
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [maxIndex]);
+
+  const dots = Array.from({ length: maxIndex + 1 });
+
+  return (
+    <section style={{ background: '#faf9f6', padding: '60px 0', marginBottom: '60px' }}>
+      <div className="container" style={{ overflow: 'hidden' }}>
+        <div style={{ 
+          display: 'flex', 
+          transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)', 
+          transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
+          margin: '0 -12px'
+        }}>
+          {REVIEWS.map((r, i) => (
+            <div key={i} style={{
+              flex: `0 0 ${100 / itemsPerView}%`,
+              padding: '0 12px',
+              boxSizing: 'border-box'
+            }}>
+              <div style={{
+                background: 'white', 
+                borderRadius: '12px', 
+                padding: '28px',
+                border: '1px solid #e5e7eb',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+                height: '100%'
+              }}>
+                <p style={{ color: '#4b5563', fontSize: '1rem', lineHeight: 1.6, margin: '0 0 32px 0' }}>{r.text}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: r.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: '1.2rem', flexShrink: 0 }}>{r.initial}</div>
+                  <div>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 600, margin: 0, color: '#1f2937' }}>{r.name}</h4>
+                    <p style={{ color: '#6b7280', fontSize: '0.85rem', margin: '4px 0 0' }}>{r.designation}</p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '32px' }}>
+          {dots.map((_, i) => (
+            <div 
+              key={i} 
+              onClick={() => setCurrentIndex(i)}
+              style={{ 
+                width: '8px', 
+                height: '8px', 
+                borderRadius: '50%', 
+                cursor: 'pointer',
+                background: i === currentIndex ? '#f97316' : 'transparent',
+                border: '1px solid #f97316',
+                transition: 'all 0.3s ease'
+              }} 
+            />
+          ))}
+        </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '32px' }}>
-        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f97316' }}></div>
-        <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1px solid #f97316', background: 'transparent' }}></div>
-        <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1px solid #f97316', background: 'transparent' }}></div>
-      </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export const Newsletter = () => (
   <section className="container" style={{ padding: '0 0 80px' }}>
