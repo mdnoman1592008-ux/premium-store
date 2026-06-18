@@ -86,7 +86,7 @@ const Hero = () => {
 
           <h1 className="mobile-title-lg" style={{
             fontFamily: 'var(--font-noto-bengali), sans-serif',
-            fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+            fontSize: 'clamp(1.3rem, 6vw, 2.8rem)',
             lineHeight: 1.35, fontWeight: 800,
             color: '#0f172a', marginBottom: '24px',
             letterSpacing: '-0.5px'
@@ -97,7 +97,8 @@ const Hero = () => {
               WebkitBackgroundClip: 'text', 
               WebkitTextFillColor: 'transparent',
               display: 'inline-block',
-              paddingRight: '8px'
+              paddingRight: '8px',
+              marginTop: '4px'
             }}>Premium Subscription.</span>
           </h1>
 
