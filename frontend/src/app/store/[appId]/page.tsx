@@ -229,6 +229,19 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 return getOrder(aName) - getOrder(bName);
               });
             }
+          } else if (data.appId?.toLowerCase() === 'chatgpt' && data.plans) {
+            let plusPlan = data.plans.find((p: any) => p.planName.toLowerCase().includes('plus'));
+            if (!plusPlan && data.plans.length > 0) plusPlan = data.plans[0];
+            if (plusPlan) {
+              plusPlan.features = [
+                "icon:sparkles|Advanced models",
+                "icon:image|Advanced image creation with Thinking",
+                "icon:brain|Expanded memory across chats",
+                "icon:bot|Codex coding agent",
+                "icon:telescope|Expanded deep research",
+                "icon:projects|Projects and custom GPTs"
+              ];
+            }
           }
           setApp(data);
         } else {
@@ -435,12 +448,31 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 )}
                 <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {plan.features && plan.features.map((feature: string, j: number) => {
-              const parts = feature.split(' | ');
-              const title = parts[0];
-              const desc = parts.length > 1 ? parts.slice(1).join(' | ') : null;
+              const hasIcon = feature.startsWith('icon:');
+              let iconName = null;
+              let title = '';
+              let desc: string | null = null;
+              
+              if (hasIcon) {
+                const parts = feature.split('|');
+                iconName = parts[0].replace('icon:', '');
+                title = parts[1];
+                desc = parts.length > 2 ? parts.slice(2).join(' | ') : null;
+              } else {
+                const parts = feature.split(' | ');
+                title = parts[0];
+                desc = parts.length > 1 ? parts.slice(1).join(' | ') : null;
+              }
+
               return (
-                <li key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '0.95rem', color: '#475569' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={app.appId?.toLowerCase() === 'gemini' ? '#334155' : 'var(--primary)'} strokeWidth={app.appId?.toLowerCase() === 'gemini' ? '2.5' : '3'} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <li key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: hasIcon ? '14px' : '12px', fontSize: '0.95rem', color: '#475569' }}>
+                  {iconName === 'sparkles' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M19 14l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/></svg>}
+                  {iconName === 'image' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>}
+                  {iconName === 'brain' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><path d="M9.5 2c-1.38 0-2.5 1.12-2.5 2.5 0 .42.1.81.29 1.16C5.55 6.07 4 7.66 4 9.5 4 11.23 4.96 12.72 6.36 13.5c-.23.47-.36 1-.36 1.5 0 1.93 1.57 3.5 3.5 3.5.4 0 .78-.07 1.14-.19.64 1.25 1.95 2.19 3.36 2.19 1.41 0 2.72-.94 3.36-2.19.36.12.74.19 1.14.19 1.93 0 3.5-1.57 3.5-3.5 0-.5-.13-1.03-.36-1.5C23.04 12.72 24 11.23 24 9.5c0-1.84-1.55-3.43-3.29-3.84.19-.35.29-.74.29-1.16 0-1.38-1.12-2.5-2.5-2.5z"/></svg>}
+                  {iconName === 'bot' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>}
+                  {iconName === 'telescope' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><path d="M22 12l-4-4-6 6 4 4 6-6zm-7-1l-3-3m-1 3l-3 3c-.4.4-1 .4-1.4 0l-1.6-1.6c-.4-.4-.4-1 0-1.4l3-3m-1 5l-2.5 2.5a2 2 0 102.8 2.8l2.5-2.5" /></svg>}
+                  {iconName === 'projects' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px', color: '#1f2937' }}><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14l6 6m0-6l-6 6"/></svg>}
+                  {!hasIcon && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={app.appId?.toLowerCase() === 'gemini' ? '#334155' : 'var(--primary)'} strokeWidth={app.appId?.toLowerCase() === 'gemini' ? '2.5' : '3'} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>}
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <span style={{ fontWeight: desc ? 600 : 400, color: '#0f172a' }}>{title}</span>
                     {desc && <span style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '2px' }}>{desc}</span>}
