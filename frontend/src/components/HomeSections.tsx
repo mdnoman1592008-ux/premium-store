@@ -5,19 +5,28 @@ import Link from 'next/link';
 export const WeAccept = () => {
   return (
     <section className="container" style={{ padding: '20px 0 60px' }}>
-      <div style={{
-        display: 'flex', 
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%',
-        maxWidth: '1000px',
-        margin: '0 auto',
-        borderRadius: '16px',
-        overflow: 'hidden',
-        boxShadow: '0 8px 32px rgba(59, 130, 246, 0.2)',
-        border: '1px solid rgba(59, 130, 246, 0.3)',
-        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-      }}>
+      <div 
+        style={{
+          display: 'flex', 
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+          maxWidth: '1100px',
+          margin: '0 auto',
+          borderRadius: '24px',
+          overflow: 'hidden',
+          transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+          cursor: 'pointer'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.02) translateY(-5px)';
+          e.currentTarget.style.boxShadow = '0 25px 50px rgba(59, 130, 246, 0.25)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1) translateY(0)';
+          e.currentTarget.style.boxShadow = 'none';
+        }}
+      >
         <img 
           src="/payment-banner.png" 
           alt="We Accept All Major Payment Methods" 
@@ -25,7 +34,8 @@ export const WeAccept = () => {
             width: '100%', 
             height: 'auto', 
             display: 'block', 
-            objectFit: 'contain'
+            objectFit: 'cover',
+            borderRadius: '24px'
           }} 
         />
       </div>
