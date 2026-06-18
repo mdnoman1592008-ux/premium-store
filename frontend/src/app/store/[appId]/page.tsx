@@ -199,6 +199,15 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
               ];
             }
             let plusPlan = data.plans.find((p: any) => p.planName.toLowerCase().includes('plus'));
+            if (!plusPlan && data.plans.length > 0) {
+              plusPlan = {
+                planName: 'Google AI Plus',
+                description: 'Get more access to AI tools to boost your productivity and creativity¹',
+                durations: data.plans[0].durations,
+                features: []
+              };
+              data.plans.push(plusPlan);
+            }
             if (plusPlan) {
               plusPlan.features = [
                 "2x higher usage limits | Get usage limits that are 2x higher than without a Google AI plan",
