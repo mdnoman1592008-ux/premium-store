@@ -85,17 +85,27 @@ const Hero = () => {
           </div>
 
           <h1 className="mobile-title-lg" style={{
-            fontSize: 'clamp(2.2rem, 5vw, 3.5rem)',
-            lineHeight: 1.15, fontWeight: 800,
-            color: '#0f172a', marginBottom: '20px',
+            fontFamily: 'var(--font-noto-bengali), sans-serif',
+            fontSize: 'clamp(2rem, 4.5vw, 3.2rem)',
+            lineHeight: 1.35, fontWeight: 800,
+            color: '#0f172a', marginBottom: '24px',
+            letterSpacing: '-0.5px'
           }}>
             আপনার ডিজিটাল জীবনের জন্য<br />
-            <span style={{ color: 'var(--primary)' }}>প্রিমিয়াম অ্যাকাউন্টস</span>
+            <span style={{ 
+              background: 'linear-gradient(90deg, #2563eb 0%, #9333ea 100%)', 
+              WebkitBackgroundClip: 'text', 
+              WebkitTextFillColor: 'transparent',
+              display: 'inline-block',
+              paddingRight: '8px'
+            }}>প্রিমিয়াম অ্যাকাউন্টস</span>
           </h1>
 
           <p style={{
-            fontSize: '1.05rem', color: '#64748b',
-            marginBottom: '36px', lineHeight: 1.7, maxWidth: '480px',
+            fontFamily: 'var(--font-noto-bengali), sans-serif',
+            fontSize: '1.15rem', color: '#475569',
+            marginBottom: '40px', lineHeight: 1.8, maxWidth: '540px',
+            fontWeight: 500
           }}>
             সেরা দামে পান প্রিমিয়াম অ্যাকাউন্ট, সাবস্ক্রিপশন এবং ডিজিটাল সার্ভিস। 
             ফাস্ট ডেলিভারি, ১০০% নিরাপদ এবং নির্ভরযোগ্য।

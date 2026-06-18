@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -9,6 +9,14 @@ const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
+  variable: "--font-inter",
+});
+
+const notoSansBengali = Noto_Sans_Bengali({
+  subsets: ["bengali"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-noto-bengali",
 });
 
 export const metadata: Metadata = {
@@ -30,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className} style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "#f8fafc" }}>
+      <body className={`${inter.className} ${notoSansBengali.variable}`} style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "#f8fafc" }}>
         <ClientLayoutWrapper>
           {children}
         </ClientLayoutWrapper>
