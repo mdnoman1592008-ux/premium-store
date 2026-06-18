@@ -147,7 +147,8 @@ const Navbar = () => {
                   textDecoration: 'none',
                   transition: 'color 0.3s ease',
                   width: '100%',
-                  textAlign: 'left'
+                  textAlign: 'left',
+                  whiteSpace: 'nowrap'
                 }}
               >
                 {link.name}
