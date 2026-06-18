@@ -283,7 +283,7 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 "icon:grokarrow|Increased limits at regular speed"
               ];
             }
-            let grokPlan = data.plans.find((p: any) => p.planName.toLowerCase() === 'supergrok' || (p.planName.toLowerCase().includes('grok') && !p.planName.toLowerCase().includes('lite')));
+            let grokPlan = data.plans.find((p: any) => p.planName.toLowerCase() === 'supergrok' || (p.planName.toLowerCase().includes('grok') && !p.planName.toLowerCase().includes('lite') && !p.planName.toLowerCase().includes('heavy')));
             if (!grokPlan && data.plans.length > 1) grokPlan = data.plans[1];
             if (grokPlan) {
               grokPlan.features = [
@@ -292,6 +292,16 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 "icon:grokmedia|More usage, at lightning-fast speed | With HD 720p, 30-second video",
                 "icon:grokfile|Upload more files for smarter help",
                 "icon:groklightning|Lightning-fast replies"
+              ];
+            }
+            let heavyPlan = data.plans.find((p: any) => p.planName.toLowerCase().includes('heavy'));
+            if (heavyPlan) {
+              heavyPlan.features = [
+                "icon:groklogo|Everything in SuperGrok",
+                "icon:grokbrain|Solve extremely hard problems",
+                "icon:grokrocket|Highest usage limits",
+                "icon:grokagents|16x AI agents on Expert mode | Large team of AI agents collaborating to get you the best possible answers",
+                "icon:grokheart|Dedicated support & early access"
               ];
             }
           }
@@ -574,6 +584,21 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                   {iconName === 'groklightning' && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #e2e8f0', flexShrink: 0, marginTop: '-4px', background: '#ffffff' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#475569' }}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    </div>
+                  )}
+                  {iconName === 'groklogo' && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #e2e8f0', flexShrink: 0, marginTop: '-4px', background: '#ffffff' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#475569' }}><circle cx="12" cy="12" r="8"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+                    </div>
+                  )}
+                  {iconName === 'grokagents' && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #e2e8f0', flexShrink: 0, marginTop: '-4px', background: '#ffffff' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#475569' }}><circle cx="9" cy="12" r="7"/><circle cx="17" cy="12" r="5"/><circle cx="7" cy="12" r="1" fill="currentColor"/><circle cx="11" cy="12" r="1" fill="currentColor"/></svg>
+                    </div>
+                  )}
+                  {iconName === 'grokheart' && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid #e2e8f0', flexShrink: 0, marginTop: '-4px', background: '#ffffff' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#475569' }}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     </div>
                   )}
                   {!hasIcon && app.appId?.toLowerCase() !== 'spotify' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={app.appId?.toLowerCase() === 'gemini' ? '#334155' : 'var(--primary)'} strokeWidth={app.appId?.toLowerCase() === 'gemini' ? '2.5' : '3'} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>}
