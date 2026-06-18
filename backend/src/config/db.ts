@@ -1,13 +1,4 @@
 import mongoose from 'mongoose';
-import dns from 'dns';
-
-// Force public DNS resolution to prevent local SRV query failures (querySrv ECONNREFUSED) in Node.js
-try {
-  dns.setServers(['8.8.8.8', '1.1.1.1']);
-} catch (error) {
-  console.warn('Failed to set custom DNS servers:', error);
-}
-// Removed custom DNS to allow default system resolution
 
 const connectDB = async () => {
   try {
