@@ -180,6 +180,17 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
       })
       .then(data => {
         if (data && !data.message) {
+          if (data.appId?.toLowerCase() === 'gemini' && data.plans) {
+            let ultraPlan = data.plans.find((p: any) => p.planName.toLowerCase().includes('ultra'));
+            if (!ultraPlan && data.plans.length > 0) ultraPlan = data.plans[0];
+            if (ultraPlan) {
+              ultraPlan.features = [
+                "5x higher usage limits than Pro plan | Get usage limits that are 5x higher than the Google AI Pro plan",
+                "Higher access to our Pro model | Get the advanced reasoning of our Gemini 3 Pro model for complex maths and coding problems",
+                "Access Deep Think and more features | Get access to our most advanced features like Deep Think"
+              ];
+            }
+          }
           setApp(data);
         } else {
           // fallback to client static data if not found in backend response
@@ -307,21 +318,23 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 background: 'white', 
                 borderRadius: '24px', 
                 padding: '40px 32px', 
-                border: '1px solid #f1f5f9',
-                boxShadow: '0 4px 24px rgba(0,0,0,0.03)',
+                border: '1.5px solid rgba(59, 130, 246, 0.4)',
+                boxShadow: '0 0 15px rgba(59, 130, 246, 0.15)',
                 display: 'flex', 
                 flexDirection: 'column',
-                transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                transition: 'transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease',
                 cursor: 'pointer',
                 position: 'relative'
               }}
               onMouseEnter={e => {
                 (e.currentTarget as HTMLElement).style.transform = 'translateY(-6px)';
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 20px 40px rgba(37,99,235,0.08)';
+                (e.currentTarget as HTMLElement).style.boxShadow = '0 0 25px rgba(59, 130, 246, 0.3)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(59, 130, 246, 0.7)';
               }}
               onMouseLeave={e => {
                 (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 24px rgba(0,0,0,0.03)';
+                (e.currentTarget as HTMLElement).style.boxShadow = '0 0 15px rgba(59, 130, 246, 0.15)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(59, 130, 246, 0.4)';
               }}
             >
               {/* Popular Tag (for the first plan if multiple, or for premium design look) */}
@@ -355,12 +368,20 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                   What is included:
                 </h4>
                 <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {plan.features && plan.features.map((feature: string, j: number) => (
-                    <li key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '0.95rem', color: '#475569' }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>
-                      <span>{feature}</span>
-                    </li>
-                  ))}
+            {plan.features && plan.features.map((feature: string, j: number) => {
+              const parts = feature.split(' | ');
+              const title = parts[0];
+              const desc = parts.length > 1 ? parts.slice(1).join(' | ') : null;
+              return (
+                <li key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '0.95rem', color: '#475569' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: desc ? 600 : 400, color: '#0f172a' }}>{title}</span>
+                    {desc && <span style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '2px' }}>{desc}</span>}
+                  </div>
+                </li>
+              );
+            })}
                 </ul>
               </div>
 
