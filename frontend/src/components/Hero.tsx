@@ -86,19 +86,19 @@ const Hero = () => {
 
           <h1 className="mobile-title-lg" style={{
             fontFamily: 'var(--font-noto-bengali), sans-serif',
-            fontSize: 'clamp(2rem, 4.5vw, 3.2rem)',
+            fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
             lineHeight: 1.35, fontWeight: 800,
             color: '#0f172a', marginBottom: '24px',
             letterSpacing: '-0.5px'
           }}>
-            আপনার ডিজিটাল জীবনের জন্য<br />
+            🚀 মার্কেটের সবচেয়ে কম দামে<br />
             <span style={{ 
               background: 'linear-gradient(90deg, #2563eb 0%, #9333ea 100%)', 
               WebkitBackgroundClip: 'text', 
               WebkitTextFillColor: 'transparent',
               display: 'inline-block',
               paddingRight: '8px'
-            }}>প্রিমিয়াম অ্যাকাউন্টস</span>
+            }}>Premium Subscription.</span>
           </h1>
 
           <p style={{
