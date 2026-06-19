@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import connectDB from './config/db';
+import Admin from './models/Admin';
 import {
   connectWhatsApp,
   disconnectWhatsApp,
@@ -47,6 +48,28 @@ const adminProtect = (req: any, res: any, next: any) => {
     res.status(401).json({ message: 'Not authorized, no token provided' });
   }
 };
+
+// --- AI Agent Admin Login (independent from backend JWT) ---
+// Public endpoint: admin logs in here to get an ai-agent specific JWT
+app.post('/api/agent/admin/login', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    res.status(400).json({ message: 'Username and password required' });
+    return;
+  }
+  try {
+    const admin = await Admin.findOne({ username });
+    if (admin && await (admin as any).matchPassword(password)) {
+      const secret = process.env.JWT_SECRET || 'supersecretjwtkey123';
+      const token = jwt.sign({ id: (admin as any)._id }, secret, { expiresIn: '30d' });
+      res.json({ token, username: admin.username });
+    } else {
+      res.status(401).json({ message: 'Invalid username or password' });
+    }
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // --- WhatsApp Admin Endpoints ---
 

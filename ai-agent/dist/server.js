@@ -8,6 +8,7 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const db_1 = __importDefault(require("./config/db"));
+const Admin_1 = __importDefault(require("./models/Admin"));
 const whatsapp_1 = require("./services/whatsapp");
 const facebook_1 = require("./services/facebook");
 const gemini_1 = require("./services/gemini");
@@ -40,6 +41,29 @@ const adminProtect = (req, res, next) => {
         res.status(401).json({ message: 'Not authorized, no token provided' });
     }
 };
+// --- AI Agent Admin Login (independent from backend JWT) ---
+// Public endpoint: admin logs in here to get an ai-agent specific JWT
+app.post('/api/agent/admin/login', async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        res.status(400).json({ message: 'Username and password required' });
+        return;
+    }
+    try {
+        const admin = await Admin_1.default.findOne({ username });
+        if (admin && await admin.matchPassword(password)) {
+            const secret = process.env.JWT_SECRET || 'supersecretjwtkey123';
+            const token = jsonwebtoken_1.default.sign({ id: admin._id }, secret, { expiresIn: '30d' });
+            res.json({ token, username: admin.username });
+        }
+        else {
+            res.status(401).json({ message: 'Invalid username or password' });
+        }
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 // --- WhatsApp Admin Endpoints ---
 // Get current WhatsApp JID connection status and QR code
 app.get('/api/agent/whatsapp/status', adminProtect, (req, res) => {
