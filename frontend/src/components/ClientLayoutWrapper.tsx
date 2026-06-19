@@ -9,6 +9,7 @@ import MobileBottomNav from './MobileBottomNav';
 export default function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdminPath = pathname?.startsWith('/admin');
+  const isCheckoutPath = pathname?.startsWith('/checkout');
 
   return (
     <>
@@ -16,7 +17,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
       <main style={{ flex: 1 }}>
         {children}
       </main>
-      {!isAdminPath && (
+      {!isAdminPath && !isCheckoutPath && (
         <>
           <Footer />
           <MobileBottomNav />
