@@ -64,7 +64,42 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
   const [transactionId, setTransactionId] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
-  
+  const [lang, setLang] = useState<'bn' | 'en'>('bn');
+
+  const translations = {
+    bn: {
+      transactionIdLabel: "ট্রানজেকশন আইডি দিন",
+      instruction1: (ussd: string, method: string) => `${ussd} ডায়াল করে আপনার ${method} মোবাইল মেনুতে যান অথবা ${method} অ্যাপে যান।`,
+      instruction2: '"Send Money" -এ ক্লিক করুন।',
+      instruction3: 'প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুনঃ',
+      instruction4: 'টাকার পরিমাণঃ',
+      instruction5: (method: string) => `নিশ্চিত করতে এখন আপনার ${method} মোবাইল মেনু পিন লিখুন।`,
+      instruction6: (method: string) => `সবকিছু ঠিক থাকলে, আপনি ${method} থেকে একটি নিশ্চিতকরণ বার্তা পাবেন।`,
+      instruction71: 'এখন উপরের বক্সে আপনার',
+      instruction72: 'দিন এবং নিচের',
+      instruction73: 'বাটনে ক্লিক করুন।',
+      invoice: 'ইনভয়েস আইডিঃ',
+      verify: 'VERIFY',
+      verifying: 'VERIFYING...'
+    },
+    en: {
+      transactionIdLabel: "Enter Transaction ID",
+      instruction1: (ussd: string, method: string) => `Dial ${ussd} to go to your ${method} mobile menu or go to the ${method} app.`,
+      instruction2: 'Click on "Send Money".',
+      instruction3: 'Enter this number as receiver:',
+      instruction4: 'Amount:',
+      instruction5: (method: string) => `Now enter your ${method} mobile menu PIN to confirm.`,
+      instruction6: (method: string) => `If everything is okay, you will receive a confirmation message from ${method}.`,
+      instruction71: 'Now enter your',
+      instruction72: 'in the box above and click the',
+      instruction73: 'button below.',
+      invoice: 'Invoice ID:',
+      verify: 'VERIFY',
+      verifying: 'VERIFYING...'
+    }
+  };
+
+  const t = translations[lang];
   const [invoiceId, setInvoiceId] = useState('');
 
   useEffect(() => {
@@ -218,9 +253,14 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
               <circle cx="12" cy="12" r="10"/><polyline points="12 8 8 12 12 16"/><line x1="16" y1="12" x2="8" y2="12"/>
             </svg>
           </Link>
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8l6 6" /><path d="M4 14l6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" /><path d="M22 22l-5-10-5 10" /><path d="M14 18h6" /></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <button onClick={() => setLang(l => l === 'bn' ? 'en' : 'bn')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.9rem', fontWeight: 600 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8l6 6" /><path d="M4 14l6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" /><path d="M22 22l-5-10-5 10" /><path d="M14 18h6" /></svg>
+              {lang === 'bn' ? 'EN' : 'বাং'}
+            </button>
+            <button onClick={() => router.push('/store')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
           </div>
         </div>
 
@@ -268,7 +308,7 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
               </div>
               <div>
                 <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#334155', margin: '0 0 4px 0' }}>PREMIUMACCCOUNTSSTORE.COM</h3>
-                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '2px' }}>ইনভয়েস আইডিঃ</div>
+                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '2px' }}>{t.invoice}</div>
                 <div style={{ fontSize: '0.9rem', color: '#64748b' }}>{invoiceId}</div>
               </div>
             </div>
@@ -279,7 +319,7 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
 
           {/* Instruction Block */}
           <div style={{ background: brandColor, borderRadius: '8px', padding: '24px', color: 'white', marginBottom: '16px' }}>
-            <h3 style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 16px 0' }}>ট্রানজেকশন আইডি দিন</h3>
+            <h3 style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 16px 0' }}>{t.transactionIdLabel}</h3>
             
             <form id="payment-form" onSubmit={handleSubmit}>
               <input 
@@ -287,7 +327,7 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
                 required 
                 value={transactionId} 
                 onChange={e => setTransactionId(e.target.value)} 
-                placeholder="ট্রানজেকশন আইডি দিন" 
+                placeholder={t.transactionIdLabel}
                 style={{ 
                   width: '100%', 
                   padding: '14px', 
@@ -304,16 +344,16 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
             <ul style={{ listStyleType: 'none', padding: 0, margin: 0, fontSize: '0.9rem', lineHeight: '1.6', opacity: 0.95 }}>
               <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', borderTop: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
                 <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
-                <span>{getUSSDCode(params.method)} ডায়াল করে আপনার {methodUpper} মোবাইল মেনুতে যান অথবা {methodUpper} অ্যাপে যান।</span>
+                <span>{t.instruction1(getUSSDCode(params.method), methodUpper)}</span>
               </li>
               <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
                 <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
-                <span><strong style={{ color: '#facc15' }}>"Send Money"</strong> -এ ক্লিক করুন।</span>
+                <span><strong style={{ color: '#facc15' }}>{t.instruction2}</strong></span>
               </li>
               <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
                 <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
                 <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '12px' }}>
-                  <span style={{ whiteSpace: 'nowrap' }}>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুনঃ <strong style={{ color: '#facc15', fontSize: '1.1rem', letterSpacing: '1px' }}>{number}</strong></span>
+                  <span style={{ whiteSpace: 'nowrap' }}>{t.instruction3} <strong style={{ color: '#facc15', fontSize: '1.1rem', letterSpacing: '1px' }}>{number}</strong></span>
                   <button 
                     type="button"
                     onClick={handleCopy} 
@@ -337,19 +377,19 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
               </li>
               <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
                 <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
-                <span>টাকার পরিমাণঃ <strong style={{ color: '#facc15', fontSize: '1.1rem' }}>{finalPrice}</strong></span>
+                <span>{t.instruction4} <strong style={{ color: '#facc15', fontSize: '1.1rem' }}>{finalPrice}</strong></span>
               </li>
               <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
                 <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
-                <span>নিশ্চিত করতে এখন আপনার {methodUpper} মোবাইল মেনু পিন লিখুন।</span>
+                <span>{t.instruction5(methodUpper)}</span>
               </li>
               <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
                 <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
-                <span>সবকিছু ঠিক থাকলে, আপনি {methodUpper} থেকে একটি নিশ্চিতকরণ বার্তা পাবেন।</span>
+                <span>{t.instruction6(methodUpper)}</span>
               </li>
               <li style={{ padding: '16px 0', display: 'flex', alignItems: 'flex-start' }}>
                 <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
-                <span>এখন উপরের বক্সে আপনার <strong style={{ color: '#facc15' }}>Transaction ID</strong> দিন এবং নিচের <strong style={{ color: '#facc15' }}>VERIFY</strong> বাটনে ক্লিক করুন।</span>
+                <span>{t.instruction71} <strong style={{ color: '#facc15' }}>Transaction ID</strong> {t.instruction72} <strong style={{ color: '#facc15' }}>VERIFY</strong> {t.instruction73}</span>
               </li>
             </ul>
           </div>
@@ -373,7 +413,7 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
               opacity: submitting ? 0.7 : 1
             }}
           >
-            {submitting ? 'VERIFYING...' : 'VERIFY'}
+            {submitting ? t.verifying : t.verify}
           </button>
 
         </div>
