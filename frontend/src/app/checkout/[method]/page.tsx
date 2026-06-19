@@ -307,32 +307,45 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ 
-                width: '40px', 
-                height: '40px', 
+                width: '44px', 
+                height: '44px', 
                 background: '#000', 
                 borderRadius: '8px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
                 overflow: 'hidden',
-                border: '1px solid #334155'
+                border: '1px solid #334155',
+                marginRight: '12px',
+                flexShrink: 0
               }}>
-                <div style={{
-                  width: '30px',
-                  height: '30px',
-                  borderRadius: '50%',
-                  border: '1.5px solid #fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: '#ef4444', fontWeight: 900, fontSize: '1.1rem', fontFamily: 'system-ui' }}>U</span>
-                </div>
+                <svg width="28" height="28" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="logo-grad-mob1" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#3b82f6"/>
+                      <stop offset="1" stopColor="#8b5cf6"/>
+                    </linearGradient>
+                    <linearGradient id="logo-grad-mob2" x1="44" y1="0" x2="0" y2="44" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#60a5fa"/>
+                      <stop offset="1" stopColor="#a855f7"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M22 2L40 12.3V31.7L22 42L4 31.7V12.3L22 2Z" fill="url(#logo-grad-mob1)" opacity="0.15"/>
+                  <path d="M22 7L35 14.5V29.5L22 37L9 29.5V14.5L22 7Z" fill="url(#logo-grad-mob2)"/>
+                  <path d="M22 7L35 14.5V29.5L22 22V7Z" fill="#2563eb" opacity="0.5"/>
+                  <path d="M22 22L35 14.5L22 7L9 14.5L22 22Z" fill="#ffffff" opacity="0.25"/>
+                  <path d="M22 22L9 14.5V29.5L22 37V22Z" fill="#7c3aed" opacity="0.7"/>
+                  <path d="M22 15L23.8 19.2L28 21L23.8 22.8L22 27L20.2 22.8L16 21L20.2 19.2L22 15Z" fill="#ffffff"/>
+                </svg>
               </div>
               <div>
-                <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#334155', margin: '0 0 2px 0' }}>UIDTOPUP.COM</h3>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{t.invoice}</div>
-                <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{invoiceId}</div>
+                <h3 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#6d7f9a', margin: '0 0 2px 0' }}>PREMIUMACCOUNTSSTORE.COM</h3>
+                <div style={{ fontSize: '0.75rem', color: '#94a9c7', marginTop: '2px' }}>
+                  {t.invoice}{' '}
+                  <span style={{ fontSize: '0.8rem', color: '#6d7f9a', fontWeight: 600 }}>
+                    {invoiceId}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -539,7 +552,7 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
                 </svg>
               </div>
               <div>
-                <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#334155', margin: '0 0 4px 0' }}>PREMIUMACCCOUNTSSTORE.COM</h3>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#334155', margin: '0 0 4px 0' }}>PREMIUMACCOUNTSSTORE.COM</h3>
                 <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '2px' }}>{t.invoice}</div>
                 <div style={{ fontSize: '0.9rem', color: '#64748b' }}>{invoiceId}</div>
               </div>

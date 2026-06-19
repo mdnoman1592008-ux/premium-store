@@ -198,7 +198,7 @@ export default function PaymentMethodPage() {
               </svg>
             </div>
             
-            <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#334155', margin: '0 0 12px 0', textTransform: 'uppercase' }}>PREMIUMACCCOUNTSSTORE.COM</h2>
+            <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#334155', margin: '0 0 12px 0', textTransform: 'uppercase' }}>PREMIUMACCOUNTSSTORE.COM</h2>
             
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', width: '40px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#64748b' }}>
