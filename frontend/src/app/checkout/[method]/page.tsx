@@ -65,6 +65,16 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [lang, setLang] = useState<'bn' | 'en'>('bn');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }
+  }, []);
 
   const translations = {
     bn: {
@@ -230,72 +240,53 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
     }
   };
 
-  return (
-    <div style={{ 
-      height: '100dvh', 
-      maxHeight: '100dvh',
-      overflow: 'hidden',
-      background: '#f8fafc', 
-      backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z\' fill=\'%23e2e8f0\' fill-opacity=\'0.2\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
-      display: 'flex', 
-      justifyContent: 'center' 
-    }}>
+  if (isMobile) {
+    return (
       <div style={{ 
-        width: '100%', 
-        maxWidth: '500px', 
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        height: '100%',
-        maxHeight: '100%',
-        overflow: 'hidden'
+        minHeight: '100vh', 
+        background: '#f8fafc', 
+        backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z\' fill=\'%23e2e8f0\' fill-opacity=\'0.2\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
+        display: 'flex', 
+        justifyContent: 'center',
+        padding: '12px 16px'
       }}>
-        {/* Floating Header */}
         <div style={{ 
-          background: 'white', 
-          borderRadius: '12px', 
-          margin: '12px 12px 16px 12px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'space-between', 
-          padding: '10px 14px' 
-        }}>
-          <button
-            onClick={() => router.push('/checkout/payment')}
-            title="Back"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', color: '#64748b' }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 8 8 12 12 16"/><line x1="16" y1="12" x2="8" y2="12"/>
-            </svg>
-          </button>
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-            <button onClick={() => setLang(l => l === 'bn' ? 'en' : 'bn')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: 700 }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8l6 6" /><path d="M4 14l6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" /><path d="M22 22l-5-10-5 10" /><path d="M14 18h6" /></svg>
-              <span>{lang === 'bn' ? 'EN' : 'বাং'}</span>
-            </button>
-            <button onClick={() => router.push('/store')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-            </button>
-          </div>
-        </div>
-
-        <div style={{ 
-          padding: '0 16px', 
-          flex: 1, 
-          display: 'flex', 
+          width: '100%', 
+          maxWidth: '500px', 
+          display: 'flex',
           flexDirection: 'column',
-          overflowY: 'auto',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none'
+          position: 'relative'
         }}>
-          {/* Webkit hide scrollbar */}
-          <style dangerouslySetInnerHTML={{__html: `
-            div::-webkit-scrollbar {
-              display: none;
-            }
-          `}} />
+          {/* Floating Header */}
+          <div style={{ 
+            background: 'white', 
+            borderRadius: '12px', 
+            margin: '0 0 16px 0',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            padding: '10px 14px' 
+          }}>
+            <button
+              onClick={() => router.push('/checkout/payment')}
+              title="Back"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', color: '#64748b' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 8 8 12 12 16"/><line x1="16" y1="12" x2="8" y2="12"/>
+              </svg>
+            </button>
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+              <button onClick={() => setLang(l => l === 'bn' ? 'en' : 'bn')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: 700 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8l6 6" /><path d="M4 14l6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" /><path d="M22 22l-5-10-5 10" /><path d="M14 18h6" /></svg>
+                <span>{lang === 'bn' ? 'EN' : 'বাং'}</span>
+              </button>
+              <button onClick={() => router.push('/store')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+          </div>
 
           {/* Method Logo */}
           <div style={{ display: 'flex', justifyContent: 'center', margin: '8px 0 16px 0' }}>
@@ -333,7 +324,7 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
                   border: '1.5px solid #fff',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
+                  justifyContent: 'center'
                 }}>
                   <span style={{ color: '#ef4444', fontWeight: 900, fontSize: '1.1rem', fontFamily: 'system-ui' }}>U</span>
                 </div>
@@ -366,7 +357,7 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
           <div style={{ background: brandColor, borderRadius: '12px', padding: '16px 20px', color: 'white', marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
             <h3 style={{ textAlign: 'center', fontSize: '1rem', fontWeight: 700, margin: '0 0 12px 0' }}>{t.transactionIdLabel}</h3>
             
-            <form id="payment-form" onSubmit={handleSubmit}>
+            <form id="payment-form-mobile" onSubmit={handleSubmit}>
               <input 
                 type="text" 
                 required 
@@ -442,12 +433,9 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
             </ul>
           </div>
 
-        </div>
-
-        {/* Fixed Bottom Verify Button */}
-        <div style={{ marginTop: 'auto', paddingBottom: '0' }}>
+          {/* VERIFY Button inside scrollable flow */}
           <button 
-            form="payment-form"
+            form="payment-form-mobile"
             type="submit" 
             disabled={submitting} 
             style={{ 
@@ -455,14 +443,209 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
               background: brandColor, 
               color: 'white', 
               border: 'none', 
-              padding: '20px 16px', 
-              borderRadius: '20px 20px 0 0', 
-              fontSize: '1.2rem', 
+              padding: '16px', 
+              borderRadius: '12px', 
+              fontSize: '1.1rem', 
               fontWeight: 800, 
               cursor: 'pointer',
               transition: 'opacity 0.2s ease',
               opacity: submitting ? 0.7 : 1,
-              textAlign: 'center'
+              textAlign: 'center',
+              marginBottom: '32px'
+            }}
+          >
+            {submitting ? t.verifying : t.verify}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Original Desktop Layout
+  return (
+    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '60px 20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ 
+        background: 'white', 
+        width: '100%', 
+        maxWidth: '720px', 
+        borderRadius: '12px', 
+        boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+        overflow: 'hidden'
+      }}>
+        {/* Browser-like Header */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          padding: '12px 16px', 
+          borderBottom: '1px solid #f1f5f9' 
+        }}>
+          <Link href="/checkout/payment" style={{ color: '#64748b' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 8 8 12 12 16"/><line x1="16" y1="12" x2="8" y2="12"/>
+            </svg>
+          </Link>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <button onClick={() => setLang(l => l === 'bn' ? 'en' : 'bn')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.9rem', fontWeight: 600 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8l6 6" /><path d="M4 14l6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" /><path d="M22 22l-5-10-5 10" /><path d="M14 18h6" /></svg>
+              {lang === 'bn' ? 'EN' : 'বাং'}
+            </button>
+            <button onClick={() => router.push('/store')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <div style={{ padding: '32px' }}>
+          {/* Method Logo */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+            <img src={getMethodLogo(params.method)} alt={params.method} style={{ height: '50px', objectFit: 'contain' }} />
+          </div>
+
+          {/* Invoice Summary Box */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            border: '1px solid #e2e8f0', 
+            borderRadius: '8px', 
+            padding: '16px', 
+            marginBottom: '24px' 
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px' }}>
+                <svg width="48" height="48" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="logo-grad1" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#3b82f6"/>
+                      <stop offset="1" stopColor="#8b5cf6"/>
+                    </linearGradient>
+                    <linearGradient id="logo-grad2" x1="44" y1="0" x2="0" y2="44" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#60a5fa"/>
+                      <stop offset="1" stopColor="#a855f7"/>
+                    </linearGradient>
+                    <filter id="logo-glow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feGaussianBlur stdDeviation="2" result="blur" />
+                      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                  </defs>
+                  <path d="M22 2L40 12.3V31.7L22 42L4 31.7V12.3L22 2Z" fill="url(#logo-grad1)" opacity="0.15"/>
+                  <path d="M22 7L35 14.5V29.5L22 37L9 29.5V14.5L22 7Z" fill="url(#logo-grad2)"/>
+                  <path d="M22 7L35 14.5V29.5L22 22V7Z" fill="#2563eb" opacity="0.5"/>
+                  <path d="M22 22L35 14.5L22 7L9 14.5L22 22Z" fill="#ffffff" opacity="0.25"/>
+                  <path d="M22 22L9 14.5V29.5L22 37V22Z" fill="#7c3aed" opacity="0.7"/>
+                  <path d="M22 15L23.8 19.2L28 21L23.8 22.8L22 27L20.2 22.8L16 21L20.2 19.2L22 15Z" fill="#ffffff" filter="url(#logo-glow)"/>
+                  <path d="M22 15L23.8 19.2L28 21L23.8 22.8L22 27L20.2 22.8L16 21L20.2 19.2L22 15Z" fill="#ffffff"/>
+                </svg>
+              </div>
+              <div>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#334155', margin: '0 0 4px 0' }}>PREMIUMACCCOUNTSSTORE.COM</h3>
+                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '2px' }}>{t.invoice}</div>
+                <div style={{ fontSize: '0.9rem', color: '#64748b' }}>{invoiceId}</div>
+              </div>
+            </div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#475569' }}>
+              ৳ {finalPrice}
+            </div>
+          </div>
+
+          {/* Instruction Block */}
+          <div style={{ background: brandColor, borderRadius: '8px', padding: '24px', color: 'white', marginBottom: '16px' }}>
+            <h3 style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 16px 0' }}>{t.transactionIdLabel}</h3>
+            
+            <form id="payment-form-desktop" onSubmit={handleSubmit}>
+              <input 
+                type="text" 
+                required 
+                value={transactionId} 
+                onChange={e => setTransactionId(e.target.value)} 
+                placeholder={t.transactionIdLabel}
+                style={{ 
+                  width: '100%', 
+                  padding: '14px', 
+                  borderRadius: '6px', 
+                  border: '1px solid #3b82f6', 
+                  outline: 'none', 
+                  fontSize: '1rem',
+                  marginBottom: '24px',
+                  color: '#334155'
+                }} 
+              />
+            </form>
+              
+            <ul style={{ listStyleType: 'none', padding: 0, margin: 0, fontSize: '0.9rem', lineHeight: '1.6', opacity: 0.95 }}>
+              <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', borderTop: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <span>{t.instruction1(getUSSDCode(params.method), methodUpper)}</span>
+              </li>
+              <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <span><strong style={{ color: '#facc15' }}>{t.instruction2}</strong></span>
+              </li>
+              <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px' }}>
+                  <span>{t.instruction3}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <strong style={{ color: '#facc15', fontSize: '1.1rem', letterSpacing: '1px' }}>{number}</strong>
+                    <button 
+                      type="button"
+                      onClick={handleCopy} 
+                      style={{ 
+                        background: 'rgba(0,0,0,0.2)', 
+                        border: 'none', 
+                        color: 'white', 
+                        padding: '4px 10px', 
+                        borderRadius: '6px', 
+                        cursor: 'pointer',
+                        fontSize: '0.85rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 
+                      {copied ? 'Copied' : 'Copy'}
+                    </button>
+                  </div>
+                </div>
+              </li>
+              <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <span>{t.instruction4} <strong style={{ color: '#facc15', fontSize: '1.1rem' }}>{finalPrice}</strong></span>
+              </li>
+              <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <span>{t.instruction5(methodUpper)}</span>
+              </li>
+              <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <span>{t.instruction6(methodUpper)}</span>
+              </li>
+              <li style={{ padding: '16px 0', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <span>{t.instruction71} <strong style={{ color: '#facc15' }}>Transaction ID</strong> {t.instruction72} <strong style={{ color: '#facc15' }}>VERIFY</strong> {t.instruction73}</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Separate VERIFY Button */}
+          <button 
+            form="payment-form-desktop"
+            type="submit" 
+            disabled={submitting} 
+            style={{ 
+              width: '100%', 
+              background: brandColor, 
+              color: 'white', 
+              border: 'none', 
+              padding: '16px', 
+              borderRadius: '8px', 
+              fontSize: '1rem', 
+              fontWeight: 800, 
+              cursor: 'pointer',
+              transition: 'opacity 0.2s ease',
+              opacity: submitting ? 0.7 : 1
             }}
           >
             {submitting ? t.verifying : t.verify}
