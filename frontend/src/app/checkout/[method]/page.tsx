@@ -352,27 +352,30 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
               </li>
               <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
                 <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
-                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '12px' }}>
-                  <span style={{ whiteSpace: 'nowrap' }}>{t.instruction3} <strong style={{ color: '#facc15', fontSize: '1.1rem', letterSpacing: '1px' }}>{number}</strong></span>
-                  <button 
-                    type="button"
-                    onClick={handleCopy} 
-                    style={{ 
-                      background: 'rgba(0,0,0,0.2)', 
-                      border: 'none', 
-                      color: 'white', 
-                      padding: '4px 10px', 
-                      borderRadius: '6px', 
-                      cursor: 'pointer',
-                      fontSize: '0.85rem',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 
-                    {copied ? 'Copied' : 'Copy'}
-                  </button>
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px' }}>
+                  <span>{t.instruction3}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <strong style={{ color: '#facc15', fontSize: '1.1rem', letterSpacing: '1px' }}>{number}</strong>
+                    <button 
+                      type="button"
+                      onClick={handleCopy} 
+                      style={{ 
+                        background: 'rgba(0,0,0,0.2)', 
+                        border: 'none', 
+                        color: 'white', 
+                        padding: '4px 10px', 
+                        borderRadius: '6px', 
+                        cursor: 'pointer',
+                        fontSize: '0.85rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 
+                      {copied ? 'Copied' : 'Copy'}
+                    </button>
+                  </div>
                 </div>
               </li>
               <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
