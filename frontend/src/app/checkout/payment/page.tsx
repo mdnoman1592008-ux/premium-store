@@ -61,107 +61,121 @@ export default function PaymentMethodPage() {
     );
   }
 
+  const [selectedMethod, setSelectedMethod] = useState('');
+
+  const handleProceed = () => {
+    if (!selectedMethod) {
+      alert('Please select a payment method first.');
+      return;
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('checkout_method', selectedMethod);
+    }
+    router.push(`/checkout/${selectedMethod}`);
+  };
+
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '60px 0 100px' }}>
-      <div className="container" style={{ maxWidth: '900px' }}>
-        
-        {/* Step Progress */}
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginBottom: '40px' }}>
-          <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 'bold' }}>✓</span>
-          <span style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 600 }}>Select Duration</span>
-          <span style={{ width: '40px', height: '1.5px', background: 'var(--primary)' }} />
-          <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 'bold' }}>2</span>
-          <span style={{ fontWeight: 700, color: 'var(--text-dark)', fontSize: '0.9rem' }}>Payment Method</span>
-          <span style={{ width: '40px', height: '1.5px', background: '#cbd5e1' }} />
-          <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'white', border: '1px solid #cbd5e1', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>3</span>
-          <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Payment details</span>
+    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '60px 20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ 
+        background: 'white', 
+        width: '100%', 
+        maxWidth: '500px', 
+        borderRadius: '12px', 
+        boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+        overflow: 'hidden'
+      }}>
+        {/* Browser-like Header */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          padding: '12px 16px', 
+          borderBottom: '1px solid #f1f5f9' 
+        }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+          <div style={{ display: 'flex', gap: '16px' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8l6 6" /><path d="M4 14l6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" /><path d="M22 22l-5-10-5 10" /><path d="M14 18h6" /></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          </div>
         </div>
 
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <h1 style={{ fontSize: '2.6rem', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>Select Payment Method</h1>
-          <p style={{ color: '#64748b', fontSize: '1.1rem' }}>
-            Choose how you want to pay <strong>৳{price}</strong> for <strong>{appName} ({duration})</strong>
-          </p>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px' }}>
-          {methods.map(m => (
-            <div 
-              key={m.id} 
-              className="glass-card" 
-              style={{ 
-                padding: '36px 28px', 
-                textAlign: 'center',
-                background: 'white',
-                border: '1px solid #f1f5f9',
-                borderRadius: '24px',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.25s ease'
-              }}
-              onClick={() => handleSelectMethod(m.id)}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.transform = 'translateY(-6px)';
-                (e.currentTarget as HTMLElement).style.boxShadow = `0 20px 40px ${m.color}15`;
-                (e.currentTarget as HTMLElement).style.borderColor = `${m.color}30`;
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.02)';
-                (e.currentTarget as HTMLElement).style.borderColor = '#f1f5f9';
-              }}
-            >
-              {/* Colored Brand Icon Container */}
-              <div style={{ 
-                width: '80px', 
-                height: '80px', 
-                borderRadius: '20px', 
-                background: 'white', 
-                border: '1.5px solid #f1f5f9',
-                margin: '0 auto 20px', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                overflow: 'hidden',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
-                padding: '10px',
-                transition: 'border-color 0.2s, transform 0.2s',
-              }}>
-                <img 
-                  src={m.logo} 
-                  alt={m.name} 
-                  style={{ 
-                    width: '100%', 
-                    height: '100%', 
-                    objectFit: 'contain',
-                  }} 
-                />
+        <div style={{ padding: '32px' }}>
+          {/* Store Info Row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ 
+              width: '60px', height: '60px', 
+              background: '#000', borderRadius: '50%', 
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'white', fontWeight: 800, fontSize: '1.2rem',
+              overflow: 'hidden'
+            }}>
+              <span style={{ color: '#ef4444' }}>U</span>
+            </div>
+            <div>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#334155', margin: '0 0 8px 0' }}>UIDTOPUP.COM</h2>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '4px 8px', fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94m-1 7.98v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> সাপোর্ট
+                </button>
+                <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '4px 8px', fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> তথ্যাদি
+                </button>
+                <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '4px 8px', fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> বিস্তারিত
+                </button>
               </div>
+            </div>
+          </div>
 
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>{m.name}</h3>
-              <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '24px', lineHeight: 1.5, flex: 1 }}>{m.desc}</p>
-              
-              <button 
-                className="btn-primary" 
-                style={{ 
-                  width: '100%', 
-                  background: m.color,
-                  borderColor: m.color,
+          {/* Title Bar */}
+          <div style={{ background: '#0e55b7', color: 'white', textAlign: 'center', padding: '10px', borderRadius: '6px', fontWeight: 700, fontSize: '0.95rem', marginBottom: '24px' }}>
+            মোবাইল ব্যাংকিং
+          </div>
+
+          {/* Payment Methods Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '32px' }}>
+            {methods.map(m => (
+              <div 
+                key={m.id}
+                onClick={() => setSelectedMethod(m.id)}
+                style={{
+                  border: `2px solid ${selectedMethod === m.id ? '#0e55b7' : '#e2e8f0'}`,
+                  borderRadius: '8px',
                   padding: '12px',
-                  borderRadius: '12px',
-                  fontWeight: 700,
-                  fontSize: '0.95rem',
-                  boxShadow: `0 4px 12px ${m.color}25`,
-                  color: 'white'
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  background: selectedMethod === m.id ? '#f8fafc' : 'white',
+                  transition: 'all 0.2s ease',
+                  height: '70px'
                 }}
               >
-                Pay Now
-              </button>
-            </div>
-          ))}
+                <img src={m.logo} alt={m.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              </div>
+            ))}
+          </div>
+
+          {/* Pay Button */}
+          <button 
+            onClick={handleProceed}
+            style={{ 
+              width: '100%', 
+              background: '#dce8fd', 
+              color: '#0e55b7', 
+              border: 'none', 
+              padding: '16px', 
+              borderRadius: '8px', 
+              fontSize: '1rem', 
+              fontWeight: 800, 
+              cursor: 'pointer',
+              transition: 'background 0.2s ease'
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = '#c2d6fc'}
+            onMouseLeave={e => e.currentTarget.style.background = '#dce8fd'}
+          >
+            Pay {price} BDT
+          </button>
         </div>
       </div>
     </div>

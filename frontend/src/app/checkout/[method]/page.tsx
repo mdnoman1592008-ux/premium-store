@@ -62,15 +62,17 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
   const [data, setData] = useState<any>({});
   const [senderNumber, setSenderNumber] = useState('');
   const [transactionId, setTransactionId] = useState('');
-  const [copied, setCopied] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [copied, setCopied] = useState(false);
+  
+  const [invoiceId, setInvoiceId] = useState('');
+
+  useEffect(() => {
+    // Generate a random invoice ID
+    setInvoiceId('sn' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36).substring(4));
+  }, []);
   const [paymentSetting, setPaymentSetting] = useState<{ number: string, qrCodeUrl: string }>({ number: '', qrCodeUrl: '' });
   
-  const [couponCode, setCouponCode] = useState('');
-  const [couponDiscount, setCouponDiscount] = useState(0);
-  const [couponMessage, setCouponMessage] = useState('');
-  const [applyingCoupon, setApplyingCoupon] = useState(false);
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('userToken');
@@ -132,37 +134,8 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleApplyCoupon = async () => {
-    if (!couponCode) return;
-    setApplyingCoupon(true);
-    setCouponMessage('');
-    try {
-      const token = localStorage.getItem('userToken');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/coupons/validate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token || ''}`
-        },
-        body: JSON.stringify({ code: couponCode })
-      });
-      const result = await res.json();
-      if (res.ok) {
-        setCouponDiscount(result.discountPercentage);
-        setCouponMessage(`Coupon applied! ${result.discountPercentage}% off.`);
-      } else {
-        setCouponDiscount(0);
-        setCouponMessage(result.message || 'Invalid coupon');
-      }
-    } catch (err) {
-      setCouponDiscount(0);
-      setCouponMessage('Error validating coupon');
-    }
-    setApplyingCoupon(false);
-  };
-
   const basePrice = Number(data.price) || 0;
-  const finalPrice = couponDiscount > 0 ? Math.round(basePrice - (basePrice * (couponDiscount / 100))) : basePrice;
+  const finalPrice = basePrice;
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -175,14 +148,9 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
       formData.append('duration', data.duration);
       formData.append('price', String(finalPrice));
       formData.append('paymentMethod', params.method);
-      formData.append('senderNumber', senderNumber);
+      formData.append('senderNumber', 'hidden_in_ui'); // Dummy sender number for backend
       formData.append('transactionId', transactionId);
       
-      const fileInput = document.getElementById('screenshot') as HTMLInputElement;
-      if (fileInput && fileInput.files && fileInput.files[0]) {
-        formData.append('screenshot', fileInput.files[0]);
-      }
-
       const token = localStorage.getItem('userToken');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/orders`, {
         method: 'POST',
@@ -205,291 +173,172 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
     setSubmitting(false);
   };
 
+  const methodUpper = params.method.toUpperCase();
+  const getUSSDCode = (method: string) => {
+    switch (method.toLowerCase()) {
+      case 'bkash': return '*247#';
+      case 'nagad': return '*167#';
+      case 'rocket': return '*322#';
+      case 'upay': return '*268#';
+      default: return '*000#';
+    }
+  };
+
+  const getMethodLogo = (method: string) => {
+    switch (method.toLowerCase()) {
+      case 'bkash': return '/bkash_logo.png';
+      case 'nagad': return '/nagad_logo.png';
+      case 'rocket': return '/rocket_logo.png';
+      case 'upay': return '/upay_logo.png';
+      case 'cellfin': return '/cellfin_logo.png';
+      default: return '';
+    }
+  };
+
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '60px 0 100px' }}>
-      <div className="container" style={{ maxWidth: '1000px' }}>
-        
-        {/* Step Progress */}
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginBottom: '40px' }}>
-          <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 'bold' }}>✓</span>
-          <span style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 600 }}>Select Duration</span>
-          <span style={{ width: '40px', height: '1.5px', background: 'var(--primary)' }} />
-          <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 'bold' }}>✓</span>
-          <span style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 600 }}>Payment Method</span>
-          <span style={{ width: '40px', height: '1.5px', background: 'var(--primary)' }} />
-          <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 'bold' }}>3</span>
-          <span style={{ fontWeight: 700, color: 'var(--text-dark)', fontSize: '0.9rem' }}>Payment details</span>
+    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '60px 20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ 
+        background: 'white', 
+        width: '100%', 
+        maxWidth: '560px', 
+        borderRadius: '12px', 
+        boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+        overflow: 'hidden'
+      }}>
+        {/* Browser-like Header */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          padding: '12px 16px', 
+          borderBottom: '1px solid #f1f5f9' 
+        }}>
+          <Link href="/checkout/payment" style={{ color: '#64748b' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 8 8 12 12 16"/><line x1="16" y1="12" x2="8" y2="12"/>
+            </svg>
+          </Link>
+          <div style={{ display: 'flex', gap: '16px' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8l6 6" /><path d="M4 14l6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" /><path d="M22 22l-5-10-5 10" /><path d="M14 18h6" /></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          </div>
         </div>
 
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <h1 style={{ fontSize: '2.6rem', fontWeight: 800, color: '#0f172a', marginBottom: '8px', textTransform: 'capitalize' }}>
-            {params.method} Payment
-          </h1>
-          <p style={{ color: '#64748b', fontSize: '1.1rem' }}>
-            Complete the transaction and submit details below
-          </p>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px' }}>
-          
-          {/* Left Column: Payment QR and Summary */}
-          <div className="glass-card" style={{ padding: '40px 32px', background: 'white', borderRadius: '24px', border: '1px solid #f1f5f9', boxShadow: '0 4px 24px rgba(0,0,0,0.03)' }}>
-            
-            {/* 1. QR Code and Send Money Number Box */}
-            <div style={{ 
-              background: '#f8fafc', 
-              padding: '28px 24px', 
-              borderRadius: '16px', 
-              border: '1px solid #e2e8f0', 
-              marginBottom: '32px', 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              gap: '16px' 
-            }}>
-              {/* QR Code Container (Bigger size: 200px) */}
-              <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {paymentSetting.qrCodeUrl ? (
-                  <img 
-                    src={paymentSetting.qrCodeUrl.startsWith('data:') ? paymentSetting.qrCodeUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${paymentSetting.qrCodeUrl}`} 
-                    alt={`${params.method} QR Code`} 
-                    style={{ 
-                      width: '200px', 
-                      height: '200px', 
-                      objectFit: 'contain',
-                      borderRadius: '12px', 
-                      border: '1px solid #e2e8f0', 
-                      background: 'white',
-                      padding: '4px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-                    }} 
-                  />
-                ) : (
-                  <QRCodeSVG color={brandColor} letter={params.method.charAt(0).toUpperCase()} size={200} />
-                )}
-              </div>
-
-              <div style={{ width: '100%', textAlign: 'center' }}>
-                <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Send Money Number ({params.method})
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', position: 'relative' }}>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: brandColor, letterSpacing: '1px' }}>
-                    {number}
-                  </h2>
-                  <button 
-                    onClick={handleCopy} 
-                    style={{ 
-                      background: 'white', 
-                      border: '1px solid #cbd5e1', 
-                      borderRadius: '8px', 
-                      width: '36px', 
-                      height: '36px', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center', 
-                      cursor: 'pointer',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                      transition: 'all 0.2s',
-                    }}
-                    title="Copy Number"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                  </button>
-                  
-                  {copied && (
-                    <span style={{ 
-                      position: 'absolute', 
-                      bottom: '105%', 
-                      background: '#1e293b', 
-                      color: 'white', 
-                      padding: '4px 8px', 
-                      borderRadius: '6px', 
-                      fontSize: '0.75rem', 
-                      fontWeight: 'bold',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                    }}>
-                      Copied!
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-            
-            {/* 2. Order Summary */}
-            <div style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '24px', marginBottom: '24px' }}>
-              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px' }}>Order Summary</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.95rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#64748b' }}>App Subscription:</span> 
-                  <strong style={{ color: '#334155' }}>{data.appName}</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#64748b' }}>Subscription Plan:</span> 
-                  <strong style={{ color: '#334155' }}>{data.planName}</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#64748b' }}>Billing Cycle:</span> 
-                  <strong style={{ color: '#334155' }}>{data.duration}</strong>
-                </div>
-
-                {/* Coupon Code Section */}
-                <div style={{ marginTop: '16px', padding: '16px', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Have a promo code?</label>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <input 
-                      type="text" 
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                      placeholder="Enter coupon code"
-                      style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '0.9rem' }}
-                    />
-                    <button 
-                      onClick={handleApplyCoupon}
-                      disabled={applyingCoupon || !couponCode}
-                      style={{ padding: '8px 16px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '0.9rem', opacity: (applyingCoupon || !couponCode) ? 0.7 : 1 }}
-                    >
-                      {applyingCoupon ? '...' : 'Apply'}
-                    </button>
-                  </div>
-                  {couponMessage && (
-                    <p style={{ margin: '8px 0 0', fontSize: '0.8rem', color: couponDiscount > 0 ? '#10b981' : '#ef4444', fontWeight: 600 }}>
-                      {couponMessage}
-                    </p>
-                  )}
-                </div>
-
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  marginTop: '12px', 
-                  paddingTop: '16px', 
-                  borderTop: '1px dashed #e2e8f0',
-                  alignItems: 'baseline'
-                }}>
-                  <span style={{ color: '#0f172a', fontWeight: 700 }}>Total Payable:</span> 
-                  <div style={{ textAlign: 'right' }}>
-                    {couponDiscount > 0 && <span style={{ fontSize: '1rem', color: '#94a3b8', textDecoration: 'line-through', marginRight: '8px' }}>৳{basePrice}</span>}
-                    <strong style={{ fontSize: '1.6rem', color: brandColor, fontWeight: 800 }}>৳{finalPrice}</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. How to Pay (Now below Order Summary) */}
-            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '24px' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px' }}>How to Pay</h3>
-              <ol style={{ paddingLeft: '20px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                <li>Open your <strong>{params.method}</strong> app or dial code.</li>
-                <li>Choose <strong>Send Money</strong> option.</li>
-                <li>Enter the payment number or scan the QR Code above.</li>
-                <li>Send exactly <strong style={{ color: 'var(--primary)', fontWeight: 700 }}>৳{finalPrice}</strong>.</li>
-                <li>Copy the <strong>Transaction ID</strong> and paste it in the form.</li>
-              </ol>
-            </div>
-
+        <div style={{ padding: '32px' }}>
+          {/* Method Logo */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+            <img src={getMethodLogo(params.method)} alt={params.method} style={{ height: '50px', objectFit: 'contain' }} />
           </div>
 
-          {/* Right Column: Payment Form */}
-          <div className="glass-card" style={{ padding: '40px 32px', background: 'white', borderRadius: '24px', border: '1px solid #f1f5f9', boxShadow: '0 4px 24px rgba(0,0,0,0.03)' }}>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', marginBottom: '24px' }}>Submit Transaction Details</h3>
+          {/* Invoice Summary Box */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            border: '1px solid #e2e8f0', 
+            borderRadius: '8px', 
+            padding: '16px', 
+            marginBottom: '24px' 
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ 
+                width: '48px', height: '48px', 
+                background: '#000', borderRadius: '50%', 
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: 'white', fontWeight: 800, fontSize: '1rem',
+                overflow: 'hidden'
+              }}>
+                <span style={{ color: '#ef4444' }}>U</span>
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#334155', margin: '0 0 4px 0' }}>UIDTOPUP.COM</h3>
+                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '2px' }}>ইনভয়েস আইডিঃ</div>
+                <div style={{ fontSize: '0.9rem', color: '#64748b' }}>{invoiceId}</div>
+              </div>
+            </div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#475569' }}>
+              ৳ {finalPrice}
+            </div>
+          </div>
+
+          {/* Colored Instruction Block */}
+          <div style={{ background: brandColor, borderRadius: '8px', padding: '24px', color: 'white' }}>
+            <h3 style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 16px 0' }}>ট্রানজেকশন আইডি দিন</h3>
             
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 700, fontSize: '0.9rem', color: '#334155' }}>
-                  Your {params.method} Wallet Number
-                </label>
-                <input 
-                  type="text" 
-                  required 
-                  value={senderNumber} 
-                  onChange={e => setSenderNumber(e.target.value)} 
-                  placeholder="e.g. 017XXXXXXXX" 
-                  style={{ 
-                    width: '100%', 
-                    padding: '12px 16px', 
-                    borderRadius: '10px', 
-                    border: '1.5px solid #cbd5e1', 
-                    outline: 'none', 
-                    background: 'white', 
-                    fontSize: '1rem',
-                    transition: 'border-color 0.2s',
-                  }} 
-                  onFocus={e => e.target.style.borderColor = brandColor}
-                  onBlur={e => e.target.style.borderColor = '#cbd5e1'}
-                />
-              </div>
+            <form onSubmit={handleSubmit}>
+              <input 
+                type="text" 
+                required 
+                value={transactionId} 
+                onChange={e => setTransactionId(e.target.value)} 
+                placeholder="ট্রানজেকশন আইডি দিন" 
+                style={{ 
+                  width: '100%', 
+                  padding: '14px', 
+                  borderRadius: '6px', 
+                  border: 'none', 
+                  outline: 'none', 
+                  fontSize: '1rem',
+                  marginBottom: '24px',
+                  color: '#334155'
+                }} 
+              />
               
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 700, fontSize: '0.9rem', color: '#334155' }}>
-                  Payment Transaction ID (TxID)
-                </label>
-                <input 
-                  type="text" 
-                  required 
-                  value={transactionId} 
-                  onChange={e => setTransactionId(e.target.value)} 
-                  placeholder="e.g. 8N3JK889KL" 
-                  style={{ 
-                    width: '100%', 
-                    padding: '12px 16px', 
-                    borderRadius: '10px', 
-                    border: '1.5px solid #cbd5e1', 
-                    outline: 'none', 
-                    background: 'white', 
-                    fontSize: '1rem',
-                    transition: 'border-color 0.2s',
-                  }} 
-                  onFocus={e => e.target.style.borderColor = brandColor}
-                  onBlur={e => e.target.style.borderColor = '#cbd5e1'}
-                />
-              </div>
-              
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 700, fontSize: '0.9rem', color: '#334155' }}>
-                  Upload Screenshot (Optional)
-                </label>
-                <input 
-                  type="file" 
-                  id="screenshot" 
-                  accept="image/*" 
-                  style={{ 
-                    width: '100%', 
-                    padding: '12px', 
-                    borderRadius: '10px', 
-                    border: '1.5px solid #cbd5e1', 
-                    outline: 'none', 
-                    background: 'white', 
-                    fontSize: '0.9rem' 
-                  }} 
-                />
-                <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginTop: '6px' }}>
-                  Upload a screenshot of the payment confirmation page.
-                </span>
-              </div>
+              <ul style={{ paddingLeft: '20px', fontSize: '0.85rem', lineHeight: '1.8', margin: '0 0 24px 0', opacity: 0.95 }}>
+                <li>{getUSSDCode(params.method)} ডায়াল করে আপনার {methodUpper} মোবাইল মেনুতে যান অথবা {methodUpper} অ্যাপে যান।</li>
+                <li>"Send Money" -এ ক্লিক করুন।</li>
+                <li>
+                  প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুনঃ <strong style={{ fontSize: '0.95rem' }}>{number}</strong>
+                  <button 
+                    type="button"
+                    onClick={handleCopy} 
+                    style={{ 
+                      background: 'rgba(0,0,0,0.2)', 
+                      border: 'none', 
+                      color: 'white', 
+                      padding: '2px 8px', 
+                      borderRadius: '4px', 
+                      marginLeft: '8px', 
+                      cursor: 'pointer',
+                      fontSize: '0.75rem',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 
+                    {copied ? 'Copied' : 'Copy'}
+                  </button>
+                </li>
+                <li>টাকার পরিমাণঃ <strong style={{ fontSize: '0.95rem' }}>{finalPrice}</strong></li>
+                <li>নিশ্চিত করতে এখন আপনার {methodUpper} মোবাইল মেনু পিন লিখুন।</li>
+                <li>সবকিছু ঠিক থাকলে, আপনি {methodUpper} থেকে একটি নিশ্চিতকরণ বার্তা পাবেন।</li>
+                <li>এখন উপরের বক্সে আপনার Transaction ID দিন এবং নিচের VERIFY বাটনে ক্লিক করুন।</li>
+              </ul>
 
               <button 
                 type="submit" 
                 disabled={submitting} 
-                className="btn-primary" 
                 style={{ 
-                  marginTop: '16px', 
+                  width: '100%', 
+                  background: 'rgba(0,0,0,0.15)', 
+                  color: 'white', 
+                  border: 'none', 
                   padding: '16px', 
-                  width: '100%',
-                  borderRadius: '14px',
-                  fontWeight: 700,
-                  fontSize: '1rem',
-                  background: brandColor,
-                  borderColor: brandColor,
-                  color: 'white',
-                  boxShadow: `0 8px 20px ${brandColor}25`,
-                  transition: 'opacity 0.2s'
+                  borderRadius: '6px', 
+                  fontSize: '1rem', 
+                  fontWeight: 800, 
+                  cursor: 'pointer',
+                  transition: 'background 0.2s ease'
                 }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.25)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.15)'}
               >
-                {submitting ? 'Verifying transaction...' : 'Payment Complete'}
+                {submitting ? 'VERIFYING...' : 'VERIFY'}
               </button>
             </form>
           </div>
+
         </div>
       </div>
     </div>
