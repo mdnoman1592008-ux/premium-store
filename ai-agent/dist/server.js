@@ -8,7 +8,6 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const db_1 = __importDefault(require("./config/db"));
-const Admin_1 = __importDefault(require("./models/Admin"));
 const whatsapp_1 = require("./services/whatsapp");
 const facebook_1 = require("./services/facebook");
 const gemini_1 = require("./services/gemini");
@@ -18,31 +17,27 @@ const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 // Admin token protection middleware
-const adminProtect = async (req, res, next) => {
-    let token;
+// We just verify the JWT signature — the token was already issued by the trusted backend
+const adminProtect = (req, res, next) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        const token = req.headers.authorization.split(' ')[1];
         try {
-            token = req.headers.authorization.split(' ')[1];
-            console.log('adminProtect: Verifying token with JWT_SECRET length:', (process.env.JWT_SECRET || '').length);
-            const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET || 'supersecretjwtkey123');
-            const admin = await Admin_1.default.findById(decoded.id).select('-password');
-            if (admin) {
-                req.admin = admin;
+            const secret = process.env.JWT_SECRET || 'supersecretjwtkey123';
+            const decoded = jsonwebtoken_1.default.verify(token, secret);
+            if (decoded && decoded.id) {
+                req.admin = { id: decoded.id };
                 next();
             }
             else {
-                console.error(`adminProtect: No admin user found in database with ID: ${decoded.id}`);
-                res.status(401).json({ message: `Not authorized as admin: ID ${decoded.id} not found in database` });
+                res.status(401).json({ message: 'Invalid token payload' });
             }
         }
         catch (error) {
-            console.error('adminProtect: JWT verification failed:', error.message);
-            res.status(401).json({ message: `Not authorized, token failed: ${error.message}` });
+            res.status(401).json({ message: `Not authorized: ${error.message}` });
         }
     }
     else {
-        console.error('adminProtect: No bearer token provided in headers:', req.headers.authorization);
-        res.status(401).json({ message: 'Not authorized, no token' });
+        res.status(401).json({ message: 'Not authorized, no token provided' });
     }
 };
 // --- WhatsApp Admin Endpoints ---

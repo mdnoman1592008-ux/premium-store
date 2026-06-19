@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import connectDB from './config/db';
-import Admin from './models/Admin';
 import {
   connectWhatsApp,
   disconnectWhatsApp,
@@ -28,28 +27,24 @@ app.use(cors());
 app.use(express.json());
 
 // Admin token protection middleware
-const adminProtect = async (req: any, res: any, next: any) => {
-  let token;
+// We just verify the JWT signature — the token was already issued by the trusted backend
+const adminProtect = (req: any, res: any, next: any) => {
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    const token = req.headers.authorization.split(' ')[1];
     try {
-      token = req.headers.authorization.split(' ')[1];
-      console.log('adminProtect: Verifying token with JWT_SECRET length:', (process.env.JWT_SECRET || '').length);
-      const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'supersecretjwtkey123');
-      const admin = await Admin.findById(decoded.id).select('-password');
-      if (admin) {
-        req.admin = admin;
+      const secret = process.env.JWT_SECRET || 'supersecretjwtkey123';
+      const decoded: any = jwt.verify(token, secret);
+      if (decoded && decoded.id) {
+        req.admin = { id: decoded.id };
         next();
       } else {
-        console.error(`adminProtect: No admin user found in database with ID: ${decoded.id}`);
-        res.status(401).json({ message: `Not authorized as admin: ID ${decoded.id} not found in database` });
+        res.status(401).json({ message: 'Invalid token payload' });
       }
     } catch (error: any) {
-      console.error('adminProtect: JWT verification failed:', error.message);
-      res.status(401).json({ message: `Not authorized, token failed: ${error.message}` });
+      res.status(401).json({ message: `Not authorized: ${error.message}` });
     }
   } else {
-    console.error('adminProtect: No bearer token provided in headers:', req.headers.authorization);
-    res.status(401).json({ message: 'Not authorized, no token' });
+    res.status(401).json({ message: 'Not authorized, no token provided' });
   }
 };
 
