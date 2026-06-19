@@ -10,6 +10,16 @@ export default function PaymentMethodPage() {
   const [price, setPrice] = useState('');
   const [duration, setDuration] = useState('');
   const [lang, setLang] = useState<'bn' | 'en'>('bn');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }
+  }, []);
 
   const t = {
     title: lang === 'bn' ? 'মোবাইল ব্যাংকিং' : 'Mobile Banking',
@@ -140,7 +150,13 @@ export default function PaymentMethodPage() {
 
             {/* Cancel Button */}
             <button
-              onClick={() => router.push('/store')}
+              onClick={() => {
+                if (!isMobile) {
+                  router.push('/checkout/cancel');
+                } else {
+                  router.push('/store');
+                }
+              }}
               title="Cancel"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', color: '#64748b' }}
             >
