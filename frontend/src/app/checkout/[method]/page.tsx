@@ -277,11 +277,11 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
             </div>
           </div>
 
-          {/* Colored Instruction Block */}
-          <div style={{ background: brandColor, borderRadius: '8px', padding: '24px', color: 'white' }}>
+          {/* Instruction Block */}
+          <div style={{ background: brandColor, borderRadius: '8px', padding: '24px', color: 'white', marginBottom: '16px' }}>
             <h3 style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 16px 0' }}>ট্রানজেকশন আইডি দিন</h3>
             
-            <form onSubmit={handleSubmit}>
+            <form id="payment-form" onSubmit={handleSubmit}>
               <input 
                 type="text" 
                 required 
@@ -292,19 +292,28 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
                   width: '100%', 
                   padding: '14px', 
                   borderRadius: '6px', 
-                  border: 'none', 
+                  border: '1px solid #3b82f6', 
                   outline: 'none', 
                   fontSize: '1rem',
                   marginBottom: '24px',
                   color: '#334155'
                 }} 
               />
+            </form>
               
-              <ul style={{ paddingLeft: '20px', fontSize: '0.85rem', lineHeight: '1.8', margin: '0 0 24px 0', opacity: 0.95 }}>
-                <li>{getUSSDCode(params.method)} ডায়াল করে আপনার {methodUpper} মোবাইল মেনুতে যান অথবা {methodUpper} অ্যাপে যান।</li>
-                <li><strong style={{ color: '#facc15' }}>"Send Money"</strong> -এ ক্লিক করুন।</li>
-                <li>
-                  <div style={{ marginBottom: '8px' }}>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুনঃ <strong style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '1px', background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '6px', color: '#facc15' }}>{number}</strong></div>
+            <ul style={{ listStyleType: 'none', padding: 0, margin: 0, fontSize: '0.9rem', lineHeight: '1.6', opacity: 0.95 }}>
+              <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', borderTop: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <span>{getUSSDCode(params.method)} ডায়াল করে আপনার {methodUpper} মোবাইল মেনুতে যান অথবা {methodUpper} অ্যাপে যান।</span>
+              </li>
+              <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <span><strong style={{ color: '#facc15' }}>"Send Money"</strong> -এ ক্লিক করুন।</span>
+              </li>
+              <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                  <span>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুনঃ <strong style={{ color: '#facc15', fontSize: '1.1rem', letterSpacing: '1px' }}>{number}</strong></span>
                   <button 
                     type="button"
                     onClick={handleCopy} 
@@ -324,35 +333,48 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 
                     {copied ? 'Copied' : 'Copy'}
                   </button>
-                </li>
-                <li>টাকার পরিমাণঃ <strong style={{ fontSize: '1.3rem', fontWeight: 800, color: '#facc15' }}>{finalPrice}</strong></li>
-                <li>নিশ্চিত করতে এখন আপনার {methodUpper} মোবাইল মেনু পিন লিখুন।</li>
-                <li>সবকিছু ঠিক থাকলে, আপনি {methodUpper} থেকে একটি নিশ্চিতকরণ বার্তা পাবেন।</li>
-                <li>এখন উপরের বক্সে আপনার Transaction ID দিন এবং নিচের VERIFY বাটনে ক্লিক করুন।</li>
-              </ul>
-
-              <button 
-                type="submit" 
-                disabled={submitting} 
-                style={{ 
-                  width: '100%', 
-                  background: 'rgba(0,0,0,0.15)', 
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '16px', 
-                  borderRadius: '6px', 
-                  fontSize: '1rem', 
-                  fontWeight: 800, 
-                  cursor: 'pointer',
-                  transition: 'background 0.2s ease'
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.25)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.15)'}
-              >
-                {submitting ? 'VERIFYING...' : 'VERIFY'}
-              </button>
-            </form>
+                </div>
+              </li>
+              <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <span>টাকার পরিমাণঃ <strong style={{ color: '#facc15', fontSize: '1.1rem' }}>{finalPrice}</strong></span>
+              </li>
+              <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <span>নিশ্চিত করতে এখন আপনার {methodUpper} মোবাইল মেনু পিন লিখুন।</span>
+              </li>
+              <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <span>সবকিছু ঠিক থাকলে, আপনি {methodUpper} থেকে একটি নিশ্চিতকরণ বার্তা পাবেন।</span>
+              </li>
+              <li style={{ padding: '16px 0', display: 'flex', alignItems: 'flex-start' }}>
+                <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
+                <span>এখন উপরের বক্সে আপনার <strong style={{ color: '#facc15' }}>Transaction ID</strong> দিন এবং নিচের <strong style={{ color: '#facc15' }}>VERIFY</strong> বাটনে ক্লিক করুন।</span>
+              </li>
+            </ul>
           </div>
+
+          {/* Separate VERIFY Button */}
+          <button 
+            form="payment-form"
+            type="submit" 
+            disabled={submitting} 
+            style={{ 
+              width: '100%', 
+              background: brandColor, 
+              color: 'white', 
+              border: 'none', 
+              padding: '16px', 
+              borderRadius: '8px', 
+              fontSize: '1rem', 
+              fontWeight: 800, 
+              cursor: 'pointer',
+              transition: 'opacity 0.2s ease',
+              opacity: submitting ? 0.7 : 1
+            }}
+          >
+            {submitting ? 'VERIFYING...' : 'VERIFY'}
+          </button>
 
         </div>
       </div>
