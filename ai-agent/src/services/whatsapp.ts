@@ -3,21 +3,60 @@ import { useMongoDBAuthState } from './mongoAuth';
 import { chatWithAgent } from './gemini';
 import qrcode from 'qrcode';
 import pino from 'pino';
+import BaileysAuth from '../models/BaileysAuth';
 
 let sock: any = null;
 let connectionStatus = 'Disconnected';
 let qrCodeImage = '';
 let pairingCode = '';
+let reconnectAttempts = 0;
+let reconnectTimer: any = null;
+const MAX_RECONNECT_ATTEMPTS = 5;
 
 export const getWhatsAppStatus = () => {
   return {
     status: connectionStatus,
     qrCode: qrCodeImage,
-    pairingCode: pairingCode
+    pairingCode: pairingCode,
+    reconnectAttempts
   };
 };
 
+// Hard reset: clear socket AND all MongoDB session data
+export const resetWhatsAppSession = async () => {
+  // Cancel any pending reconnect
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+
+  // Forcefully end the socket
+  if (sock) {
+    try { sock.end(); } catch (e) {}
+    sock = null;
+  }
+
+  connectionStatus = 'Disconnected';
+  qrCodeImage = '';
+  pairingCode = '';
+  reconnectAttempts = 0;
+
+  // Wipe session from MongoDB
+  try {
+    const deleted = await BaileysAuth.deleteMany({ key: { $regex: '^session_whatsapp:' } });
+    console.log(`Session reset: deleted ${deleted.deletedCount} BaileysAuth documents.`);
+  } catch (err) {
+    console.error('Failed to clear session from database:', err);
+  }
+};
+
 export const disconnectWhatsApp = async () => {
+  // Cancel any pending reconnect
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+
   if (sock) {
     try {
       await sock.logout();
@@ -25,21 +64,38 @@ export const disconnectWhatsApp = async () => {
     } catch (e) {}
     sock = null;
   }
+
   connectionStatus = 'Disconnected';
   qrCodeImage = '';
   pairingCode = '';
+  reconnectAttempts = 0;
 
   // Clear auth session from database
   try {
-    const BaileysAuth = (await import('../models/BaileysAuth')).default;
-    await BaileysAuth.deleteMany({ key: { $regex: '^session_whatsapp:' } });
-    console.log('Cleared BaileysAuth session from database.');
+    const deleted = await BaileysAuth.deleteMany({ key: { $regex: '^session_whatsapp:' } });
+    console.log(`Disconnect: cleared ${deleted.deletedCount} BaileysAuth session documents.`);
   } catch (err) {
     console.error('Failed to clear session from database:', err);
   }
 };
 
-const initWhatsAppSocket = async (printQR: boolean = true) => {
+const scheduleReconnect = () => {
+  if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+    console.error(`WhatsApp: reached max reconnect attempts (${MAX_RECONNECT_ATTEMPTS}). Stopping.`);
+    connectionStatus = 'Disconnected';
+    return;
+  }
+  reconnectAttempts++;
+  // Exponential backoff: 5s, 10s, 20s, 40s, 80s
+  const delay = Math.min(5000 * Math.pow(2, reconnectAttempts - 1), 60000);
+  console.log(`WhatsApp: scheduling reconnect attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS} in ${delay / 1000}s...`);
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null;
+    connectWhatsApp();
+  }, delay);
+};
+
+const initWhatsAppSocket = async () => {
   if (sock) return;
 
   connectionStatus = 'Connecting';
@@ -57,8 +113,7 @@ const initWhatsAppSocket = async (printQR: boolean = true) => {
 
     sock.ev.on('connection.update', async (update: any) => {
       const { connection, lastDisconnect, qr } = update;
-
-      console.log(`WhatsApp connection update: connection = ${connection}, qr = ${qr ? 'present' : 'absent'}`);
+      console.log(`WhatsApp connection.update: connection=${connection}, qr=${qr ? 'present' : 'absent'}`);
 
       if (qr) {
         connectionStatus = 'Scanning';
@@ -72,28 +127,35 @@ const initWhatsAppSocket = async (printQR: boolean = true) => {
       if (connection === 'close') {
         const error = lastDisconnect?.error;
         const statusCode = error?.output?.statusCode;
-        console.error(`WhatsApp connection closed. Status Code: ${statusCode}, Error:`, error);
-        if (error?.stack) {
-          console.error(error.stack);
-        }
+        console.error(`WhatsApp closed. StatusCode=${statusCode}, Error:`, error?.message || error);
 
-        const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
-        console.log('WhatsApp connection closed. Should reconnect:', shouldReconnect);
         connectionStatus = 'Disconnected';
         qrCodeImage = '';
         pairingCode = '';
         sock = null;
 
-        if (shouldReconnect) {
-          // Wait 5 seconds and reconnect
-          console.log('Scheduling reconnection in 5 seconds...');
-          setTimeout(() => connectWhatsApp(), 5000);
+        // 401 = logged out, 428 = restart required — never auto-reconnect on bad session
+        const isLoggedOut = statusCode === DisconnectReason.loggedOut;
+        const isBadSession = statusCode === 500; // Baileys BadSession
+
+        if (isLoggedOut || isBadSession) {
+          console.error('WhatsApp session is invalid/logged-out. Manual reconnect required.');
+          // Auto-clear bad session from DB
+          try {
+            await BaileysAuth.deleteMany({ key: { $regex: '^session_whatsapp:' } });
+            console.log('Auto-cleared bad session from database.');
+          } catch (err) {
+            console.error('Failed to auto-clear bad session:', err);
+          }
+        } else {
+          scheduleReconnect();
         }
       } else if (connection === 'open') {
         connectionStatus = 'Connected';
         qrCodeImage = '';
         pairingCode = '';
-        console.log('WhatsApp connection opened successfully!');
+        reconnectAttempts = 0; // reset on successful connection
+        console.log('WhatsApp connected successfully!');
       }
     });
 
@@ -102,31 +164,22 @@ const initWhatsAppSocket = async (printQR: boolean = true) => {
 
       for (const msg of m.messages) {
         if (!msg.message) continue;
-
         const fromJid = msg.key.remoteJid;
         if (!fromJid) continue;
         const isGroup = fromJid.endsWith('@g.us');
         const isMe = msg.key.fromMe;
-
         if (isGroup || isMe) continue;
 
-        const messageText = msg.message.conversation || 
-                            msg.message.extendedTextMessage?.text || 
-                            '';
-
+        const messageText =
+          msg.message.conversation ||
+          msg.message.extendedTextMessage?.text ||
+          '';
         if (!messageText.trim()) continue;
 
         try {
-          // Send typing indicator
           await sock.sendPresenceUpdate('composing', fromJid);
-
-          // Generate AI reply
           const reply = await chatWithAgent(fromJid, messageText);
-
-          // Remove typing indicator
           await sock.sendPresenceUpdate('paused', fromJid);
-
-          // Send message back
           await sock.sendMessage(fromJid, { text: reply });
         } catch (err) {
           console.error('Error handling WhatsApp message:', err);
@@ -136,21 +189,25 @@ const initWhatsAppSocket = async (printQR: boolean = true) => {
   } catch (err) {
     console.error('Failed to initialize WhatsApp socket:', err);
     connectionStatus = 'Disconnected';
+    sock = null;
   }
 };
 
 export const getPairingCode = async (phoneNumber: string) => {
   if (connectionStatus === 'Connected') {
-    throw new Error('Already connected');
+    throw new Error('Already connected. Disconnect first to re-link.');
   }
 
   // Force socket reset
   if (sock) {
-    sock.end();
+    try { sock.end(); } catch (e) {}
     sock = null;
   }
 
-  await initWhatsAppSocket(false);
+  await initWhatsAppSocket();
+
+  // Wait up to 3s for socket to be ready
+  await new Promise(res => setTimeout(res, 3000));
 
   if (sock && !sock.authState.creds.registered) {
     const cleanNumber = phoneNumber.replace(/[^0-9]/g, '');
@@ -163,11 +220,13 @@ export const getPairingCode = async (phoneNumber: string) => {
       console.error('Failed to request pairing code:', err);
       throw new Error(`Failed to request pairing code: ${err.message}`);
     }
+  } else if (sock?.authState?.creds?.registered) {
+    throw new Error('Session already registered. Reset the session first to re-link a new number.');
   } else {
-    throw new Error('Already registered or initialization failed');
+    throw new Error('Socket initialization failed. Try resetting the session first.');
   }
 };
 
 export const connectWhatsApp = async () => {
-  await initWhatsAppSocket(true);
+  await initWhatsAppSocket();
 };

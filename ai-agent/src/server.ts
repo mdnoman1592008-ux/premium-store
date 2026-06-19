@@ -7,6 +7,7 @@ import Admin from './models/Admin';
 import {
   connectWhatsApp,
   disconnectWhatsApp,
+  resetWhatsAppSession,
   getWhatsAppStatus,
   getPairingCode
 } from './services/whatsapp';
@@ -75,6 +76,16 @@ app.post('/api/agent/whatsapp/disconnect', adminProtect, async (req, res) => {
   try {
     await disconnectWhatsApp();
     res.json({ message: 'WhatsApp disconnected successfully' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Hard Reset: kill socket + wipe ALL session data from MongoDB
+app.post('/api/agent/whatsapp/reset', adminProtect, async (req, res) => {
+  try {
+    await resetWhatsAppSession();
+    res.json({ message: 'WhatsApp session fully reset. You can now scan QR or use pairing code.' });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -150,9 +161,6 @@ const PORT = process.env.PORT || 5001;
 
 // Start Server and Database Connection
 connectDB().then(() => {
-  // Auto-connect WhatsApp on start so session loads automatically
-  connectWhatsApp();
-
   app.listen(PORT, () => {
     console.log(`AI Agent server running on port ${PORT}`);
   });
