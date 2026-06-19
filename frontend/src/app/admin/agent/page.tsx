@@ -18,7 +18,7 @@ export default function AIAgentAdminPage() {
   const [waActionLoading, setWaActionLoading] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' | 'info' } | null>(null);
 
-  const agentApiUrl = process.env.NEXT_PUBLIC_AGENT_API_URL || 'http://localhost:5001';
+  const agentApiUrl = (process.env.NEXT_PUBLIC_AGENT_API_URL || 'http://localhost:5001').replace(/\/$/, '');
 
   const showToast = (msg: string, type: 'success' | 'error' | 'info' = 'info') => {
     setToast({ msg, type });

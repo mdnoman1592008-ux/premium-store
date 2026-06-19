@@ -9,7 +9,7 @@ export default function AIChatWidget() {
   const [sessionId, setSessionId] = useState('');
 
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const agentApiUrl = process.env.NEXT_PUBLIC_AGENT_API_URL || 'http://localhost:5001';
+  const agentApiUrl = (process.env.NEXT_PUBLIC_AGENT_API_URL || 'http://localhost:5001').replace(/\/$/, '');
 
   // Initialize unique session ID
   useEffect(() => {
