@@ -24,9 +24,18 @@ export const disconnectWhatsApp = async () => {
       sock.end();
     } catch (e) {}
     sock = null;
-    connectionStatus = 'Disconnected';
-    qrCodeImage = '';
-    pairingCode = '';
+  }
+  connectionStatus = 'Disconnected';
+  qrCodeImage = '';
+  pairingCode = '';
+
+  // Clear auth session from database
+  try {
+    const BaileysAuth = (await import('../models/BaileysAuth')).default;
+    await BaileysAuth.deleteMany({ key: { $regex: '^session_whatsapp:' } });
+    console.log('Cleared BaileysAuth session from database.');
+  } catch (err) {
+    console.error('Failed to clear session from database:', err);
   }
 };
 
@@ -34,20 +43,22 @@ const initWhatsAppSocket = async (printQR: boolean = true) => {
   if (sock) return;
 
   connectionStatus = 'Connecting';
+  console.log('Initializing WhatsApp socket...');
 
   try {
     const { state, saveCreds } = await useMongoDBAuthState('session_whatsapp');
 
     sock = makeWASocket({
       auth: state,
-      logger: pino({ level: 'silent' }) as any,
-      printQRInTerminal: printQR
+      logger: pino({ level: 'silent' }) as any
     });
 
     sock.ev.on('creds.update', saveCreds);
 
     sock.ev.on('connection.update', async (update: any) => {
       const { connection, lastDisconnect, qr } = update;
+
+      console.log(`WhatsApp connection update: connection = ${connection}, qr = ${qr ? 'present' : 'absent'}`);
 
       if (qr) {
         connectionStatus = 'Scanning';
@@ -59,7 +70,14 @@ const initWhatsAppSocket = async (printQR: boolean = true) => {
       }
 
       if (connection === 'close') {
-        const shouldReconnect = (lastDisconnect?.error as any)?.output?.statusCode !== DisconnectReason.loggedOut;
+        const error = lastDisconnect?.error;
+        const statusCode = error?.output?.statusCode;
+        console.error(`WhatsApp connection closed. Status Code: ${statusCode}, Error:`, error);
+        if (error?.stack) {
+          console.error(error.stack);
+        }
+
+        const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
         console.log('WhatsApp connection closed. Should reconnect:', shouldReconnect);
         connectionStatus = 'Disconnected';
         qrCodeImage = '';
@@ -68,6 +86,7 @@ const initWhatsAppSocket = async (printQR: boolean = true) => {
 
         if (shouldReconnect) {
           // Wait 5 seconds and reconnect
+          console.log('Scheduling reconnection in 5 seconds...');
           setTimeout(() => connectWhatsApp(), 5000);
         }
       } else if (connection === 'open') {
