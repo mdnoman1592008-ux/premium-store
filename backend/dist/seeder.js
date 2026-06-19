@@ -23,6 +23,7 @@ const products = [
         appName: 'Gemini',
         category: 'AI Tools',
         plans: [
+            { planName: 'Google AI Plus', description: 'Get more access to AI tools to boost your productivity and creativity', features: ['2x higher usage limits', 'Access to our Flash Thinking model'] },
             { planName: 'Gemini Pro', description: 'Advanced reasoning and coding', features: ['Advanced coding capabilities', 'Integration with Google Workspace'] },
             { planName: 'Gemini Ultra', description: 'Most capable model for highly complex tasks', features: ['Highest capability', 'Complex task solving'] }
         ]

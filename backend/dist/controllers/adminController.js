@@ -7,6 +7,7 @@ exports.resetUserPassword = exports.getUsers = exports.loginAdmin = void 0;
 const Admin_1 = __importDefault(require("../models/Admin"));
 const User_1 = __importDefault(require("../models/User"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const generateToken = (id) => {
     return jsonwebtoken_1.default.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
@@ -53,7 +54,8 @@ const resetUserPassword = async (req, res) => {
             res.status(404).json({ message: 'User not found' });
             return;
         }
-        user.password = newPassword; // Will be hashed by pre-save hook in User model
+        const salt = await bcryptjs_1.default.genSalt(10);
+        user.password = await bcryptjs_1.default.hash(newPassword, salt);
         await user.save();
         res.json({ message: 'Password reset successfully' });
     }

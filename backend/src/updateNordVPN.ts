@@ -17,11 +17,11 @@ const connectDB = async () => {
 const updateLogo = async () => {
   try {
     await connectDB();
-    const product = await Product.findOne({ $or: [{ appId: /nordvpn/i }, { name: /nord/i }] });
+    const product: any = await Product.findOne({ $or: [{ appId: /nordvpn/i }, { appName: /nord/i }] });
     if (product) {
       product.logo = '/nordvpn_icon.png';
       await product.save();
-      console.log(`Updated logo for product: ${product.name}`);
+      console.log(`Updated logo for product: ${product.appName}`);
     } else {
       console.log('NordVPN product not found in database.');
     }

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db';
+import { initGeminiPlus } from './initGeminiPlus';
 
 dotenv.config();
 
@@ -13,7 +14,9 @@ app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
 // Connect to Database
-connectDB();
+connectDB().then(() => {
+  initGeminiPlus();
+});
 
 import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
