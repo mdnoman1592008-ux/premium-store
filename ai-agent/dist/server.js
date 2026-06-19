@@ -162,6 +162,21 @@ app.post('/api/agent/web/chat', async (req, res) => {
 app.get('/', (req, res) => {
     res.send('AI Agent Service API is running...');
 });
+// Endpoint to check available Gemini models
+app.get('/api/agent/models', async (req, res) => {
+    try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey)
+            return res.status(500).json({ error: 'GEMINI_API_KEY is missing in Railway environment variables.' });
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+        const data = await response.json();
+        const models = data.models ? data.models.map((m) => m.name.replace('models/', '')) : data;
+        res.json({ availableModels: models, raw: data });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 const PORT = process.env.PORT || 5001;
 // Start Server and Database Connection
 (0, db_1.default)().then(async () => {
