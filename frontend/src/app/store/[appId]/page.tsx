@@ -396,22 +396,24 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
         borderBottom: '1px solid #e2e8f0'
       }}>
         <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '32px', flexWrap: 'wrap' }}>
-          <div style={{ 
-            width: '130px', 
-            height: '130px', 
-            borderRadius: '32px', 
-            background: appInfo.bg, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            boxShadow: '0 20px 45px rgba(0,0,0,0.12)',
-            flexShrink: 0,
-            overflow: 'hidden'
-          }}>
-            {appInfo.icon}
-          </div>
+          {appKey !== 'chatgpt' && (
+            <div style={{ 
+              width: '130px', 
+              height: '130px', 
+              borderRadius: '32px', 
+              background: appInfo.bg, 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              boxShadow: '0 20px 45px rgba(0,0,0,0.12)',
+              flexShrink: 0,
+              overflow: 'hidden'
+            }}>
+              {appInfo.icon}
+            </div>
+          )}
           {appKey === 'chatgpt' ? (
-            <div>
+            <div style={{ width: '100%' }}>
               <div style={{ 
                 display: 'inline-block', 
                 padding: '6px 14px', 
@@ -420,7 +422,7 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
                 borderRadius: '50px', 
                 fontWeight: 700, 
                 fontSize: '0.8rem', 
-                marginBottom: '12px',
+                marginBottom: '16px',
                 border: '1px solid #bfdbfe',
                 textTransform: 'uppercase',
                 letterSpacing: '1px'
@@ -429,15 +431,15 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
               </div>
               
               {/* Custom Image Banner for ChatGPT */}
-              <div style={{ marginTop: '16px', width: '100%', maxWidth: '850px' }}>
+              <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
                 <img 
                   src="/chatgpt_banner.png" 
                   alt="ChatGPT Premium Subscription Bangladesh" 
                   style={{ 
                     width: '100%', 
                     height: 'auto', 
-                    borderRadius: '16px', 
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.08)',
+                    borderRadius: '20px', 
+                    boxShadow: '0 15px 35px rgba(0,0,0,0.1)',
                     display: 'block'
                   }} 
                 />
