@@ -18,7 +18,7 @@ const APP_DATA: Record<string, { bg: string; icon: React.ReactNode; desc: string
   'chatgpt': {
     bg: '#ffffff',
     icon: <img src="/chatgpt_icon.png" alt="ChatGPT" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px', borderRadius: '28px' }} />,
-    desc: 'Access to GPT-4 and exclusive features.'
+    desc: 'Access to GPT-5.5 and exclusive features.'
   },
   'gemini': {
     bg: '#ffffff',
@@ -121,8 +121,8 @@ const FALLBACK_PRODUCTS: Record<string, any> = {
     appId: 'chatgpt',
     category: 'AI Tools',
     plans: [
-      { planName: 'ChatGPT Plus', description: 'Get access to GPT-4, DALL-E, advanced data analysis and faster response times.', features: ['Access to GPT-4o & GPT-4', 'Create images with DALL-E', 'Data analysis & web browsing', 'Priority access during peak hours'] },
-      { planName: 'ChatGPT Team', description: 'Collaborate with higher message limits and workspace management features.', features: ['Higher usage limits on GPT-4o', 'Admin console & team management', 'Shared workspace workspace tools', 'Exclude data from model training'] }
+      { planName: 'ChatGPT Plus', description: 'Get access to GPT-5.5, DALL-E, advanced data analysis and faster response times.', features: ['Access to GPT-5.5 & GPT-4o', 'Create images with DALL-E', 'Data analysis & web browsing', 'Priority access during peak hours'] },
+      { planName: 'ChatGPT Team', description: 'Collaborate with higher message limits and workspace management features.', features: ['Higher usage limits on GPT-5.5', 'Admin console & team management', 'Shared workspace workspace tools', 'Exclude data from model training'] }
     ]
   },
   'gemini': {

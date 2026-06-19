@@ -18,7 +18,7 @@ const APP_DATA: Record<string, { bg: string; icon: React.ReactNode; desc: string
   'chatgpt': {
     bg: '#ffffff',
     icon: <img src="/chatgpt_icon.png" alt="ChatGPT" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px', borderRadius: '20px' }} />,
-    desc: 'Access to GPT-4 and exclusive features.'
+    desc: 'Access to GPT-5.5 and exclusive features.'
   },
   'gemini': {
     bg: '#ffffff',

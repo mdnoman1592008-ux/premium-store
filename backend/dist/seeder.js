@@ -14,7 +14,7 @@ const products = [
         appName: 'ChatGPT',
         category: 'AI Tools',
         plans: [
-            { planName: 'ChatGPT Plus', description: 'Access to GPT-4, faster response speed', features: ['Advanced AI', 'Fast Response', 'DALL-E Image Generation'] },
+            { planName: 'ChatGPT Plus', description: 'Access to GPT-5.5, faster response speed', features: ['Advanced AI', 'Fast Response', 'DALL-E Image Generation'] },
             { planName: 'ChatGPT Pro', description: 'Highest priority access, new features early', features: ['Priority Access', 'Advanced Data Analysis', 'More usage limits'] }
         ]
     },
