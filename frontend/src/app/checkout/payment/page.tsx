@@ -172,7 +172,7 @@ export default function PaymentMethodPage() {
                   alt={m.name} 
                   style={{ 
                     maxWidth: '95%', 
-                    maxHeight: '52px', 
+                    maxHeight: m.id === 'bkash' || m.id === 'nagad' ? '70px' : '52px', 
                     objectFit: 'contain',
                     display: 'block'
                   }} 
