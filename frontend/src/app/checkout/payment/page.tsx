@@ -156,23 +156,23 @@ export default function PaymentMethodPage() {
                 style={{
                   border: selectedMethod === m.id ? '2px solid #0e55b7' : '1px solid #e8ecf0',
                   borderRadius: '10px',
-                  padding: '10px 6px',
+                  padding: '8px 4px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  background: selectedMethod === m.id ? '#f0f5ff' : '#f8f9fb',
+                  background: 'white',
                   transition: 'all 0.2s ease',
-                  height: '60px',
-                  boxShadow: selectedMethod === m.id ? '0 2px 8px rgba(14,85,183,0.15)' : 'none'
+                  height: '65px',
+                  boxShadow: selectedMethod === m.id ? '0 2px 8px rgba(14,85,183,0.15)' : '0 1px 3px rgba(0,0,0,0.05)'
                 }}
               >
                 <img 
                   src={m.logo} 
                   alt={m.name} 
                   style={{ 
-                    maxWidth: '90%', 
-                    maxHeight: '42px', 
+                    maxWidth: '95%', 
+                    maxHeight: '52px', 
                     objectFit: 'contain',
                     display: 'block'
                   }} 
