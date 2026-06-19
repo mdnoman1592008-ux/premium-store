@@ -150,13 +150,7 @@ export default function PaymentMethodPage() {
 
             {/* Cancel Button */}
             <button
-              onClick={() => {
-                if (!isMobile) {
-                  router.push('/checkout/cancel');
-                } else {
-                  router.push('/store');
-                }
-              }}
+              onClick={() => router.push('/checkout/cancel')}
               title="Cancel"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', color: '#64748b' }}
             >
