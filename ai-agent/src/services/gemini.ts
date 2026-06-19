@@ -299,8 +299,7 @@ export const chatWithAgent = async (
     // Ensure system instruction is attached or formatted in the request
     const genAI = getGenAI();
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash-latest',
-      systemInstruction: SYSTEM_INSTRUCTION
+      model: 'gemini-pro'
     });
 
     // Translate our database history format to Gemini SDK format
@@ -308,6 +307,18 @@ export const chatWithAgent = async (
       role: m.role,
       parts: m.parts.map((p: any) => ({ text: p.text }))
     }));
+
+    // Inject system instruction if history is empty
+    if (sdkHistory.length === 0) {
+      sdkHistory.push({
+        role: 'user',
+        parts: [{ text: \`[SYSTEM INSTRUCTION: \${SYSTEM_INSTRUCTION}]\n\nHello\` }]
+      });
+      sdkHistory.push({
+        role: 'model',
+        parts: [{ text: 'Understood. How can I help you today?' }]
+      });
+    }
 
     // Start a chat session with history and tools
     const chat = model.startChat({
