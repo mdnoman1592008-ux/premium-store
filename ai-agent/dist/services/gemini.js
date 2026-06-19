@@ -296,62 +296,50 @@ const chatWithAgent = async (sessionId, userMessage) => {
         if (sdkHistory.length === 0) {
             sdkHistory.push({
                 role: 'user',
-                parts: [{ text:  } `[SYSTEM INSTRUCTION: \${SYSTEM_INSTRUCTION}]\n\nHello\` }]
-      });
-      sdkHistory.push({
-        role: 'model',
-        parts: [{ text: 'Understood. How can I help you today?' }]
-      });
-    }
-
-    // Start a chat session with history and tools
-    const chat = model.startChat({
-      history: sdkHistory,
-      tools: tools
-    });
-
-    // Send the user message
-    let result: any = await chat.sendMessage(userMessage);
-
-    // Loop to handle tool/function calls recursively
-    let calls = typeof result.functionCalls === 'function' ? result.functionCalls() : result.functionCalls;
-    while (calls && calls.length > 0) {
-      const toolCall = calls[0];
-      const toolResult = await executeTool(toolCall.name, toolCall.args);
-
-      // Send function response back to Gemini to get next output
-      result = await chat.sendMessage([
-        {
-          functionResponse: {
-            name: toolCall.name,
-            response: toolResult
-          }
+                parts: [{ text: `[SYSTEM INSTRUCTION: ${SYSTEM_INSTRUCTION}]\n\nHello` }]
+            });
+            sdkHistory.push({
+                role: 'model',
+                parts: [{ text: 'Understood. How can I help you today?' }]
+            });
         }
-      ]);
-      calls = typeof result.functionCalls === 'function' ? result.functionCalls() : result.functionCalls;
-    }
-
-    // Fetch the final generated text
-    const replyText = result.response.text();
-
-    // Save updated history back to MongoDB
-    const updatedHistory = await chat.getHistory();
-    historyDoc.messages = updatedHistory.map((m: any) => ({
-      role: m.role as any,
-      parts: m.parts.map((p: any) => ({ text: p.text || '' }))
-    })) as any;
-    await historyDoc.save();
-
-    return replyText;
-  } catch (err: any) {
-    console.error('Error in chatWithAgent:', err);
-    return `, দুঃখিত, বর্তমানে, একটি, টেকনিক্যাল, সমস্যার, কারণে, আমি, আপনার, মেসেজটি, প্রসেস, করতে, পারছি, না, অনুগ্রহ, করে, কিছুক্ষণ, পর, আবার, চেষ্টা, করুন, (Error, { err }) => , .message]
-            }) `;
-  }
-};
-            ;
+        // Start a chat session with history and tools
+        const chat = model.startChat({
+            history: sdkHistory,
+            tools: tools
+        });
+        // Send the user message
+        let result = await chat.sendMessage(userMessage);
+        // Loop to handle tool/function calls recursively
+        let calls = typeof result.functionCalls === 'function' ? result.functionCalls() : result.functionCalls;
+        while (calls && calls.length > 0) {
+            const toolCall = calls[0];
+            const toolResult = await executeTool(toolCall.name, toolCall.args);
+            // Send function response back to Gemini to get next output
+            result = await chat.sendMessage([
+                {
+                    functionResponse: {
+                        name: toolCall.name,
+                        response: toolResult
+                    }
+                }
+            ]);
+            calls = typeof result.functionCalls === 'function' ? result.functionCalls() : result.functionCalls;
         }
+        // Fetch the final generated text
+        const replyText = result.response.text();
+        // Save updated history back to MongoDB
+        const updatedHistory = await chat.getHistory();
+        historyDoc.messages = updatedHistory.map((m) => ({
+            role: m.role,
+            parts: m.parts.map((p) => ({ text: p.text || '' }))
+        }));
+        await historyDoc.save();
+        return replyText;
     }
-    finally { }
+    catch (err) {
+        console.error('Error in chatWithAgent:', err);
+        return `দুঃখিত, বর্তমানে একটি টেকনিক্যাল সমস্যার কারণে আমি আপনার মেসেজটি প্রসেস করতে পারছি না। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন। (Error: ${err.message})`;
+    }
 };
 exports.chatWithAgent = chatWithAgent;

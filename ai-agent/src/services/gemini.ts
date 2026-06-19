@@ -312,7 +312,7 @@ export const chatWithAgent = async (
     if (sdkHistory.length === 0) {
       sdkHistory.push({
         role: 'user',
-        parts: [{ text: \`[SYSTEM INSTRUCTION: \${SYSTEM_INSTRUCTION}]\n\nHello\` }]
+        parts: [{ text: `[SYSTEM INSTRUCTION: ${SYSTEM_INSTRUCTION}]\n\nHello` }]
       });
       sdkHistory.push({
         role: 'model',
