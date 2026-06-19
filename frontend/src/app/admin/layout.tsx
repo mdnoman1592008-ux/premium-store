@@ -28,6 +28,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Coupons', href: '/admin/coupons', icon: '🎟️' },
     { name: 'Pricing', href: '/admin/pricing', icon: '💰' },
     { name: 'Payments', href: '/admin/payments', icon: '💳' },
+    { name: 'AI Agent', href: '/admin/agent', icon: '🤖' },
   ];
 
   return (
