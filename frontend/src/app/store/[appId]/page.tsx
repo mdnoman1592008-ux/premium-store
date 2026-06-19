@@ -410,29 +410,111 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
           }}>
             {appInfo.icon}
           </div>
-          <div>
-            <div style={{ 
-              display: 'inline-block', 
-              padding: '6px 14px', 
-              background: 'white', 
-              color: 'var(--primary)', 
-              borderRadius: '50px', 
-              fontWeight: 700, 
-              fontSize: '0.8rem', 
-              marginBottom: '12px',
-              border: '1px solid #bfdbfe',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}>
-              {app.category || 'Subscription'}
+          {appKey === 'chatgpt' ? (
+            <div>
+              <div style={{ 
+                display: 'inline-block', 
+                padding: '6px 14px', 
+                background: 'white', 
+                color: 'var(--primary)', 
+                borderRadius: '50px', 
+                fontWeight: 700, 
+                fontSize: '0.8rem', 
+                marginBottom: '12px',
+                border: '1px solid #bfdbfe',
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
+              }}>
+                {app.category || 'AI Tools'}
+              </div>
+              
+              {/* Highlighted Banner Title */}
+              <h1 style={{ 
+                fontSize: 'clamp(1.5rem, 4.5vw, 2.2rem)', 
+                fontWeight: 800, 
+                color: '#0f172a', 
+                margin: 0, 
+                lineHeight: 1.25,
+                fontFamily: 'var(--font-noto-bengali), sans-serif'
+              }}>
+                <span style={{ 
+                  background: 'linear-gradient(90deg, #10A37F 0%, #2563eb 100%)', 
+                  WebkitBackgroundClip: 'text', 
+                  WebkitTextFillColor: 'transparent',
+                  display: 'inline-block'
+                }}>
+                  🚀 ChatGPT Premium Subscription Bangladesh
+                </span>
+                <span style={{ display: 'block', fontSize: '0.65em', color: '#64748b', fontWeight: 700, marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Fast & Smart AI Access
+                </span>
+              </h1>
+
+              {/* Highlighting Eye-catching Content Box */}
+              <div style={{ 
+                marginTop: '16px', 
+                maxWidth: '650px', 
+                lineHeight: 1.6,
+                fontFamily: 'var(--font-noto-bengali), sans-serif'
+              }}>
+                <p style={{ 
+                  fontSize: '1.05rem', 
+                  color: '#1e293b', 
+                  fontWeight: 700, 
+                  margin: '0 0 10px 0',
+                  background: 'linear-gradient(90deg, #eff6ff 0%, #dbeafe 100%)',
+                  padding: '8px 14px',
+                  borderRadius: '8px',
+                  display: 'inline-block',
+                  borderLeft: '4px solid #3b82f6',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                }}>
+                  আপনি কি আরও দ্রুত, স্মার্ট ও উন্নত AI এক্সপেরিয়েন্স চান?
+                </p>
+                
+                <p style={{ fontSize: '0.98rem', color: '#475569', margin: '0 0 10px 0', fontWeight: 500, lineHeight: 1.6 }}>
+                  এখন সহজভাবে <strong style={{ color: '#0f172a', fontWeight: 700 }}>ChatGPT Premium Subscription BD</strong> নিয়ে উপভোগ করুন উন্নত ফিচার ও দ্রুত রেসপন্স।
+                </p>
+                
+                <p style={{ 
+                  fontSize: '0.92rem', 
+                  color: '#64748b', 
+                  margin: 0, 
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: '#10A37F', borderRadius: '50%' }}></span>
+                  Developed by OpenAI, ChatGPT Premium আপনাকে দেয় আরও শক্তিশালী AI সুবিধা।
+                </p>
+              </div>
             </div>
-            <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3rem)', fontWeight: 800, color: '#0f172a', margin: 0, lineHeight: 1.1 }}>
-              {app.appName} Premium
-            </h1>
-            <p style={{ fontSize: '1.1rem', color: '#64748b', marginTop: '8px', maxWidth: '600px', lineHeight: 1.5 }}>
-              {appInfo.desc} Select a premium plan below to continue.
-            </p>
-          </div>
+          ) : (
+            <div>
+              <div style={{ 
+                display: 'inline-block', 
+                padding: '6px 14px', 
+                background: 'white', 
+                color: 'var(--primary)', 
+                borderRadius: '50px', 
+                fontWeight: 700, 
+                fontSize: '0.8rem', 
+                marginBottom: '12px',
+                border: '1px solid #bfdbfe',
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
+              }}>
+                {app.category || 'Subscription'}
+              </div>
+              <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3rem)', fontWeight: 800, color: '#0f172a', margin: 0, lineHeight: 1.1 }}>
+                {app.appName} Premium
+              </h1>
+              <p style={{ fontSize: '1.1rem', color: '#64748b', marginTop: '8px', maxWidth: '600px', lineHeight: 1.5 }}>
+                {appInfo.desc} Select a premium plan below to continue.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
