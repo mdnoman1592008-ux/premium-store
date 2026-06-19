@@ -11,6 +11,7 @@ let qrCodeImage = '';
 let pairingCode = '';
 let reconnectAttempts = 0;
 let reconnectTimer: any = null;
+let initError = '';
 const MAX_RECONNECT_ATTEMPTS = 5;
 
 export const getWhatsAppStatus = () => {
@@ -186,12 +187,14 @@ const initWhatsAppSocket = async () => {
         }
       }
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error('Failed to initialize WhatsApp socket:', err);
     connectionStatus = 'Disconnected';
     sock = null;
+    initError = err.message || String(err);
   }
 };
+
 
 export const getPairingCode = async (phoneNumber: string) => {
   if (connectionStatus === 'Connected') {
@@ -223,10 +226,13 @@ export const getPairingCode = async (phoneNumber: string) => {
   } else if (sock?.authState?.creds?.registered) {
     throw new Error('Session already registered. Reset the session first to re-link a new number.');
   } else {
-    throw new Error('Socket initialization failed. Try resetting the session first.');
+    throw new Error(`Socket initialization failed. Try resetting the session first. Details: ${initError}`);
   }
 };
 
 export const connectWhatsApp = async () => {
   await initWhatsAppSocket();
+  if (!sock) {
+    throw new Error(`Socket initialization failed. Details: ${initError}`);
+  }
 };
