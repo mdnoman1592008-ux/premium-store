@@ -102,17 +102,33 @@ export default function PaymentMethodPage() {
         <div style={{ padding: '32px' }}>
           {/* Store Info Row */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-            <div style={{ 
-              width: '60px', height: '60px', 
-              background: '#000', borderRadius: '50%', 
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'white', fontWeight: 800, fontSize: '1.2rem',
-              overflow: 'hidden'
-            }}>
-              <span style={{ color: '#ef4444' }}>U</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '60px', height: '60px' }}>
+              <svg width="60" height="60" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="logo-grad1" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#3b82f6"/>
+                    <stop offset="1" stopColor="#8b5cf6"/>
+                  </linearGradient>
+                  <linearGradient id="logo-grad2" x1="44" y1="0" x2="0" y2="44" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#60a5fa"/>
+                    <stop offset="1" stopColor="#a855f7"/>
+                  </linearGradient>
+                  <filter id="logo-glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="2" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+                <path d="M22 2L40 12.3V31.7L22 42L4 31.7V12.3L22 2Z" fill="url(#logo-grad1)" opacity="0.15"/>
+                <path d="M22 7L35 14.5V29.5L22 37L9 29.5V14.5L22 7Z" fill="url(#logo-grad2)"/>
+                <path d="M22 7L35 14.5V29.5L22 22V7Z" fill="#2563eb" opacity="0.5"/>
+                <path d="M22 22L35 14.5L22 7L9 14.5L22 22Z" fill="#ffffff" opacity="0.25"/>
+                <path d="M22 22L9 14.5V29.5L22 37V22Z" fill="#7c3aed" opacity="0.7"/>
+                <path d="M22 15L23.8 19.2L28 21L23.8 22.8L22 27L20.2 22.8L16 21L20.2 19.2L22 15Z" fill="#ffffff" filter="url(#logo-glow)"/>
+                <path d="M22 15L23.8 19.2L28 21L23.8 22.8L22 27L20.2 22.8L16 21L20.2 19.2L22 15Z" fill="#ffffff"/>
+              </svg>
             </div>
             <div>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#334155', margin: '0 0 8px 0' }}>UIDTOPUP.COM</h2>
+              <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#334155', margin: '0 0 8px 0' }}>PREMIUMACCCOUNTSSTORE.COM</h2>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '4px 8px', fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94m-1 7.98v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> সাপোর্ট
