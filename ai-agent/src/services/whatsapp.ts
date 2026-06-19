@@ -1,4 +1,4 @@
-import makeWASocket, { DisconnectReason } from '@whiskeysockets/baileys';
+import makeWASocket, { DisconnectReason, Browsers } from '@whiskeysockets/baileys';
 import { useMongoDBAuthState } from './mongoAuth';
 import { chatWithAgent } from './gemini';
 import qrcode from 'qrcode';
@@ -108,7 +108,7 @@ const initWhatsAppSocket = async () => {
     sock = makeWASocket({
       auth: state,
       logger: pino({ level: 'silent' }) as any,
-      browser: ['Ubuntu', 'Chrome', '110.0.5481.77'],
+      browser: Browsers.macOS('Desktop'),
       syncFullHistory: false
     });
 

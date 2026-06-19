@@ -142,7 +142,7 @@ const initWhatsAppSocket = async () => {
         sock = (0, baileys_1.default)({
             auth: state,
             logger: (0, pino_1.default)({ level: 'silent' }),
-            browser: ['Ubuntu', 'Chrome', '110.0.5481.77'],
+            browser: baileys_1.Browsers.macOS('Desktop'),
             syncFullHistory: false
         });
         sock.ev.on('creds.update', saveCreds);
