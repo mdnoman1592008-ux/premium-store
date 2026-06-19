@@ -9,6 +9,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const db_1 = __importDefault(require("./config/db"));
 const Admin_1 = __importDefault(require("./models/Admin"));
+const BaileysAuth_1 = __importDefault(require("./models/BaileysAuth"));
 const whatsapp_1 = require("./services/whatsapp");
 const facebook_1 = require("./services/facebook");
 const gemini_1 = require("./services/gemini");
@@ -163,8 +164,19 @@ app.get('/', (req, res) => {
 });
 const PORT = process.env.PORT || 5001;
 // Start Server and Database Connection
-(0, db_1.default)().then(() => {
+(0, db_1.default)().then(async () => {
     app.listen(PORT, () => {
         console.log(`AI Agent server running on port ${PORT}`);
     });
+    // Auto-reconnect WhatsApp if a session exists in the database
+    try {
+        const sessionExists = await BaileysAuth_1.default.exists({ key: { $regex: '^session_whatsapp:' } });
+        if (sessionExists) {
+            console.log('Found existing WhatsApp session in database. Auto-connecting...');
+            (0, whatsapp_1.connectWhatsApp)();
+        }
+    }
+    catch (err) {
+        console.error('Failed to check WhatsApp session on startup:', err);
+    }
 });

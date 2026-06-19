@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import connectDB from './config/db';
 import Admin from './models/Admin';
+import BaileysAuth from './models/BaileysAuth';
 import {
   connectWhatsApp,
   disconnectWhatsApp,
@@ -178,8 +179,19 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 5001;
 
 // Start Server and Database Connection
-connectDB().then(() => {
+connectDB().then(async () => {
   app.listen(PORT, () => {
     console.log(`AI Agent server running on port ${PORT}`);
   });
+
+  // Auto-reconnect WhatsApp if a session exists in the database
+  try {
+    const sessionExists = await BaileysAuth.exists({ key: { $regex: '^session_whatsapp:' } });
+    if (sessionExists) {
+      console.log('Found existing WhatsApp session in database. Auto-connecting...');
+      connectWhatsApp();
+    }
+  } catch (err) {
+    console.error('Failed to check WhatsApp session on startup:', err);
+  }
 });
