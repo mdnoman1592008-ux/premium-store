@@ -553,8 +553,10 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
               </div>
               <div>
                 <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#334155', margin: '0 0 4px 0' }}>PREMIUMACCOUNTSSTORE.COM</h3>
-                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '2px' }}>{t.invoice}</div>
-                <div style={{ fontSize: '0.9rem', color: '#64748b' }}>{invoiceId}</div>
+                <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                  {t.invoice}{' '}
+                  <span style={{ fontWeight: 600, color: '#475569' }}>{invoiceId}</span>
+                </div>
               </div>
             </div>
             <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#475569' }}>
