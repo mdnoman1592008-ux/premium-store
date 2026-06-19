@@ -200,7 +200,7 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
       <div style={{ 
         background: 'white', 
         width: '100%', 
-        maxWidth: '560px', 
+        maxWidth: '720px', 
         borderRadius: '12px', 
         boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
         overflow: 'hidden'
@@ -312,8 +312,8 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
               </li>
               <li style={{ padding: '16px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start' }}>
                 <span style={{ display: 'inline-block', minWidth: '6px', height: '6px', background: 'white', borderRadius: '50%', margin: '8px 12px 0 0' }}></span>
-                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                  <span>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুনঃ <strong style={{ color: '#facc15', fontSize: '1.1rem', letterSpacing: '1px' }}>{number}</strong></span>
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '12px' }}>
+                  <span style={{ whiteSpace: 'nowrap' }}>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুনঃ <strong style={{ color: '#facc15', fontSize: '1.1rem', letterSpacing: '1px' }}>{number}</strong></span>
                   <button 
                     type="button"
                     onClick={handleCopy} 
