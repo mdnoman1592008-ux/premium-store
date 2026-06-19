@@ -78,10 +78,12 @@ export default function AIAgentAdminPage() {
         alert('WhatsApp connection initialization requested.');
         fetchStatusAndSettings();
       } else {
-        alert('Failed to initialize WhatsApp connection.');
+        const data = await res.json().catch(() => ({}));
+        alert(`Failed to initialize WhatsApp connection: ${data.message || data.error || res.statusText || res.status}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert(`Error initializing WhatsApp: ${err.message}`);
     } finally {
       setWaActionLoading(false);
     }
@@ -100,10 +102,12 @@ export default function AIAgentAdminPage() {
         setPairingResult('');
         fetchStatusAndSettings();
       } else {
-        alert('Failed to disconnect WhatsApp.');
+        const data = await res.json().catch(() => ({}));
+        alert(`Failed to disconnect WhatsApp: ${data.message || data.error || res.statusText || res.status}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert(`Error disconnecting WhatsApp: ${err.message}`);
     } finally {
       setWaActionLoading(false);
     }
@@ -123,15 +127,15 @@ export default function AIAgentAdminPage() {
         headers: getHeaders(),
         body: JSON.stringify({ phone: pairingPhone })
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok && data.pairingCode) {
         setPairingResult(data.pairingCode);
       } else {
-        alert(data.error || 'Failed to get pairing code.');
+        alert(`Failed to get pairing code: ${data.message || data.error || res.statusText || res.status}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Error fetching pairing code.');
+      alert(`Error fetching pairing code: ${err.message}`);
     } finally {
       setWaActionLoading(false);
     }
@@ -150,11 +154,12 @@ export default function AIAgentAdminPage() {
         setSaveStatus('Saved successfully!');
         setTimeout(() => setSaveStatus(''), 3000);
       } else {
-        setSaveStatus('Failed to save settings.');
+        const data = await res.json().catch(() => ({}));
+        setSaveStatus(`Failed to save settings: ${data.message || data.error || res.statusText || res.status}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setSaveStatus('Failed to save settings.');
+      setSaveStatus(`Failed to save settings: ${err.message}`);
     }
   };
 

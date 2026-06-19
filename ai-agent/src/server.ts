@@ -32,18 +32,22 @@ const adminProtect = async (req: any, res: any, next: any) => {
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
     try {
       token = req.headers.authorization.split(' ')[1];
+      console.log('adminProtect: Verifying token with JWT_SECRET length:', (process.env.JWT_SECRET || '').length);
       const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'supersecretjwtkey123');
       const admin = await Admin.findById(decoded.id).select('-password');
       if (admin) {
         req.admin = admin;
         next();
       } else {
-        res.status(401).json({ message: 'Not authorized as admin' });
+        console.error(`adminProtect: No admin user found in database with ID: ${decoded.id}`);
+        res.status(401).json({ message: `Not authorized as admin: ID ${decoded.id} not found in database` });
       }
-    } catch (error) {
-      res.status(401).json({ message: 'Not authorized, token failed' });
+    } catch (error: any) {
+      console.error('adminProtect: JWT verification failed:', error.message);
+      res.status(401).json({ message: `Not authorized, token failed: ${error.message}` });
     }
   } else {
+    console.error('adminProtect: No bearer token provided in headers:', req.headers.authorization);
     res.status(401).json({ message: 'Not authorized, no token' });
   }
 };
