@@ -304,7 +304,7 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
                 <li>{getUSSDCode(params.method)} ডায়াল করে আপনার {methodUpper} মোবাইল মেনুতে যান অথবা {methodUpper} অ্যাপে যান।</li>
                 <li>"Send Money" -এ ক্লিক করুন।</li>
                 <li>
-                  প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুনঃ <strong style={{ fontSize: '0.95rem' }}>{number}</strong>
+                  প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুনঃ <strong style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '1px', background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '6px' }}>{number}</strong>
                   <button 
                     type="button"
                     onClick={handleCopy} 
@@ -312,21 +312,22 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
                       background: 'rgba(0,0,0,0.2)', 
                       border: 'none', 
                       color: 'white', 
-                      padding: '2px 8px', 
-                      borderRadius: '4px', 
-                      marginLeft: '8px', 
+                      padding: '4px 10px', 
+                      borderRadius: '6px', 
+                      marginLeft: '12px', 
                       cursor: 'pointer',
-                      fontSize: '0.75rem',
+                      fontSize: '0.85rem',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '4px'
+                      gap: '6px',
+                      transform: 'translateY(-2px)'
                     }}
                   >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 
                     {copied ? 'Copied' : 'Copy'}
                   </button>
                 </li>
-                <li>টাকার পরিমাণঃ <strong style={{ fontSize: '0.95rem' }}>{finalPrice}</strong></li>
+                <li>টাকার পরিমাণঃ <strong style={{ fontSize: '1.3rem', fontWeight: 800 }}>{finalPrice}</strong></li>
                 <li>নিশ্চিত করতে এখন আপনার {methodUpper} মোবাইল মেনু পিন লিখুন।</li>
                 <li>সবকিছু ঠিক থাকলে, আপনি {methodUpper} থেকে একটি নিশ্চিতকরণ বার্তা পাবেন।</li>
                 <li>এখন উপরের বক্সে আপনার Transaction ID দিন এবং নিচের VERIFY বাটনে ক্লিক করুন।</li>
