@@ -237,6 +237,10 @@ export default function AIAgentAdminPage() {
           <p style={{ color: '#94a3b8', fontSize: '0.8rem', textAlign: 'center', marginTop: '20px', marginBottom: 0 }}>
             Use the same username and password as your admin login.
           </p>
+          <div style={{ marginTop: '16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 12px' }}>
+            <p style={{ margin: 0, fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Connecting to:</p>
+            <code style={{ fontSize: '0.75rem', color: '#475569', wordBreak: 'break-all' }}>{agentApiUrl}</code>
+          </div>
         </div>
       </div>
     );
