@@ -88,7 +88,9 @@ export default function PaymentMethodPage() {
 
   return (
     <div style={{ 
-      minHeight: '100vh', 
+      height: '100dvh', 
+      maxHeight: '100dvh',
+      overflow: 'hidden',
       background: '#f8fafc', 
       backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z\' fill=\'%23e2e8f0\' fill-opacity=\'0.2\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
       display: 'flex', 
@@ -100,19 +102,21 @@ export default function PaymentMethodPage() {
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
-        minHeight: '100vh'
+        height: '100%',
+        maxHeight: '100%',
+        overflow: 'hidden'
       }}>
         
         {/* Floating Header */}
         <div style={{ 
           background: 'white', 
           borderRadius: '12px', 
-          margin: '20px 20px 32px 20px',
+          margin: '12px 12px 16px 12px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'space-between', 
-          padding: '12px 16px' 
+          padding: '10px 14px' 
         }}>
           {/* Home Button */}
           <button
@@ -145,21 +149,36 @@ export default function PaymentMethodPage() {
           </div>
         </div>
 
-        <div style={{ padding: '0 20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ 
+          padding: '0 16px', 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column',
+          overflowY: 'auto',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none'
+        }}>
+          {/* Webkit hide scrollbar */}
+          <style dangerouslySetInnerHTML={{__html: `
+            div::-webkit-scrollbar {
+              display: none;
+            }
+          `}} />
+
           {/* Store Info Center */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '20px' }}>
             <div style={{ 
               background: 'black', 
               borderRadius: '50%', 
-              width: '100px', 
-              height: '100px', 
+              width: '80px', 
+              height: '80px', 
               display: 'flex', 
               justifyContent: 'center', 
               alignItems: 'center', 
-              marginBottom: '16px', 
+              marginBottom: '12px', 
               overflow: 'hidden' 
             }}>
-              <svg width="60" height="60" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="48" height="48" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                   <linearGradient id="logo-grad1" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
                     <stop stopColor="#3b82f6"/>
@@ -179,28 +198,28 @@ export default function PaymentMethodPage() {
               </svg>
             </div>
             
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#334155', margin: '0 0 16px 0', textTransform: 'uppercase' }}>PREMIUMACCCOUNTSSTORE.COM</h2>
+            <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#334155', margin: '0 0 12px 0', textTransform: 'uppercase' }}>PREMIUMACCCOUNTSSTORE.COM</h2>
             
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', width: '48px', height: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#64748b' }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94m-1 7.98v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', width: '40px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#64748b' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94m-1 7.98v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
               </button>
-              <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', width: '48px', height: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#64748b' }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', width: '40px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#64748b' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               </button>
-              <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', width: '48px', height: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#64748b' }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', width: '40px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#64748b' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
               </button>
             </div>
           </div>
 
           {/* Title Bar */}
-          <div style={{ background: '#0e55b7', color: 'white', textAlign: 'center', padding: '10px', borderRadius: '6px', fontWeight: 700, fontSize: '0.95rem', marginBottom: '24px' }}>
+          <div style={{ background: '#0e55b7', color: 'white', textAlign: 'center', padding: '8px', borderRadius: '6px', fontWeight: 700, fontSize: '0.9rem', marginBottom: '16px' }}>
             {t.title}
           </div>
 
           {/* Payment Methods Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginBottom: '20px' }}>
             {methods.map(m => (
               <div 
                 key={m.id}
@@ -208,14 +227,14 @@ export default function PaymentMethodPage() {
                 style={{
                   border: selectedMethod === m.id ? '2px solid #0e55b7' : '1px solid #e8ecf0',
                   borderRadius: '10px',
-                  padding: '8px 4px',
+                  padding: '6px 4px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
                   background: 'white',
                   transition: 'all 0.2s ease',
-                  height: '75px',
+                  height: '65px',
                   boxShadow: selectedMethod === m.id ? '0 2px 8px rgba(14,85,183,0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
                 }}
               >
@@ -223,8 +242,8 @@ export default function PaymentMethodPage() {
                   src={m.logo} 
                   alt={m.name} 
                   style={{ 
-                    maxWidth: '90%', 
-                    maxHeight: m.id === 'bkash' || m.id === 'nagad' ? '70px' : '52px', 
+                    maxWidth: '85%', 
+                    maxHeight: m.id === 'bkash' || m.id === 'nagad' ? '55px' : '42px', 
                     objectFit: 'contain',
                     display: 'block'
                   }} 
@@ -244,9 +263,9 @@ export default function PaymentMethodPage() {
               background: '#dce8fd', 
               color: '#0957d0', 
               border: 'none', 
-              padding: '24px 16px', 
+              padding: '20px 16px', 
               borderRadius: '20px 20px 0 0', 
-              fontSize: '1.25rem', 
+              fontSize: '1.2rem', 
               fontWeight: 700, 
               cursor: 'pointer',
               transition: 'background 0.2s ease',
