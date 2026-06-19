@@ -177,20 +177,21 @@ export default function PaymentMethodPage() {
             onClick={handleProceed}
             style={{ 
               width: '100%', 
-              background: '#dce8fd', 
-              color: '#0e55b7', 
+              background: '#dbeafe', // lighter blue
+              color: '#1d4ed8', // slightly darker and punchier blue
               border: 'none', 
               padding: '16px', 
               borderRadius: '8px', 
-              fontSize: '1rem', 
-              fontWeight: 800, 
+              fontSize: '1.05rem', 
+              fontWeight: 700, 
+              fontFamily: 'system-ui, -apple-system, sans-serif',
               cursor: 'pointer',
               transition: 'background 0.2s ease'
             }}
-            onMouseEnter={e => e.currentTarget.style.background = '#c2d6fc'}
-            onMouseLeave={e => e.currentTarget.style.background = '#dce8fd'}
+            onMouseEnter={e => e.currentTarget.style.background = '#bfdbfe'}
+            onMouseLeave={e => e.currentTarget.style.background = '#dbeafe'}
           >
-            Pay {price} BDT
+            Pay {Number(price || 0).toFixed(2)} BDT
           </button>
         </div>
       </div>
