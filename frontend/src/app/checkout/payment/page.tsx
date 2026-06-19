@@ -49,6 +49,8 @@ export default function PaymentMethodPage() {
     router.push(`/checkout/${methodId}`);
   };
 
+  const [selectedMethod, setSelectedMethod] = useState('');
+
   if (!appName) {
     return (
       <div className="container" style={{ padding: '80px 0', textAlign: 'center' }}>
@@ -60,8 +62,6 @@ export default function PaymentMethodPage() {
       </div>
     );
   }
-
-  const [selectedMethod, setSelectedMethod] = useState('');
 
   const handleProceed = () => {
     if (!selectedMethod) {
