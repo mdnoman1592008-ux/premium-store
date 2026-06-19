@@ -107,7 +107,9 @@ const initWhatsAppSocket = async () => {
 
     sock = makeWASocket({
       auth: state,
-      logger: pino({ level: 'silent' }) as any
+      logger: pino({ level: 'silent' }) as any,
+      browser: ['Ubuntu', 'Chrome', '110.0.5481.77'],
+      syncFullHistory: false
     });
 
     sock.ev.on('creds.update', saveCreds);

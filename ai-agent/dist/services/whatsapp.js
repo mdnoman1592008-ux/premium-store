@@ -141,7 +141,9 @@ const initWhatsAppSocket = async () => {
         const { state, saveCreds } = await (0, mongoAuth_1.useMongoDBAuthState)('session_whatsapp');
         sock = (0, baileys_1.default)({
             auth: state,
-            logger: (0, pino_1.default)({ level: 'silent' })
+            logger: (0, pino_1.default)({ level: 'silent' }),
+            browser: ['Ubuntu', 'Chrome', '110.0.5481.77'],
+            syncFullHistory: false
         });
         sock.ev.on('creds.update', saveCreds);
         sock.ev.on('connection.update', async (update) => {
