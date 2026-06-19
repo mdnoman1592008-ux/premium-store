@@ -183,7 +183,7 @@ app.get('/api/agent/models', async (req, res) => {
     if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY is missing in Railway environment variables.' });
     
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-    const data = await response.json();
+    const data: any = await response.json();
     
     const models = data.models ? data.models.map((m: any) => m.name.replace('models/', '')) : data;
     res.json({ availableModels: models, raw: data });
