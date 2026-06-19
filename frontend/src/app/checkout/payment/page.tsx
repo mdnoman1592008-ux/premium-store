@@ -9,6 +9,19 @@ export default function PaymentMethodPage() {
   const [planName, setPlanName] = useState('');
   const [price, setPrice] = useState('');
   const [duration, setDuration] = useState('');
+  const [lang, setLang] = useState<'bn' | 'en'>('bn');
+
+  const t = {
+    title: lang === 'bn' ? 'মোবাইল ব্যাংকিং' : 'Mobile Banking',
+    support: lang === 'bn' ? 'সাপোর্ট' : 'Support',
+    info: lang === 'bn' ? 'তথ্যাদি' : 'Info',
+    details: lang === 'bn' ? 'বিস্তারিত' : 'Details',
+    pay: lang === 'bn' ? 'পে করুন' : 'Pay',
+    noSession: lang === 'bn' ? 'কোনো সেশন নেই' : 'No Active Session',
+    noSessionMsg: lang === 'bn' ? 'স্টোরে ফিরে একটি প্ল্যান বেছে নিন।' : 'Please go back to the store and choose a plan.',
+    goStore: lang === 'bn' ? 'স্টোরে যান' : 'Go to Store',
+    selectFirst: lang === 'bn' ? 'প্রথমে একটি পেমেন্ট মেথড বেছে নিন।' : 'Please select a payment method first.',
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -53,10 +66,10 @@ export default function PaymentMethodPage() {
   if (!appName) {
     return (
       <div className="container" style={{ padding: '80px 0', textAlign: 'center' }}>
-        <h2 style={{ fontSize: '2rem', marginBottom: '16px' }}>No Active Session</h2>
-        <p style={{ color: '#64748b', marginBottom: '32px' }}>Please go back to the store and choose a subscription plan first.</p>
+        <h2 style={{ fontSize: '2rem', marginBottom: '16px' }}>{t.noSession}</h2>
+        <p style={{ color: '#64748b', marginBottom: '32px' }}>{t.noSessionMsg}</p>
         <Link href="/store" className="btn-primary" style={{ padding: '12px 32px' }}>
-          Go to Store
+          {t.goStore}
         </Link>
       </div>
     );
@@ -64,7 +77,7 @@ export default function PaymentMethodPage() {
 
   const handleProceed = () => {
     if (!selectedMethod) {
-      alert('Please select a payment method first.');
+      alert(t.selectFirst);
       return;
     }
     if (typeof window !== 'undefined') {
@@ -91,10 +104,34 @@ export default function PaymentMethodPage() {
           padding: '12px 16px', 
           borderBottom: '1px solid #f1f5f9' 
         }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8l6 6" /><path d="M4 14l6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" /><path d="M22 22l-5-10-5 10" /><path d="M14 18h6" /></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          {/* Home Button */}
+          <button
+            onClick={() => router.push('/')}
+            title="Home"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', color: '#64748b' }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+          </button>
+
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            {/* Language Toggle Button */}
+            <button
+              onClick={() => setLang(prev => prev === 'bn' ? 'en' : 'bn')}
+              title={lang === 'bn' ? 'Switch to English' : 'বাংলায় পরিবর্তন করুন'}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', color: '#64748b', fontSize: '0.7rem', fontWeight: 700, gap: '2px' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8l6 6" /><path d="M4 14l6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" /><path d="M22 22l-5-10-5 10" /><path d="M14 18h6" /></svg>
+              <span>{lang === 'bn' ? 'EN' : 'বাং'}</span>
+            </button>
+
+            {/* Cancel Button */}
+            <button
+              onClick={() => router.push('/store')}
+              title="Cancel"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', color: '#64748b' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
           </div>
         </div>
 
@@ -130,13 +167,13 @@ export default function PaymentMethodPage() {
               <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#334155', margin: '0 0 8px 0' }}>PREMIUMACCCOUNTSSTORE.COM</h2>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '4px 8px', fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94m-1 7.98v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> সাপোর্ট
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94m-1 7.98v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> {t.support}
                 </button>
                 <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '4px 8px', fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> তথ্যাদি
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> {t.info}
                 </button>
                 <button style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '4px 8px', fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> বিস্তারিত
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> {t.details}
                 </button>
               </div>
             </div>
@@ -144,7 +181,7 @@ export default function PaymentMethodPage() {
 
           {/* Title Bar */}
           <div style={{ background: '#0e55b7', color: 'white', textAlign: 'center', padding: '10px', borderRadius: '6px', fontWeight: 700, fontSize: '0.95rem', marginBottom: '24px' }}>
-            মোবাইল ব্যাংকিং
+            {t.title}
           </div>
 
           {/* Payment Methods Grid */}
