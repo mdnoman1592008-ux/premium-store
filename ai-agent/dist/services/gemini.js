@@ -285,7 +285,7 @@ const chatWithAgent = async (sessionId, userMessage) => {
         // Ensure system instruction is attached or formatted in the request
         const genAI = getGenAI();
         const model = genAI.getGenerativeModel({
-            model: 'gemini-1.5-flash',
+            model: 'gemini-1.5-flash-latest',
             systemInstruction: SYSTEM_INSTRUCTION
         });
         // Translate our database history format to Gemini SDK format
