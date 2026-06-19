@@ -1,3 +1,4 @@
+// AI Agent connection setup & storefront integration
 import type { Metadata } from "next";
 import { Inter, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
