@@ -39,7 +39,6 @@ export default function PaymentMethodPage() {
     { id: 'nagad', name: 'Nagad', color: '#F05A28', desc: 'Fast payment via Nagad Send Money', logo: '/nagad_logo.png' },
     { id: 'rocket', name: 'Rocket', color: '#8B2FC9', desc: 'Easy payment via Rocket Send Money', logo: '/rocket_logo.png' },
     { id: 'upay', name: 'Upay', color: '#00A651', desc: 'Secure payment via Upay Send Money', logo: '/upay_logo.png' },
-    { id: 'cellfin', name: 'Cellfin', color: '#005BAA', desc: 'Bank transfer via Cellfin Send Money', logo: '/cellfin_logo.png' },
   ];
 
   const handleSelectMethod = (methodId: string) => {
@@ -149,25 +148,35 @@ export default function PaymentMethodPage() {
           </div>
 
           {/* Payment Methods Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '32px' }}>
             {methods.map(m => (
               <div 
                 key={m.id}
                 onClick={() => setSelectedMethod(m.id)}
                 style={{
-                  border: `2px solid ${selectedMethod === m.id ? '#0e55b7' : '#e2e8f0'}`,
-                  borderRadius: '8px',
-                  padding: '12px',
+                  border: selectedMethod === m.id ? '2px solid #0e55b7' : '1px solid #e8ecf0',
+                  borderRadius: '10px',
+                  padding: '10px 6px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  background: selectedMethod === m.id ? '#f8fafc' : 'white',
+                  background: selectedMethod === m.id ? '#f0f5ff' : '#f8f9fb',
                   transition: 'all 0.2s ease',
-                  height: '70px'
+                  height: '60px',
+                  boxShadow: selectedMethod === m.id ? '0 2px 8px rgba(14,85,183,0.15)' : 'none'
                 }}
               >
-                <img src={m.logo} alt={m.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                <img 
+                  src={m.logo} 
+                  alt={m.name} 
+                  style={{ 
+                    maxWidth: '90%', 
+                    maxHeight: '42px', 
+                    objectFit: 'contain',
+                    display: 'block'
+                  }} 
+                />
               </div>
             ))}
           </div>
