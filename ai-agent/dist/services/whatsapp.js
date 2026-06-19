@@ -139,11 +139,14 @@ const initWhatsAppSocket = async () => {
     console.log('Initializing WhatsApp socket...');
     try {
         const { state, saveCreds } = await (0, mongoAuth_1.useMongoDBAuthState)('session_whatsapp');
+        const { version } = await (0, baileys_1.fetchLatestBaileysVersion)();
         sock = (0, baileys_1.default)({
+            version,
             auth: state,
             logger: (0, pino_1.default)({ level: 'silent' }),
-            browser: baileys_1.Browsers.macOS('Desktop'),
-            syncFullHistory: false
+            browser: ["Mac OS", "Chrome", "10.15.7"],
+            syncFullHistory: true,
+            markOnlineOnConnect: false
         });
         sock.ev.on('creds.update', saveCreds);
         sock.ev.on('connection.update', async (update) => {

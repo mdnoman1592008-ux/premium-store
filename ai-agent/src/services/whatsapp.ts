@@ -1,4 +1,4 @@
-import makeWASocket, { DisconnectReason, Browsers } from '@whiskeysockets/baileys';
+import makeWASocket, { DisconnectReason, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
 import { useMongoDBAuthState } from './mongoAuth';
 import { chatWithAgent } from './gemini';
 import qrcode from 'qrcode';
@@ -104,12 +104,15 @@ const initWhatsAppSocket = async () => {
 
   try {
     const { state, saveCreds } = await useMongoDBAuthState('session_whatsapp');
+    const { version } = await fetchLatestBaileysVersion();
 
     sock = makeWASocket({
+      version,
       auth: state,
       logger: pino({ level: 'silent' }) as any,
-      browser: Browsers.macOS('Desktop'),
-      syncFullHistory: false
+      browser: ["Mac OS", "Chrome", "10.15.7"],
+      syncFullHistory: true,
+      markOnlineOnConnect: false
     });
 
     sock.ev.on('creds.update', saveCreds);
