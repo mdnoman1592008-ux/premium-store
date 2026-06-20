@@ -18,6 +18,40 @@ const getGenAI = () => {
     }
     return new generative_ai_1.GoogleGenerativeAI(apiKey || 'MOCK_KEY');
 };
+// Models to try in order (fallback chain)
+const GEMINI_MODEL_FALLBACKS = [
+    'models/gemini-1.5-flash',
+    'models/gemini-1.5-flash-latest',
+    'gemini-1.5-flash-latest',
+    'gemini-1.5-flash',
+    'models/gemini-1.0-pro',
+    'gemini-1.0-pro',
+    'models/gemini-pro',
+    'gemini-pro',
+];
+let workingModel = null;
+// Try to find a working model
+const getWorkingModel = async (genAI) => {
+    // Use cached working model if found
+    if (workingModel) {
+        return genAI.getGenerativeModel({ model: workingModel });
+    }
+    for (const modelName of GEMINI_MODEL_FALLBACKS) {
+        try {
+            const m = genAI.getGenerativeModel({ model: modelName });
+            // Quick test to see if this model works
+            const testChat = m.startChat({ history: [] });
+            await testChat.sendMessage('Hi');
+            console.log(`✅ Gemini working model found: ${modelName}`);
+            workingModel = modelName;
+            return m;
+        }
+        catch (err) {
+            console.warn(`Model ${modelName} failed: ${err.message?.substring(0, 60)}`);
+        }
+    }
+    throw new Error('No working Gemini model found. Check your GEMINI_API_KEY.');
+};
 const SYSTEM_INSTRUCTION = `
 You are the official AI Assistant of PREMIUMACCOUNTSSTORE.COM (Premium Accounts BD).
 CRITICAL RULE: You MUST reply STRICTLY in Bengali (বাংলা ভাষায়) at all times, no matter what language the customer uses. Speak in an extremely polite, warm, respectful, and professional tone (খুব সুন্দর, মার্জিত এবং ভদ্র ভাষায় কথা বলবেন). 
@@ -292,13 +326,20 @@ const chatWithAgent = async (sessionId, userMessage) => {
         }
         // Ensure system instruction is attached or formatted in the request
         const genAI = getGenAI();
-        const model = genAI.getGenerativeModel({
-            model: 'gemini-3.5-flash'
-        });
+        const model = await getWorkingModel(genAI);
         // Translate our database history format to Gemini SDK format
         const sdkHistory = historyDoc.messages.map((m) => ({
             role: m.role,
-            parts: m.parts.map((p) => ({ text: p.text }))
+            parts: m.parts.map((p) => {
+                const cleanPart = {};
+                if (p.text !== undefined)
+                    cleanPart.text = p.text;
+                if (p.functionCall !== undefined)
+                    cleanPart.functionCall = p.functionCall;
+                if (p.functionResponse !== undefined)
+                    cleanPart.functionResponse = p.functionResponse;
+                return cleanPart;
+            })
         }));
         // Inject system instruction if history is empty
         if (sdkHistory.length === 0) {
@@ -335,12 +376,21 @@ const chatWithAgent = async (sessionId, userMessage) => {
             calls = typeof result.functionCalls === 'function' ? result.functionCalls() : result.functionCalls;
         }
         // Fetch the final generated text
-        const replyText = result.response.text();
+        let replyText = '';
+        try {
+            replyText = result.response.text();
+        }
+        catch (err) {
+            console.warn("Gemini didn't return text. Falling back.");
+        }
+        if (!replyText || replyText.trim() === '') {
+            replyText = "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";
+        }
         // Save updated history back to MongoDB
         const updatedHistory = await chat.getHistory();
         historyDoc.messages = updatedHistory.map((m) => ({
             role: m.role,
-            parts: m.parts.map((p) => ({ text: p.text || '' }))
+            parts: m.parts
         }));
         await historyDoc.save();
         return replyText;

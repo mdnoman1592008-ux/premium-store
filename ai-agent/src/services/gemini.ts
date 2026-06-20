@@ -14,6 +14,44 @@ const getGenAI = () => {
   return new GoogleGenerativeAI(apiKey || 'MOCK_KEY');
 };
 
+// Models to try in order (fallback chain)
+const GEMINI_MODEL_FALLBACKS = [
+  'models/gemini-1.5-flash',
+  'models/gemini-1.5-flash-latest',
+  'gemini-1.5-flash-latest',
+  'gemini-1.5-flash',
+  'models/gemini-1.0-pro',
+  'gemini-1.0-pro',
+  'models/gemini-pro',
+  'gemini-pro',
+];
+
+let workingModel: string | null = null;
+
+// Try to find a working model
+const getWorkingModel = async (genAI: GoogleGenerativeAI) => {
+  // Use cached working model if found
+  if (workingModel) {
+    return genAI.getGenerativeModel({ model: workingModel });
+  }
+
+  for (const modelName of GEMINI_MODEL_FALLBACKS) {
+    try {
+      const m = genAI.getGenerativeModel({ model: modelName });
+      // Quick test to see if this model works
+      const testChat = m.startChat({ history: [] });
+      await testChat.sendMessage('Hi');
+      console.log(`✅ Gemini working model found: ${modelName}`);
+      workingModel = modelName;
+      return m;
+    } catch (err: any) {
+      console.warn(`Model ${modelName} failed: ${err.message?.substring(0, 60)}`);
+    }
+  }
+  throw new Error('No working Gemini model found. Check your GEMINI_API_KEY.');
+};
+
+
 const SYSTEM_INSTRUCTION = `
 You are the official AI Assistant of PREMIUMACCOUNTSSTORE.COM (Premium Accounts BD).
 CRITICAL RULE: You MUST reply STRICTLY in Bengali (বাংলা ভাষায়) at all times, no matter what language the customer uses. Speak in an extremely polite, warm, respectful, and professional tone (খুব সুন্দর, মার্জিত এবং ভদ্র ভাষায় কথা বলবেন). 
@@ -306,9 +344,7 @@ export const chatWithAgent = async (
 
     // Ensure system instruction is attached or formatted in the request
     const genAI = getGenAI();
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-pro'
-    });
+    const model = await getWorkingModel(genAI);
 
     // Translate our database history format to Gemini SDK format
     const sdkHistory = historyDoc.messages.map((m: any) => ({
