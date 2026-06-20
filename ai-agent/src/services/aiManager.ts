@@ -11,6 +11,8 @@ const CASCADE_ORDER = [
   { provider: 'gemini', service: geminiChat }
 ];
 
+import { processLocalBrain } from '../ai_brain';
+
 export const processWithAIFallback = async (sessionId: string, userMessage: string): Promise<string> => {
   for (const step of CASCADE_ORDER) {
     // 1. Fetch active keys for this provider from DB
@@ -35,7 +37,14 @@ export const processWithAIFallback = async (sessionId: string, userMessage: stri
     }
   }
 
-  // If all providers and all keys fail
-  console.error(`[AI Fallback] ALL AI SERVICES FAILED.`);
+  // If all providers and all keys fail, use the Local AI Brain as the ultimate fallback
+  console.error(`[AI Fallback] ALL EXTERNAL AI SERVICES FAILED. Falling back to Local AI Brain.`);
+  const localReply = processLocalBrain(userMessage);
+  
+  if (localReply) {
+    return localReply;
+  }
+
+  // If even local brain doesn't have an answer
   return "আমি অত্যন্ত দুঃখিত, বর্তমানে সার্ভারে একটি টেকনিক্যাল সমস্যার কারণে রিপ্লাই দিতে পারছি না। আমাদের অ্যাডমিন খুব দ্রুত এটি ঠিক করে দিবেন। দয়া করে কিছুক্ষণ পর আবার মেসেজ দিন।";
 };
