@@ -20,37 +20,26 @@ const getGenAI = () => {
 };
 // Models to try in order (fallback chain)
 const GEMINI_MODEL_FALLBACKS = [
-    'models/gemini-1.5-flash',
-    'models/gemini-1.5-flash-latest',
     'gemini-1.5-flash-latest',
     'gemini-1.5-flash',
-    'models/gemini-1.0-pro',
+    'gemini-1.5-pro-latest',
+    'gemini-1.5-pro',
     'gemini-1.0-pro',
-    'models/gemini-pro',
     'gemini-pro',
 ];
 let workingModel = null;
-// Try to find a working model
-const getWorkingModel = async (genAI) => {
-    // Use cached working model if found
-    if (workingModel) {
-        return genAI.getGenerativeModel({ model: workingModel });
+// Try to find a working model by attempting the actual request
+const tryModelRequest = async (genAI, modelName, history, userMessage, tools) => {
+    try {
+        const m = genAI.getGenerativeModel({ model: modelName });
+        const chat = m.startChat({ history, tools });
+        const result = await chat.sendMessage(userMessage);
+        return { result, model: m };
     }
-    for (const modelName of GEMINI_MODEL_FALLBACKS) {
-        try {
-            const m = genAI.getGenerativeModel({ model: modelName });
-            // Quick test to see if this model works
-            const testChat = m.startChat({ history: [] });
-            await testChat.sendMessage('Hi');
-            console.log(`✅ Gemini working model found: ${modelName}`);
-            workingModel = modelName;
-            return m;
-        }
-        catch (err) {
-            console.warn(`Model ${modelName} failed: ${err.message?.substring(0, 60)}`);
-        }
+    catch (err) {
+        console.warn(`❌ Model ${modelName} failed: ${err.message?.substring(0, 80)}`);
+        return null;
     }
-    throw new Error('No working Gemini model found. Check your GEMINI_API_KEY.');
 };
 const SYSTEM_INSTRUCTION = `
 You are the official AI Assistant of PREMIUMACCOUNTSSTORE.COM (Premium Accounts BD).
@@ -324,9 +313,6 @@ const chatWithAgent = async (sessionId, userMessage) => {
         if (!historyDoc) {
             historyDoc = new ChatHistory_1.default({ sessionId, messages: [] });
         }
-        // Ensure system instruction is attached or formatted in the request
-        const genAI = getGenAI();
-        const model = await getWorkingModel(genAI);
         // Translate our database history format to Gemini SDK format
         const sdkHistory = historyDoc.messages.map((m) => ({
             role: m.role,
@@ -352,27 +338,39 @@ const chatWithAgent = async (sessionId, userMessage) => {
                 parts: [{ text: 'Understood. How can I help you today?' }]
             });
         }
-        // Start a chat session with history and tools
-        const chat = model.startChat({
-            history: sdkHistory,
-            tools: tools
-        });
-        // Send the user message
-        let result = await chat.sendMessage(userMessage);
+        const genAI = getGenAI();
+        // Try models in fallback order
+        const modelsToTry = workingModel
+            ? [workingModel, ...GEMINI_MODEL_FALLBACKS.filter(m => m !== workingModel)]
+            : GEMINI_MODEL_FALLBACKS;
+        let result = null;
+        let successfulModel = null;
+        let chat = null;
+        for (const modelName of modelsToTry) {
+            const m = genAI.getGenerativeModel({ model: modelName, tools: [{ functionDeclarations: tools }] });
+            chat = m.startChat({ history: sdkHistory });
+            try {
+                result = await chat.sendMessage(userMessage);
+                successfulModel = modelName;
+                workingModel = modelName;
+                console.log(`✅ Gemini replied using: ${modelName}`);
+                break;
+            }
+            catch (err) {
+                console.warn(`❌ Model ${modelName} failed: ${err.message?.substring(0, 80)}`);
+                chat = null;
+                result = null;
+            }
+        }
+        if (!result || !chat) {
+            return 'দুঃখিত, বর্তমানে AI সার্ভিস উপলব্ধ নেই। আপনার API Key চেক করুন অথবা পরে আবার চেষ্টা করুন।';
+        }
         // Loop to handle tool/function calls recursively
         let calls = typeof result.functionCalls === 'function' ? result.functionCalls() : result.functionCalls;
         while (calls && calls.length > 0) {
             const toolCall = calls[0];
             const toolResult = await executeTool(toolCall.name, toolCall.args);
-            // Send function response back to Gemini to get next output
-            result = await chat.sendMessage([
-                {
-                    functionResponse: {
-                        name: toolCall.name,
-                        response: toolResult
-                    }
-                }
-            ]);
+            result = await chat.sendMessage([{ functionResponse: { name: toolCall.name, response: toolResult } }]);
             calls = typeof result.functionCalls === 'function' ? result.functionCalls() : result.functionCalls;
         }
         // Fetch the final generated text
