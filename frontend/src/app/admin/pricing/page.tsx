@@ -81,33 +81,36 @@ export default function PricingPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {((plan.durations && plan.durations.length > 0 && plan.durations[0].label) ? plan.durations : [
-                              { months: 1, label: '1 Month', price: 0, discount: 0 },
-                              { months: 3, label: '3 Months', price: 0, discount: 0 },
-                              { months: 6, label: '6 Months', price: 0, discount: 0 },
-                              { months: 12, label: '12 Months', price: 0, discount: 0 },
-                              { months: 18, label: '18 Months', price: 0, discount: 0 }
-                            ]).map((duration: any, idx: number) => (
-                              <tr key={idx} style={{ borderBottom: '1px solid #f8fafc' }}>
-                                <td style={{ padding: '12px 0', fontWeight: 600 }}>{duration.label}</td>
-                                <td style={{ padding: '12px 0' }}>
-                                  <input 
-                                    type="number" 
-                                    defaultValue={duration.price} 
-                                    id={`price-${plan._id}-${idx}`}
-                                    style={{ width: '120px', padding: '8px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                                  />
-                                </td>
-                                <td style={{ padding: '12px 0' }}>
-                                  <input 
-                                    type="number" 
-                                    defaultValue={duration.discount} 
-                                    id={`discount-${plan._id}-${idx}`}
-                                    style={{ width: '120px', padding: '8px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                                  />
-                                </td>
-                              </tr>
-                            ))}
+                            {[
+                              { months: 1, label: '1 Month' },
+                              { months: 3, label: '3 Months' },
+                              { months: 6, label: '6 Months' },
+                              { months: 12, label: '12 Months' },
+                              { months: 18, label: '18 Months' }
+                            ].map((stdDuration: any, idx: number) => {
+                              const existing = plan.durations?.find((d: any) => d.months === stdDuration.months || d.label === stdDuration.label);
+                              return (
+                                <tr key={idx} style={{ borderBottom: '1px solid #f8fafc' }}>
+                                  <td style={{ padding: '12px 0', fontWeight: 600 }}>{stdDuration.label}</td>
+                                  <td style={{ padding: '12px 0' }}>
+                                    <input 
+                                      type="number" 
+                                      defaultValue={existing ? existing.price : 0} 
+                                      id={`price-${plan._id}-${idx}`}
+                                      style={{ width: '120px', padding: '8px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                                    />
+                                  </td>
+                                  <td style={{ padding: '12px 0' }}>
+                                    <input 
+                                      type="number" 
+                                      defaultValue={existing ? existing.discount : 0} 
+                                      id={`discount-${plan._id}-${idx}`}
+                                      style={{ width: '120px', padding: '8px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                                    />
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                         
@@ -116,12 +119,12 @@ export default function PricingPage() {
                             className="btn-primary" 
                             style={{ padding: '10px 24px', borderRadius: '8px', fontSize: '0.95rem' }}
                             onClick={() => {
-                              const targetDurations = (plan.durations && plan.durations.length > 0 && plan.durations[0].label) ? plan.durations : [
-                                { months: 1, label: '1 Month', price: 0, discount: 0 },
-                                { months: 3, label: '3 Months', price: 0, discount: 0 },
-                                { months: 6, label: '6 Months', price: 0, discount: 0 },
-                                { months: 12, label: '12 Months', price: 0, discount: 0 },
-                                { months: 18, label: '18 Months', price: 0, discount: 0 }
+                              const targetDurations = [
+                                { months: 1, label: '1 Month' },
+                                { months: 3, label: '3 Months' },
+                                { months: 6, label: '6 Months' },
+                                { months: 12, label: '12 Months' },
+                                { months: 18, label: '18 Months' }
                               ];
                               const updatedDurations = targetDurations.map((d: any, idx: number) => ({
                                 ...d,
