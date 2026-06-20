@@ -307,7 +307,7 @@ export const chatWithAgent = async (
     // Ensure system instruction is attached or formatted in the request
     const genAI = getGenAI();
     const model = genAI.getGenerativeModel({
-      model: 'gemini-3.5-flash'
+      model: 'gemini-1.5-flash'
     });
 
     // Translate our database history format to Gemini SDK format
@@ -362,7 +362,16 @@ export const chatWithAgent = async (
     }
 
     // Fetch the final generated text
-    const replyText = result.response.text();
+    let replyText = '';
+    try {
+      replyText = result.response.text();
+    } catch (err) {
+      console.warn("Gemini didn't return text. Falling back.");
+    }
+    
+    if (!replyText || replyText.trim() === '') {
+      replyText = "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";
+    }
 
     // Save updated history back to MongoDB
     const updatedHistory = await chat.getHistory();
