@@ -35,7 +35,10 @@ export default function DurationPage() {
         .then(data => {
           const product = data.find((p: any) => p.appName === app);
           if (product) {
-            const selectedPlan = product.plans.find((p: any) => p.planName === plan);
+            let selectedPlan = product.plans.find((p: any) => p.planName === plan);
+            if (!selectedPlan && plan === 'Google AI Plus' && product.plans.length > 0) {
+               selectedPlan = { durations: product.plans[0].durations };
+            }
             if (selectedPlan && selectedPlan.durations) {
               setDurations(selectedPlan.durations);
             }
