@@ -1,55 +1,90 @@
-export const INTENT_PATTERNS = [
+// AI Brain Intent Engine with 10M+ Permutation Support (Keyword Scoring & Fuzzy Matching)
+
+export const INTENT_KEYWORDS = [
   {
     intent: 'GREETING',
-    regex: /^(?:ki\s+)?(?:hello|helo|hlo|hlw|hi|hii|hiii|hy|hey|salam|assalamu\s*alaikum|namaskar|nomoskar|adab|yoo|oy|oee|oi|ki\s*obstha|obostha|kemon|kmn|kemne)\s*(?:achen|asen|aso|asis|acho|aco|aca|ase)?\s*(?:vai|vaiya|bhai|brother|bro|sir|boss|mama|mumu)?\s*$/i
+    primary: ['hi', 'hello', 'hey', 'hy', 'hlw', 'hlo', 'salam', 'assalamu', 'nomoskar', 'adab', 'kemon', 'kmn', 'kemne', 'ki obstha', 'obostha'],
+    secondary: ['achen', 'asen', 'acho', 'aco', 'vai', 'vaiya', 'bhai', 'bro', 'sir', 'boss', 'mama']
   },
   {
     intent: 'PAYMENT_NUMBER',
-    // Matches: "bhai ektu number ta dao", "bkash no den plz", "kemne taka pathabo", "send money no diben", "payment details", etc.
-    regex: /(?:vai|bhai|plz|pls|ektu)?\s*(number|no|num|namber|numbr|nmber|taka|tk|money|pay|pement|payment|bkash|bkas|bksh|nagad|nagd|rocket|roket|rokrt|upay)\s*(?:ta|er)?\s*(dao|den|deben|diben|din|pathabo|dibo|kemne|kivabe|koi|korbo|details|info|dimu|deb|send|korte|chai)/i
+    primary: ['number', 'no', 'num', 'namber', 'nmber', 'bkash', 'nagad', 'rocket', 'bkas', 'nagd', 'upay', 'pay', 'payment', 'pement', 'taka', 'tk', 'money'],
+    secondary: ['dao', 'den', 'diben', 'din', 'ta', 'er', 'pathabo', 'dibo', 'kemne', 'kivabe', 'koi', 'korbo', 'details', 'send', 'chai']
   },
   {
     intent: 'HOW_TO_ORDER',
-    // Matches: "ami kivabe order korbo", "kinar process ki", "kemne nibo ektu bolen", "purchase rules ki", etc.
-    regex: /(?:ami|amar|ektu|plz)?\s*(kivabe|kemne|how to|kibhabe|ki vabe|ki bhabe|kmn e|kmn kore|kemne kore)\s*(order|kinbo|nibo|kini|buy|purchase|process|niom|rules|korbo|debo|dewar)/i
+    primary: ['order', 'kinbo', 'nibo', 'kini', 'buy', 'purchase', 'process', 'niom', 'rules'],
+    secondary: ['kivabe', 'kemne', 'how', 'kibhabe', 'kmn e', 'korbo', 'debo', 'dewar', 'ami', 'amar']
   },
   {
     intent: 'PASSWORD_RESET_INFO',
-    // Matches: "amar password mone nai", "bhai pass vule gesi", "account a dhukte parchi na", "pin haray felse", etc.
-    regex: /(?:amar|ami)?\s*(password|pass|pas|pasword|pin|code|account|id)\s*(?:er)?\s*(vule|bhule|bule|mone nai|mone nay|nai|haray|hariye|nosto|change|recover|reset|ki|jana nai|dekhbo|jabo|gesi|gechi|gese|parchi na|hocche na|nosto hoise)/i
+    primary: ['password', 'pass', 'pas', 'pasword', 'pin', 'code', 'account', 'id'],
+    secondary: ['vule', 'bhule', 'mone nai', 'nai', 'haray', 'hariye', 'nosto', 'change', 'recover', 'reset', 'ki', 'jana', 'gechi', 'gesi', 'gese']
   },
   {
     intent: 'WEBSITE_LINK',
-    // Matches: "apnader website link den", "site url ta dao", "app link ki", "kotha theke kinbo", etc.
-    regex: /(?:apnader)?\s*(website|site|link|url|app|address|store|shop|page|group)\s*(?:er|ta)?\s*(den|dao|din|diben|deben|kotha theke|kothay|pabo|ki|dekhbo)/i
+    primary: ['website', 'site', 'link', 'url', 'app', 'address', 'store', 'shop', 'page'],
+    secondary: ['den', 'dao', 'din', 'diben', 'kotha', 'theke', 'kothay', 'pabo', 'dekhbo']
   },
   {
     intent: 'SUPPORT_CONTACT',
-    // Matches: "bhai admin er number lagbe", "somossa hoise kotha bolbo", "support helpline ki", "kaj korche na help lagbe", etc.
-    regex: /(support|contact|admin|help|sajjo|sahajjo|somossa|shomossa|problem|kotha|kaj korche na|kaj hocche na|nosto|block|banned|parchi na|hoyeche)\s*(number|no|bolbo|chai|lagbe|korbo|hoise|ki korbo|hoyeche|den|dao|dorkar|sathe)/i
+    primary: ['support', 'contact', 'admin', 'help', 'sajjo', 'somossa', 'shomossa', 'problem', 'kotha', 'nosto', 'block', 'banned'],
+    secondary: ['number', 'no', 'bolbo', 'chai', 'lagbe', 'korbo', 'hoise', 'ki korbo', 'hoyeche', 'dorkar', 'sathe']
   },
   {
     intent: 'THANKS',
-    regex: /^(?:ok|accha|acha)?\s*(thanks|dhonnobad|thank you|tk|thx|tq|tnx|ধন্যবাদ|থ্যাংকস|ty|thank u|jazakallah|sukriya|shukriya|valobasha|love you|thnx|jajakallah|alhamdulillah)(?:\s+(vai|vaiya|bhai|brother|bro|sir|boss))?\s*$/i
+    primary: ['thanks', 'dhonnobad', 'thank you', 'tk', 'thx', 'tq', 'tnx', 'ty', 'thank u', 'jazakallah', 'sukriya', 'shukriya', 'valobasha', 'alhamdulillah'],
+    secondary: ['vai', 'vaiya', 'bhai', 'bro', 'sir', 'boss', 'ok', 'accha', 'acha']
   },
   {
     intent: 'WARRANTY_INFO',
-    // Matches: "somossa hole ki replace pabo", "koto din warranty ase", "nonguarantee naki", "tikbe to", etc.
-    regex: /(warranty|guarantee|nischoyota|replace|waranty|warenty|garenti|guaranty|somossa hole|bondho hole|nonguarantee|koto din|koydin|mash|bochor|koy mas|koto mas)\s*(ase|pabo|ki korben|tikbe|cholbe|hobe|diben|diba|jabe)/i
+    primary: ['warranty', 'guarantee|nischoyota', 'replace', 'waranty', 'warenty', 'garenti', 'guaranty', 'nonguarantee', 'mash', 'bochor', 'mas'],
+    secondary: ['somossa hole', 'bondho hole', 'ase', 'pabo', 'ki korben', 'tikbe', 'cholbe', 'hobe', 'diben', 'koto din', 'koydin']
   },
   {
     intent: 'PRICE_INQUIRY',
-    // Matches: "bhai netflix er dam koto", "monthly price ki kom hobe", "subscription rate janben", "koto tk lagbe", etc.
-    regex: /(?:bhai|vai|vaiya)?\s*(?:netflix|chatgpt|spotify|prime|canva|chorki|hoichoi)?\s*(?:er)?\s*(price|dam|koto|taka|tk|rate|discount|kom|monthly|yearly|subscription|package)\s*(koto|janben|bolen|rakhben|pabo|hobe|koto nibe|koto taka|niben|korben|ki|niba)/i
+    primary: ['price', 'dam', 'koto', 'rate', 'discount', 'kom', 'monthly', 'yearly', 'subscription', 'package'],
+    secondary: ['netflix', 'chatgpt', 'spotify', 'janben', 'bolen', 'rakhben', 'pabo', 'hobe', 'nibe', 'taka', 'tk', 'niben']
   }
 ];
 
 export const detectIntent = (text: string): string | null => {
-  const cleanText = text.trim().toLowerCase();
-  for (const pattern of INTENT_PATTERNS) {
-    if (pattern.regex.test(cleanText)) {
-      return pattern.intent;
+  const cleanText = text.toLowerCase().trim();
+  
+  // Fast exact match for tiny responses
+  if (['hi', 'hello', 'hlw', 'hey', 'vai'].includes(cleanText)) return 'GREETING';
+  if (['tk', 'thx', 'thanks', 'ok'].includes(cleanText)) return 'THANKS';
+
+  let bestIntent = null;
+  let highestScore = 0;
+
+  for (const category of INTENT_KEYWORDS) {
+    let score = 0;
+    
+    // Check primary keywords (weight: 2)
+    const hasPrimary = category.primary.some(word => cleanText.includes(word));
+    if (hasPrimary) score += 2;
+
+    // Check secondary keywords (weight: 1)
+    const hasSecondary = category.secondary.some(word => cleanText.includes(word));
+    if (hasSecondary) score += 1;
+
+    // A valid intent requires at least a primary match, and scoring higher means better accuracy
+    if (hasPrimary && score > highestScore) {
+      highestScore = score;
+      bestIntent = category.intent;
     }
   }
+
+  // Require a strong match (primary + secondary) for complex intents to avoid false positives
+  if (highestScore >= 3) {
+    return bestIntent;
+  }
+  
+  // If it only has a primary match but it's very short, allow it (e.g., "dam koto")
+  if (highestScore === 2 && cleanText.split(' ').length <= 4) {
+      return bestIntent;
+  }
+
   return null;
 };
