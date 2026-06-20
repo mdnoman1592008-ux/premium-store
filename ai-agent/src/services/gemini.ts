@@ -313,7 +313,7 @@ export const chatWithAgent = async (
     // Translate our database history format to Gemini SDK format
     const sdkHistory = historyDoc.messages.map((m: any) => ({
       role: m.role,
-      parts: m.parts.map((p: any) => ({ text: p.text }))
+      parts: m.parts
     }));
 
     // Inject system instruction if history is empty
@@ -361,8 +361,8 @@ export const chatWithAgent = async (
     // Save updated history back to MongoDB
     const updatedHistory = await chat.getHistory();
     historyDoc.messages = updatedHistory.map((m: any) => ({
-      role: m.role as any,
-      parts: m.parts.map((p: any) => ({ text: p.text || '' }))
+      role: m.role,
+      parts: m.parts
     })) as any;
     await historyDoc.save();
 
