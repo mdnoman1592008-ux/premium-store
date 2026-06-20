@@ -307,7 +307,7 @@ export const chatWithAgent = async (
     // Ensure system instruction is attached or formatted in the request
     const genAI = getGenAI();
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash-latest'
+      model: 'gemini-pro'
     });
 
     // Translate our database history format to Gemini SDK format
