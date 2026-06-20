@@ -311,12 +311,32 @@ const chatWithAgent = async (sessionId, userMessage) => {
             }
         }
         messages.push({ role: 'user', content: userMessage });
-        let chatCompletion = await groq.chat.completions.create({
-            messages: messages,
-            model: 'llama-3.3-70b-versatile',
-            tools: tools,
-            tool_choice: 'auto',
-        });
+        const FALLBACK_MODELS = [
+            'llama-3.3-70b-versatile',
+            'llama3-70b-8192',
+            'mixtral-8x7b-32768',
+            'gemma-7b-it'
+        ];
+        const makeGroqRequest = async (currentMessages) => {
+            let lastError = null;
+            for (const modelName of FALLBACK_MODELS) {
+                try {
+                    const completion = await groq.chat.completions.create({
+                        messages: currentMessages,
+                        model: modelName,
+                        tools: tools,
+                        tool_choice: 'auto',
+                    });
+                    return completion; // Success! Return immediately.
+                }
+                catch (err) {
+                    console.warn(`Groq Model ${modelName} failed. Falling back... Error: ${err.message}`);
+                    lastError = err;
+                }
+            }
+            throw lastError; // All models failed
+        };
+        let chatCompletion = await makeGroqRequest(messages);
         let responseMessage = chatCompletion.choices[0]?.message;
         while (responseMessage?.tool_calls && responseMessage.tool_calls.length > 0) {
             messages.push(responseMessage);
@@ -334,12 +354,7 @@ const chatWithAgent = async (sessionId, userMessage) => {
                     content: JSON.stringify(toolResult),
                 });
             }
-            chatCompletion = await groq.chat.completions.create({
-                messages: messages,
-                model: 'llama-3.3-70b-versatile',
-                tools: tools,
-                tool_choice: 'auto',
-            });
+            chatCompletion = await makeGroqRequest(messages);
             responseMessage = chatCompletion.choices[0]?.message;
         }
         const replyText = responseMessage?.content || "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";

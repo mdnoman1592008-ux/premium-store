@@ -316,12 +316,33 @@ export const chatWithAgent = async (sessionId: string, userMessage: string): Pro
     
     messages.push({ role: 'user', content: userMessage });
 
-    let chatCompletion = await groq.chat.completions.create({
-      messages: messages as any,
-      model: 'llama-3.3-70b-versatile',
-      tools: tools as any,
-      tool_choice: 'auto',
-    });
+    const FALLBACK_MODELS = [
+      'llama-3.3-70b-versatile',
+      'llama3-70b-8192',
+      'mixtral-8x7b-32768',
+      'gemma-7b-it'
+    ];
+
+    const makeGroqRequest = async (currentMessages: any[]) => {
+      let lastError = null;
+      for (const modelName of FALLBACK_MODELS) {
+        try {
+          const completion = await groq.chat.completions.create({
+            messages: currentMessages,
+            model: modelName,
+            tools: tools as any,
+            tool_choice: 'auto',
+          });
+          return completion; // Success! Return immediately.
+        } catch (err: any) {
+          console.warn(`Groq Model ${modelName} failed. Falling back... Error: ${err.message}`);
+          lastError = err;
+        }
+      }
+      throw lastError; // All models failed
+    };
+
+    let chatCompletion = await makeGroqRequest(messages);
 
     let responseMessage = chatCompletion.choices[0]?.message;
     
@@ -342,12 +363,7 @@ export const chatWithAgent = async (sessionId: string, userMessage: string): Pro
         });
       }
       
-      chatCompletion = await groq.chat.completions.create({
-        messages: messages as any,
-        model: 'llama-3.3-70b-versatile',
-        tools: tools as any,
-        tool_choice: 'auto',
-      });
+      chatCompletion = await makeGroqRequest(messages);
       
       responseMessage = chatCompletion.choices[0]?.message;
     }

@@ -44,7 +44,12 @@ export const INTENT_KEYWORDS = [
   {
     intent: 'PRICE_INQUIRY',
     primary: ['price', 'dam', 'koto', 'rate', 'discount', 'kom', 'monthly', 'yearly', 'subscription', 'package'],
-    secondary: ['netflix', 'chatgpt', 'spotify', 'janben', 'bolen', 'rakhben', 'pabo', 'hobe', 'nibe', 'taka', 'tk', 'niben']
+    secondary: ['janben', 'bolen', 'rakhben', 'pabo', 'hobe', 'nibe', 'taka', 'tk', 'niben']
+  },
+  {
+    intent: 'AVAILABILITY_INQUIRY',
+    primary: ['ase', 'pabo', 'hobe', 'diben', 'deya jabe', 'paowa jabe', 'ache'],
+    secondary: ['netflix', 'chatgpt', 'spotify', 'canva', 'prime', 'hoichoi', 'chorki', 'youtube', 'yt', 'ki ki']
   },
   {
     intent: 'SAFE_WORD_HANDLING',
