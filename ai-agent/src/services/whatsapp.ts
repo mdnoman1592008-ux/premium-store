@@ -219,10 +219,7 @@ const initWhatsAppSocket = async () => {
           }
 
           await sock.sendPresenceUpdate('composing', fromJid);
-          let reply = processLocalBrain(messageText);
-          if (!reply) {
-            reply = await processWithAIFallback(fromJid, messageText);
-          }
+          const reply = await processWithAIFallback(fromJid, messageText);
           await sock.sendPresenceUpdate('paused', fromJid);
           await sock.sendMessage(fromJid, { text: reply });
         } catch (err) {

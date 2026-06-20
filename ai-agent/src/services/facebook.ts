@@ -59,11 +59,8 @@ export const handleWebhookEvent = async (req: any, res: any) => {
 
           console.log(`Received FB message from ${senderId}: ${messageText}`);
 
-          // Process using Local AI Brain first, fallback to API
-          let reply = processLocalBrain(messageText);
-          if (!reply) {
-            reply = await processWithAIFallback(senderId, messageText);
-          }
+          // Process using AI Fallback (OpenRouter/DeepSeek/Groq/Gemini)
+          const reply = await processWithAIFallback(senderId, messageText);
 
           // Send reply back via Facebook Send API
           await sendFacebookMessage(senderId, reply, accessToken);
