@@ -1,5 +1,6 @@
 import AgentSetting from '../models/AgentSetting';
 import { chatWithAgent } from './groq';
+import { processLocalBrain } from '../ai_brain';
 
 export const getFacebookSettings = async () => {
   const doc = await AgentSetting.findOne({ key: 'facebook_credentials' });
@@ -58,8 +59,11 @@ export const handleWebhookEvent = async (req: any, res: any) => {
 
           console.log(`Received FB message from ${senderId}: ${messageText}`);
 
-          // Process using Gemini agent
-          const reply = await chatWithAgent(senderId, messageText);
+          // Process using Local AI Brain first, fallback to API
+          let reply = processLocalBrain(messageText);
+          if (!reply) {
+            reply = await chatWithAgent(senderId, messageText);
+          }
 
           // Send reply back via Facebook Send API
           await sendFacebookMessage(senderId, reply, accessToken);
