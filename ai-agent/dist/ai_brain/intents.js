@@ -50,7 +50,7 @@ exports.INTENT_KEYWORDS = [
     },
     {
         intent: 'AVAILABILITY_INQUIRY',
-        primary: ['ase', 'pabo', 'hobe', 'diben', 'deya jabe', 'paowa jabe', 'ache'],
+        primary: ['ase', 'as', 'pabo', 'hobe', 'diben', 'deya jabe', 'paowa jabe', 'ache'],
         secondary: ['netflix', 'chatgpt', 'spotify', 'canva', 'prime', 'hoichoi', 'chorki', 'youtube', 'yt', 'ki ki']
     },
     {
@@ -103,7 +103,8 @@ const isFuzzyMatch = (inputWords, targetKeyword) => {
             return true;
         if (Math.abs(word.length - normTarget.length) > 2)
             continue;
-        const allowedDistance = normTarget.length >= 6 ? 2 : (normTarget.length >= 4 ? 1 : 0);
+        // Allow 1 typo for 3+ characters, 2 typos for 6+ characters
+        const allowedDistance = normTarget.length >= 6 ? 2 : (normTarget.length >= 3 ? 1 : 0);
         if (allowedDistance > 0 && levenshteinDistance(word, normTarget) <= allowedDistance) {
             return true;
         }
