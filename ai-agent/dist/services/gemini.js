@@ -20,12 +20,12 @@ const getGenAI = () => {
 };
 // Models to try in order (fallback chain)
 const GEMINI_MODEL_FALLBACKS = [
-    'gemini-1.5-flash-latest',
-    'gemini-1.5-flash',
-    'gemini-1.5-pro-latest',
-    'gemini-1.5-pro',
-    'gemini-1.0-pro',
-    'gemini-pro',
+    'models/gemini-2.0-flash',
+    'models/gemini-2.0-flash-lite',
+    'models/gemini-2.5-flash-lite',
+    'models/gemini-2.5-flash',
+    'models/gemini-flash-latest',
+    'models/gemini-pro-latest',
 ];
 let workingModel = null;
 // Try to find a working model by attempting the actual request
