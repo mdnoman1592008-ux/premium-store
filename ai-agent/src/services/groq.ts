@@ -377,6 +377,6 @@ export const chatWithAgent = async (sessionId: string, userMessage: string): Pro
     return replyText;
   } catch (err: any) {
     console.error('Error in chatWithAgent (Groq):', err);
-    return `দুঃখিত, বর্তমানে একটি টেকনিক্যাল সমস্যার কারণে আমি আপনার মেসেজটি প্রসেস করতে পারছি না। (Error: ${err.message})`;
+    throw err; // Re-throw to allow AI Manager to catch and fallback
   }
 };

@@ -1,6 +1,6 @@
 import makeWASocket, { DisconnectReason, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
 import { useMongoDBAuthState } from './mongoAuth';
-import { chatWithAgent } from './groq';
+import { processWithAIFallback } from './aiManager';
 import { processLocalBrain } from '../ai_brain';
 import qrcode from 'qrcode';
 import pino from 'pino';
@@ -187,7 +187,7 @@ const initWhatsAppSocket = async () => {
           await sock.sendPresenceUpdate('composing', fromJid);
           let reply = processLocalBrain(messageText);
           if (!reply) {
-            reply = await chatWithAgent(fromJid, messageText);
+            reply = await processWithAIFallback(fromJid, messageText);
           }
           await sock.sendPresenceUpdate('paused', fromJid);
           await sock.sendMessage(fromJid, { text: reply });

@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleWebhookEvent = exports.verifyWebhook = exports.saveFacebookSettings = exports.getFacebookSettings = void 0;
 const AgentSetting_1 = __importDefault(require("../models/AgentSetting"));
-const groq_1 = require("./groq");
+const aiManager_1 = require("./aiManager");
 const ai_brain_1 = require("../ai_brain");
 const getFacebookSettings = async () => {
     const doc = await AgentSetting_1.default.findOne({ key: 'facebook_credentials' });
@@ -60,7 +60,7 @@ const handleWebhookEvent = async (req, res) => {
                     // Process using Local AI Brain first, fallback to API
                     let reply = (0, ai_brain_1.processLocalBrain)(messageText);
                     if (!reply) {
-                        reply = await (0, groq_1.chatWithAgent)(senderId, messageText);
+                        reply = await (0, aiManager_1.processWithAIFallback)(senderId, messageText);
                     }
                     // Send reply back via Facebook Send API
                     await sendFacebookMessage(senderId, reply, accessToken);

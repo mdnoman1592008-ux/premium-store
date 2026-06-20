@@ -394,8 +394,8 @@ const chatWithAgent = async (sessionId, userMessage) => {
         return replyText;
     }
     catch (err) {
-        console.error('Error in chatWithAgent:', err);
-        return `দুঃখিত, বর্তমানে একটি টেকনিক্যাল সমস্যার কারণে আমি আপনার মেসেজটি প্রসেস করতে পারছি না। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন। (Error: ${err.message})`;
+        console.error('Error in chatWithAgent (Gemini):', err);
+        throw err; // Re-throw to allow AI Manager to catch and fallback
     }
 };
 exports.chatWithAgent = chatWithAgent;

@@ -1,5 +1,5 @@
 import AgentSetting from '../models/AgentSetting';
-import { chatWithAgent } from './groq';
+import { processWithAIFallback } from './aiManager';
 import { processLocalBrain } from '../ai_brain';
 
 export const getFacebookSettings = async () => {
@@ -62,7 +62,7 @@ export const handleWebhookEvent = async (req: any, res: any) => {
           // Process using Local AI Brain first, fallback to API
           let reply = processLocalBrain(messageText);
           if (!reply) {
-            reply = await chatWithAgent(senderId, messageText);
+            reply = await processWithAIFallback(senderId, messageText);
           }
 
           // Send reply back via Facebook Send API

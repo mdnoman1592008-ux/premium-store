@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectWhatsApp = exports.getPairingCode = exports.disconnectWhatsApp = exports.resetWhatsAppSession = exports.getWhatsAppStatus = void 0;
 const baileys_1 = __importStar(require("@whiskeysockets/baileys"));
 const mongoAuth_1 = require("./mongoAuth");
-const groq_1 = require("./groq");
+const aiManager_1 = require("./aiManager");
 const ai_brain_1 = require("../ai_brain");
 const qrcode_1 = __importDefault(require("qrcode"));
 const pino_1 = __importDefault(require("pino"));
@@ -218,7 +218,7 @@ const initWhatsAppSocket = async () => {
                     await sock.sendPresenceUpdate('composing', fromJid);
                     let reply = (0, ai_brain_1.processLocalBrain)(messageText);
                     if (!reply) {
-                        reply = await (0, groq_1.chatWithAgent)(fromJid, messageText);
+                        reply = await (0, aiManager_1.processWithAIFallback)(fromJid, messageText);
                     }
                     await sock.sendPresenceUpdate('paused', fromJid);
                     await sock.sendMessage(fromJid, { text: reply });
