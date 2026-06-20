@@ -54,8 +54,45 @@ exports.INTENT_KEYWORDS = [
         secondary: []
     }
 ];
+// Lightweight Levenshtein Distance for mathematical fuzzy matching (100T+ variations)
+const levenshteinDistance = (a, b) => {
+    if (a.length === 0)
+        return b.length;
+    if (b.length === 0)
+        return a.length;
+    const matrix = Array.from({ length: b.length + 1 }, (_, i) => [i]);
+    for (let j = 0; j <= a.length; j++)
+        matrix[0][j] = j;
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            }
+            else {
+                matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+            }
+        }
+    }
+    return matrix[b.length][a.length];
+};
+const isFuzzyMatch = (inputWords, targetKeyword) => {
+    // If the word exists perfectly
+    if (inputWords.includes(targetKeyword))
+        return true;
+    // Allow 1 character typo for words length 4-5, 2 characters for 6+
+    for (const word of inputWords) {
+        if (Math.abs(word.length - targetKeyword.length) > 2)
+            continue; // Too different in length
+        const allowedDistance = targetKeyword.length >= 6 ? 2 : (targetKeyword.length >= 4 ? 1 : 0);
+        if (allowedDistance > 0 && levenshteinDistance(word, targetKeyword) <= allowedDistance) {
+            return true;
+        }
+    }
+    return false;
+};
 const detectIntent = (text) => {
     const cleanText = text.toLowerCase().trim();
+    const inputWords = cleanText.split(/[\s,!?.]+/);
     // Fast exact match for tiny responses
     if (['hi', 'hello', 'hlw', 'hey', 'vai'].includes(cleanText))
         return 'GREETING';
@@ -65,8 +102,8 @@ const detectIntent = (text) => {
     let highestScore = 0;
     for (const category of exports.INTENT_KEYWORDS) {
         let score = 0;
-        // Check primary keywords (weight: 2)
-        const hasPrimary = category.primary.some(word => cleanText.includes(word));
+        // Check primary keywords (weight: 2) with fuzzy math
+        const hasPrimary = category.primary.some(word => isFuzzyMatch(inputWords, word) || cleanText.includes(word));
         if (hasPrimary) {
             score += 2;
             // Instant override for Safe Words (Abuse handling)
@@ -75,7 +112,7 @@ const detectIntent = (text) => {
             }
         }
         // Check secondary keywords (weight: 1)
-        const hasSecondary = category.secondary.some(word => cleanText.includes(word));
+        const hasSecondary = category.secondary.some(word => isFuzzyMatch(inputWords, word) || cleanText.includes(word));
         if (hasSecondary)
             score += 1;
         // A valid intent requires at least a primary match, and scoring higher means better accuracy
@@ -89,7 +126,7 @@ const detectIntent = (text) => {
         return bestIntent;
     }
     // If it only has a primary match but it's very short, allow it (e.g., "dam koto")
-    if (highestScore === 2 && cleanText.split(' ').length <= 4) {
+    if (highestScore === 2 && inputWords.length <= 4) {
         return bestIntent;
     }
     return null;
