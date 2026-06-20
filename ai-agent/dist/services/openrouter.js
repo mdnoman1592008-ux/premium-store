@@ -179,8 +179,8 @@ const handleUpdateOrderPayment = async (args) => {
         const order = await Order_1.default.findById(orderId);
         if (!order)
             return { success: false, error: 'Order not found' };
-        order.paymentSenderNumber = paymentSenderNumber;
-        order.trxId = trxId;
+        order.senderNumber = paymentSenderNumber;
+        order.transactionId = trxId;
         await order.save();
         return { success: true, message: 'Payment info updated' };
     }

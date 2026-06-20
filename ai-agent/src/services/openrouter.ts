@@ -176,9 +176,8 @@ const handleUpdateOrderPayment = async (args: any) => {
     const { orderId, paymentSenderNumber, trxId } = args;
     const order = await Order.findById(orderId);
     if (!order) return { success: false, error: 'Order not found' };
-    
-    order.paymentSenderNumber = paymentSenderNumber;
-    order.trxId = trxId;
+    order.senderNumber = paymentSenderNumber;
+    order.transactionId = trxId;
     await order.save();
     return { success: true, message: 'Payment info updated' };
   } catch (err: any) {
@@ -234,14 +233,14 @@ export const chatWithAgent = async (sessionId: string, userMessage: string): Pro
       historyDoc = new ChatHistory({ sessionId, messages: [] });
     }
 
-    const messages = [];
+    const messages: any[] = [];
     messages.push({ role: 'system', content: SYSTEM_INSTRUCTION });
     
     // OpenRouter uses standard OpenAI roles, but 'parts' is Gemini-specific. 
     // We map our DB schema (role, parts.text) to standard (role, content).
     for (const msg of historyDoc.messages) {
       let role = msg.role;
-      if (role === 'model') role = 'assistant'; // OpenAI equivalent
+      if (role === 'model') role = 'assistant' as any; // OpenAI equivalent
       const text = msg.parts?.[0]?.text || '';
       if (text) {
         messages.push({ role, content: text });
