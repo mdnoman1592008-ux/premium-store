@@ -51,7 +51,7 @@ const tools = [
                         phone: { type: 'string', description: 'The customer\'s registered phone number (e.g. 01712345678).' },
                         appId: { type: 'string', description: 'The application ID (e.g. chatgpt, netflix, gemini, spotify).' },
                         planName: { type: 'string', description: 'The specific name of the plan (e.g. ChatGPT Plus, Netflix Premium Ultra HD, Spotify Premium Individual, Google AI Plus).' },
-                        durationLabel: { type: 'string', description: 'The selected duration label (e.g. 1 Month, 3 Months, 6 Months, 12 Months).' }
+                        durationLabel: { type: 'string', description: 'Duration of the package (e.g., "1 Month", "3 Months", "6 Months", "1 Year", "18 Months").' }
                     },
                     required: ['phone', 'appId', 'planName', 'durationLabel']
                 }
@@ -72,13 +72,13 @@ const tools = [
             },
             {
                 name: 'requestPasswordReset',
-                description: 'Reset a user\'s account password to a randomly generated temporary password using their registered phone number.',
+                description: 'Reset a user\'s account password to a randomly generated temporary password using their registered phone number or email address.',
                 parameters: {
                     type: 'object',
                     properties: {
-                        phone: { type: 'string', description: 'The registered phone number of the user requesting a reset.' }
+                        identifier: { type: 'string', description: 'The registered phone number or email address of the user requesting a reset.' }
                     },
-                    required: ['phone']
+                    required: ['identifier']
                 }
             }
         ]
@@ -201,16 +201,18 @@ const handleUpdateOrderPayment = async (args) => {
 };
 const handleRequestPasswordReset = async (args) => {
     try {
-        const user = await User_1.default.findOne({ phone: args.phone });
+        const user = await User_1.default.findOne({
+            $or: [{ phone: args.identifier }, { email: args.identifier }]
+        });
         if (!user) {
-            return { success: false, message: `No registered user found with phone number: ${args.phone}` };
+            return { success: false, message: `No registered user found with phone number or email: ${args.identifier}` };
         }
         const tempPassword = Math.floor(100000 + Math.random() * 900000).toString();
         const salt = await bcryptjs_1.default.genSalt(10);
         const hashedPassword = await bcryptjs_1.default.hash(tempPassword, salt);
         user.password = hashedPassword;
         await user.save();
-        return { success: true, tempPassword, message: `Password reset successfully for ${args.phone}.` };
+        return { success: true, tempPassword, message: `Password reset successfully for ${args.identifier}.` };
     }
     catch (err) {
         return { success: false, error: err.message };
@@ -322,6 +324,10 @@ const chatWithAgent = async (sessionId, userMessage, apiKey) => {
         if (!replyText || replyText.trim() === '') {
             replyText = "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";
         }
+        // Clean up any hallucinated JSON tool calls from the text
+        replyText = replyText.replace(/\{[\s\S]*"type"\s*:\s*"function"[\s\S]*\}/g, '').trim();
+        if (!replyText)
+            replyText = "আপনার রিকোয়েস্টটি প্রসেস করা হচ্ছে...";
         // Save updated history back to MongoDB
         const updatedHistory = await chat.getHistory();
         historyDoc.messages = updatedHistory.map((m) => ({

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetUserPassword = exports.getUsers = exports.loginAdmin = void 0;
+exports.deleteApiKey = exports.addApiKeys = exports.getApiKeys = exports.resetUserPassword = exports.getUsers = exports.loginAdmin = void 0;
 const Admin_1 = __importDefault(require("../models/Admin"));
 const User_1 = __importDefault(require("../models/User"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -64,3 +64,57 @@ const resetUserPassword = async (req, res) => {
     }
 };
 exports.resetUserPassword = resetUserPassword;
+const ApiKey_1 = __importDefault(require("../models/ApiKey"));
+const getApiKeys = async (req, res) => {
+    try {
+        const keys = await ApiKey_1.default.find({}).sort({ createdAt: -1 });
+        res.json(keys);
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+exports.getApiKeys = getApiKeys;
+const addApiKeys = async (req, res) => {
+    try {
+        const { provider, keys } = req.body; // 'keys' should be a string (multiline or comma-separated)
+        if (!provider || !keys) {
+            res.status(400).json({ message: 'Provider and keys are required' });
+            return;
+        }
+        const keyArray = keys.split(/[\n,]+/).map((k) => k.trim()).filter((k) => k.length > 0);
+        let addedCount = 0;
+        for (const key of keyArray) {
+            try {
+                await ApiKey_1.default.create({ provider, key });
+                addedCount++;
+            }
+            catch (err) {
+                // Ignore duplicate key errors
+                if (err.code !== 11000) {
+                    console.error('Error adding key:', err);
+                }
+            }
+        }
+        res.json({ message: `Successfully added ${addedCount} keys for ${provider}` });
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+exports.addApiKeys = addApiKeys;
+const deleteApiKey = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleted = await ApiKey_1.default.findByIdAndDelete(id);
+        if (!deleted) {
+            res.status(404).json({ message: 'Key not found' });
+            return;
+        }
+        res.json({ message: 'API Key deleted successfully' });
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+exports.deleteApiKey = deleteApiKey;

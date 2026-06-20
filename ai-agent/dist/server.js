@@ -185,10 +185,14 @@ const PORT = process.env.PORT || 5001;
     });
     // Auto-reconnect WhatsApp if a session exists in the database
     try {
-        const sessionExists = await BaileysAuth_1.default.exists({ key: { $regex: '^session_whatsapp:' } });
-        if (sessionExists) {
-            console.log('Found existing WhatsApp session in database. Auto-connecting...');
+        const authDocs = await BaileysAuth_1.default.countDocuments({ key: { $regex: '^session_whatsapp:' } });
+        console.log(`Checking BaileysAuth on startup: Found ${authDocs} session documents.`);
+        if (authDocs > 0) {
+            console.log('Existing WhatsApp session found. Auto-connecting...');
             (0, whatsapp_1.connectWhatsApp)();
+        }
+        else {
+            console.log('No WhatsApp session found on startup. Waiting for admin to connect manually.');
         }
     }
     catch (err) {

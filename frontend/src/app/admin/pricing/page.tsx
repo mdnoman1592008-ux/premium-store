@@ -85,7 +85,8 @@ export default function PricingPage() {
                               { months: 1, label: '1 Month', price: 0, discount: 0 },
                               { months: 3, label: '3 Months', price: 0, discount: 0 },
                               { months: 6, label: '6 Months', price: 0, discount: 0 },
-                              { months: 12, label: '12 Months', price: 0, discount: 0 }
+                              { months: 12, label: '12 Months', price: 0, discount: 0 },
+                              { months: 18, label: '18 Months', price: 0, discount: 0 }
                             ]).map((duration: any, idx: number) => (
                               <tr key={idx} style={{ borderBottom: '1px solid #f8fafc' }}>
                                 <td style={{ padding: '12px 0', fontWeight: 600 }}>{duration.label}</td>
@@ -119,7 +120,8 @@ export default function PricingPage() {
                                 { months: 1, label: '1 Month', price: 0, discount: 0 },
                                 { months: 3, label: '3 Months', price: 0, discount: 0 },
                                 { months: 6, label: '6 Months', price: 0, discount: 0 },
-                                { months: 12, label: '12 Months', price: 0, discount: 0 }
+                                { months: 12, label: '12 Months', price: 0, discount: 0 },
+                                { months: 18, label: '18 Months', price: 0, discount: 0 }
                               ];
                               const updatedDurations = targetDurations.map((d: any, idx: number) => ({
                                 ...d,

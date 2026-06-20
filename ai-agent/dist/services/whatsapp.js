@@ -40,7 +40,6 @@ exports.connectWhatsApp = exports.getPairingCode = exports.disconnectWhatsApp = 
 const baileys_1 = __importStar(require("@whiskeysockets/baileys"));
 const mongoAuth_1 = require("./mongoAuth");
 const aiManager_1 = require("./aiManager");
-const ai_brain_1 = require("../ai_brain");
 const qrcode_1 = __importDefault(require("qrcode"));
 const pino_1 = __importDefault(require("pino"));
 const BaileysAuth_1 = __importDefault(require("../models/BaileysAuth"));
@@ -248,13 +247,18 @@ const initWhatsAppSocket = async () => {
                         await sock.sendMessage(fromJid, { text: txt || 'No keys found.' });
                         continue;
                     }
-                    await sock.sendPresenceUpdate('composing', fromJid);
-                    let reply = (0, ai_brain_1.processLocalBrain)(messageText);
-                    if (!reply) {
-                        reply = await (0, aiManager_1.processWithAIFallback)(fromJid, messageText);
-                    }
-                    await sock.sendPresenceUpdate('paused', fromJid);
-                    await sock.sendMessage(fromJid, { text: reply });
+                    // Process AI in the background so we don't block the message loop
+                    (async () => {
+                        try {
+                            await sock.sendPresenceUpdate('composing', fromJid);
+                            const reply = await (0, aiManager_1.processWithAIFallback)(fromJid, messageText);
+                            await sock.sendPresenceUpdate('paused', fromJid);
+                            await sock.sendMessage(fromJid, { text: reply });
+                        }
+                        catch (err) {
+                            console.error('Error in WhatsApp background AI processing:', err);
+                        }
+                    })();
                 }
                 catch (err) {
                     console.error('Error handling WhatsApp message:', err);

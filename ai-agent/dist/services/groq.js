@@ -60,7 +60,7 @@ const tools = [
                     phone: { type: 'string', description: 'The customer\'s registered phone number (e.g. 01712345678).' },
                     appId: { type: 'string', description: 'The application ID (e.g. chatgpt, netflix, gemini, spotify).' },
                     planName: { type: 'string', description: 'The specific name of the plan (e.g. ChatGPT Plus, Netflix Premium Ultra HD, Spotify Premium Individual, Google AI Plus).' },
-                    durationLabel: { type: 'string', description: 'The selected duration label (e.g. 1 Month, 3 Months, 6 Months, 12 Months).' }
+                    durationLabel: { type: 'string', description: 'Duration of the package (e.g., "1 Month", "3 Months", "6 Months", "1 Year", "18 Months").' }
                 },
                 required: ['phone', 'appId', 'planName', 'durationLabel']
             }
@@ -87,13 +87,13 @@ const tools = [
         type: "function",
         function: {
             name: 'requestPasswordReset',
-            description: 'Reset a user\'s account password to a randomly generated temporary password using their registered phone number.',
+            description: 'Reset a user\'s account password to a randomly generated temporary password using their registered phone number or email address.',
             parameters: {
                 type: 'object',
                 properties: {
-                    phone: { type: 'string', description: 'The registered phone number of the user requesting a reset.' }
+                    identifier: { type: 'string', description: 'The registered phone number or email address of the user requesting a reset.' }
                 },
-                required: ['phone']
+                required: ['identifier']
             }
         }
     }
@@ -183,11 +183,13 @@ const handleUpdateOrderPayment = async (orderId, paymentMethod, transactionId, s
         return { success: false, error: err.message };
     }
 };
-const handleRequestPasswordReset = async (phone) => {
+const handleRequestPasswordReset = async (identifier) => {
     try {
-        const user = await User_1.default.findOne({ phone });
+        const user = await User_1.default.findOne({
+            $or: [{ phone: identifier }, { email: identifier }]
+        });
         if (!user)
-            return { success: false, error: 'No account found with this phone number.' };
+            return { success: false, error: 'No account found with this phone number or email.' };
         const tempPassword = Math.floor(100000 + Math.random() * 900000).toString();
         const salt = await bcryptjs_1.default.genSalt(10);
         user.password = await bcryptjs_1.default.hash(tempPassword, salt);
@@ -207,7 +209,7 @@ const executeTool = async (name, args) => {
         case 'cancelOrder': return await handleCancelOrder(args.orderId);
         case 'createPendingOrder': return await handleCreatePendingOrder(args.phone, args.appId, args.planName, args.durationLabel);
         case 'updateOrderPayment': return await handleUpdateOrderPayment(args.orderId, args.paymentMethod, args.transactionId, args.senderNumber);
-        case 'requestPasswordReset': return await handleRequestPasswordReset(args.phone);
+        case 'requestPasswordReset': return await handleRequestPasswordReset(args.identifier);
         default: throw new Error(`Unknown function: ${name}`);
     }
 };
@@ -304,7 +306,11 @@ const chatWithAgent = async (sessionId, userMessage, apiKey) => {
             chatCompletion = await makeGroqRequest(messages);
             responseMessage = chatCompletion.choices[0]?.message;
         }
-        const replyText = responseMessage?.content || "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";
+        let replyText = responseMessage?.content || "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";
+        // Clean up any hallucinated JSON tool calls from the text
+        replyText = replyText.replace(/\{[\s\S]*"type"\s*:\s*"function"[\s\S]*\}/g, '').trim();
+        if (!replyText)
+            replyText = "আপনার রিকোয়েস্টটি প্রসেস করা হচ্ছে...";
         // Reconstruct history to save back to DB in our standard schema
         historyDoc.messages.push({ role: 'user', parts: [{ text: userMessage }] });
         historyDoc.messages.push({ role: 'model', parts: [{ text: replyText }] });

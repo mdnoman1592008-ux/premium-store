@@ -47,7 +47,7 @@ const tools: any[] = [
             phone: { type: 'string', description: 'The customer\'s registered phone number (e.g. 01712345678).' },
             appId: { type: 'string', description: 'The application ID (e.g. chatgpt, netflix, gemini, spotify).' },
             planName: { type: 'string', description: 'The specific name of the plan (e.g. ChatGPT Plus, Netflix Premium Ultra HD, Spotify Premium Individual, Google AI Plus).' },
-            durationLabel: { type: 'string', description: 'The selected duration label (e.g. 1 Month, 3 Months, 6 Months, 12 Months).' }
+            durationLabel: { type: 'string', description: 'Duration of the package (e.g., "1 Month", "3 Months", "6 Months", "1 Year", "18 Months").' }
           },
           required: ['phone', 'appId', 'planName', 'durationLabel']
         }

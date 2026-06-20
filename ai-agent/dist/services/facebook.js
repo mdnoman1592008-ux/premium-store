@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleWebhookEvent = exports.verifyWebhook = exports.saveFacebookSettings = exports.getFacebookSettings = void 0;
 const AgentSetting_1 = __importDefault(require("../models/AgentSetting"));
 const aiManager_1 = require("./aiManager");
-const ai_brain_1 = require("../ai_brain");
 const getFacebookSettings = async () => {
     const doc = await AgentSetting_1.default.findOne({ key: 'facebook_credentials' });
     return doc ? doc.value : { pageId: '', accessToken: '', verifyToken: '' };
@@ -47,6 +46,8 @@ const handleWebhookEvent = async (req, res) => {
                 res.status(200).send('EVENT_RECEIVED');
                 return;
             }
+            // IMPORTANT: Respond 200 OK immediately to prevent Meta from retrying the webhook and causing infinite loops
+            res.status(200).send('EVENT_RECEIVED');
             for (const entry of body.entry) {
                 if (!entry.messaging)
                     continue;
@@ -57,16 +58,17 @@ const handleWebhookEvent = async (req, res) => {
                     if (!senderId || !messageText || event.message?.is_echo)
                         continue;
                     console.log(`Received FB message from ${senderId}: ${messageText}`);
-                    // Process using Local AI Brain first, fallback to API
-                    let reply = (0, ai_brain_1.processLocalBrain)(messageText);
-                    if (!reply) {
-                        reply = await (0, aiManager_1.processWithAIFallback)(senderId, messageText);
-                    }
-                    // Send reply back via Facebook Send API
-                    await sendFacebookMessage(senderId, reply, accessToken);
+                    // Process using AI Fallback in the background to not block the webhook
+                    (0, aiManager_1.processWithAIFallback)(senderId, messageText)
+                        .then(async (reply) => {
+                        // Send reply back via Facebook Send API
+                        await sendFacebookMessage(senderId, reply, accessToken);
+                    })
+                        .catch(err => {
+                        console.error('Error in background AI processing for FB:', err);
+                    });
                 }
             }
-            res.status(200).send('EVENT_RECEIVED');
         }
         catch (err) {
             console.error('Error handling Facebook Webhook event:', err);

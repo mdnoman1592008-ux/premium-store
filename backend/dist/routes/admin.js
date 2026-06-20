@@ -14,4 +14,8 @@ router.put('/orders/:id/status', auth_1.adminProtect, orderController_1.updateOr
 router.get('/stats', auth_1.adminProtect, orderController_1.getAdminStats);
 router.get('/users', auth_1.adminProtect, adminController_1.getUsers);
 router.put('/users/:id/reset-password', auth_1.adminProtect, adminController_1.resetUserPassword);
+// AI Key Management
+router.get('/ai-keys', auth_1.adminProtect, adminController_1.getApiKeys);
+router.post('/ai-keys', auth_1.adminProtect, adminController_1.addApiKeys);
+router.delete('/ai-keys/:id', auth_1.adminProtect, adminController_1.deleteApiKey);
 exports.default = router;

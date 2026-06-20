@@ -31,7 +31,7 @@ const tools = [
         properties: {
           customerPhone: { type: 'string', description: 'The phone number of the customer placing the order.' },
           productName: { type: 'string', description: 'The exact name of the app/product they want.' },
-          duration: { type: 'string', description: 'Duration of the package (e.g., "1 Month", "3 Months", "6 Months", "1 Year").' },
+          duration: { type: 'string', description: 'Duration of the package (e.g., "1 Month", "3 Months", "6 Months", "1 Year", "18 Months").' },
           price: { type: 'number', description: 'The exact price in BDT. You must get this from the getStoreCatalog tool first.' }
         },
         required: ['customerPhone', 'productName', 'duration', 'price']

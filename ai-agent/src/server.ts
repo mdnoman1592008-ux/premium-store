@@ -202,10 +202,13 @@ connectDB().then(async () => {
 
   // Auto-reconnect WhatsApp if a session exists in the database
   try {
-    const sessionExists = await BaileysAuth.exists({ key: { $regex: '^session_whatsapp:' } });
-    if (sessionExists) {
-      console.log('Found existing WhatsApp session in database. Auto-connecting...');
+    const authDocs = await BaileysAuth.countDocuments({ key: { $regex: '^session_whatsapp:' } });
+    console.log(`Checking BaileysAuth on startup: Found ${authDocs} session documents.`);
+    if (authDocs > 0) {
+      console.log('Existing WhatsApp session found. Auto-connecting...');
       connectWhatsApp();
+    } else {
+      console.log('No WhatsApp session found on startup. Waiting for admin to connect manually.');
     }
   } catch (err) {
     console.error('Failed to check WhatsApp session on startup:', err);

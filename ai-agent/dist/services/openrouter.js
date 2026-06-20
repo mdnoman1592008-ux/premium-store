@@ -9,7 +9,8 @@ const Product_1 = __importDefault(require("../models/Product"));
 const Order_1 = __importDefault(require("../models/Order"));
 const ChatHistory_1 = __importDefault(require("../models/ChatHistory"));
 const prompt_1 = require("./prompt");
-// Define Tool Declarations for OpenRouter
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const User_1 = __importDefault(require("../models/User"));
 const tools = [
     {
         type: "function",
@@ -33,7 +34,7 @@ const tools = [
                 properties: {
                     customerPhone: { type: 'string', description: 'The phone number of the customer placing the order.' },
                     productName: { type: 'string', description: 'The exact name of the app/product they want.' },
-                    duration: { type: 'string', description: 'Duration of the package (e.g., "1 Month", "3 Months", "6 Months", "1 Year").' },
+                    duration: { type: 'string', description: 'Duration of the package (e.g., "1 Month", "3 Months", "6 Months", "1 Year", "18 Months").' },
                     price: { type: 'number', description: 'The exact price in BDT. You must get this from the getStoreCatalog tool first.' }
                 },
                 required: ['customerPhone', 'productName', 'duration', 'price']
@@ -74,13 +75,13 @@ const tools = [
         type: "function",
         function: {
             name: 'requestPasswordReset',
-            description: 'Reset a user\'s account password to a randomly generated temporary password using their registered phone number.',
+            description: 'Reset a user\'s account password to a randomly generated temporary password using their registered phone number or email address.',
             parameters: {
                 type: 'object',
                 properties: {
-                    phone: { type: 'string', description: 'The registered phone number of the user requesting a reset.' }
+                    identifier: { type: 'string', description: 'The registered phone number or email address of the user requesting a reset.' }
                 },
-                required: ['phone']
+                required: ['identifier']
             }
         }
     }
@@ -141,8 +142,17 @@ const handleTrackOrder = async (args) => {
 };
 const handleRequestPasswordReset = async (args) => {
     try {
-        const { phone } = args;
+        const { identifier } = args;
+        const user = await User_1.default.findOne({
+            $or: [{ phone: identifier }, { email: identifier }]
+        });
+        if (!user) {
+            return { success: false, error: 'No account found with this phone number or email.' };
+        }
         const randomPassword = Math.floor(100000 + Math.random() * 900000).toString();
+        const salt = await bcryptjs_1.default.genSalt(10);
+        user.password = await bcryptjs_1.default.hash(randomPassword, salt);
+        await user.save();
         return { success: true, tempPassword: randomPassword, message: `Tell the user to login with this password and change it.` };
     }
     catch (err) {
@@ -242,7 +252,11 @@ const chatWithAgent = async (sessionId, userMessage, apiKey) => {
             chatCompletion = await makeOpenRouterRequest(messages);
             responseMessage = chatCompletion.choices[0]?.message;
         }
-        const replyText = responseMessage?.content || "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";
+        let replyText = responseMessage?.content || "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";
+        // Clean up any hallucinated JSON tool calls from the text
+        replyText = replyText.replace(/\{[\s\S]*"type"\s*:\s*"function"[\s\S]*\}/g, '').trim();
+        if (!replyText)
+            replyText = "আপনার রিকোয়েস্টটি প্রসেস করা হচ্ছে...";
         historyDoc.messages.push({ role: 'user', parts: [{ text: userMessage }] });
         historyDoc.messages.push({ role: 'model', parts: [{ text: replyText }] });
         await historyDoc.save();
