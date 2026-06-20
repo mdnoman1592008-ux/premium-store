@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleWebhookEvent = exports.verifyWebhook = exports.saveFacebookSettings = exports.getFacebookSettings = void 0;
 const AgentSetting_1 = __importDefault(require("../models/AgentSetting"));
-const gemini_1 = require("./gemini");
+const groq_1 = require("./groq");
 const getFacebookSettings = async () => {
     const doc = await AgentSetting_1.default.findOne({ key: 'facebook_credentials' });
     return doc ? doc.value : { pageId: '', accessToken: '', verifyToken: '' };
@@ -57,7 +57,7 @@ const handleWebhookEvent = async (req, res) => {
                         continue;
                     console.log(`Received FB message from ${senderId}: ${messageText}`);
                     // Process using Gemini agent
-                    const reply = await (0, gemini_1.chatWithAgent)(senderId, messageText);
+                    const reply = await (0, groq_1.chatWithAgent)(senderId, messageText);
                     // Send reply back via Facebook Send API
                     await sendFacebookMessage(senderId, reply, accessToken);
                 }

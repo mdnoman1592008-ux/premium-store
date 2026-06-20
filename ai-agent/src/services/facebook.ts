@@ -1,5 +1,5 @@
 import AgentSetting from '../models/AgentSetting';
-import { chatWithAgent } from './gemini';
+import { chatWithAgent } from './groq';
 
 export const getFacebookSettings = async () => {
   const doc = await AgentSetting.findOne({ key: 'facebook_credentials' });

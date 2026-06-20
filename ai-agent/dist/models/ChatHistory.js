@@ -8,9 +8,7 @@ const chatHistorySchema = new mongoose_1.default.Schema({
     sessionId: { type: String, required: true, unique: true },
     messages: [{
             role: { type: String, enum: ['user', 'model'], required: true },
-            parts: [{
-                    text: { type: String, required: true }
-                }]
+            parts: [mongoose_1.default.Schema.Types.Mixed]
         }]
 }, { timestamps: true });
 const ChatHistory = mongoose_1.default.model('ChatHistory', chatHistorySchema);

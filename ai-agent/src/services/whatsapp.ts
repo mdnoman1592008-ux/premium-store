@@ -1,6 +1,6 @@
 import makeWASocket, { DisconnectReason, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
 import { useMongoDBAuthState } from './mongoAuth';
-import { chatWithAgent } from './gemini';
+import { chatWithAgent } from './groq';
 import qrcode from 'qrcode';
 import pino from 'pino';
 import BaileysAuth from '../models/BaileysAuth';
