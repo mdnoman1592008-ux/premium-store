@@ -45,6 +45,11 @@ export const INTENT_KEYWORDS = [
     intent: 'PRICE_INQUIRY',
     primary: ['price', 'dam', 'koto', 'rate', 'discount', 'kom', 'monthly', 'yearly', 'subscription', 'package'],
     secondary: ['netflix', 'chatgpt', 'spotify', 'janben', 'bolen', 'rakhben', 'pabo', 'hobe', 'nibe', 'taka', 'tk', 'niben']
+  },
+  {
+    intent: 'SAFE_WORD_HANDLING',
+    primary: ['bal', 'sal', 'bokachoka', 'pagol', 'kutta', 'shuor', 'suor', 'khanki', 'magi', 'madarchod', 'mc', 'bc', 'gali', 'faltu', 'baje', 'fau', 'fake', 'scam', 'chuda', 'chud', 'vua', 'fraud', 'chor'],
+    secondary: []
   }
 ];
 
@@ -63,7 +68,13 @@ export const detectIntent = (text: string): string | null => {
     
     // Check primary keywords (weight: 2)
     const hasPrimary = category.primary.some(word => cleanText.includes(word));
-    if (hasPrimary) score += 2;
+    if (hasPrimary) {
+      score += 2;
+      // Instant override for Safe Words (Abuse handling)
+      if (category.intent === 'SAFE_WORD_HANDLING') {
+        return 'SAFE_WORD_HANDLING';
+      }
+    }
 
     // Check secondary keywords (weight: 1)
     const hasSecondary = category.secondary.some(word => cleanText.includes(word));
