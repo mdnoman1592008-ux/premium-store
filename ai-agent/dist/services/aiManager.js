@@ -1,35 +1,44 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.processWithAIFallback = void 0;
 const openrouter_1 = require("./openrouter");
+const deepseek_1 = require("./deepseek");
 const groq_1 = require("./groq");
 const gemini_1 = require("./gemini");
-/**
- * AI Manager
- * This orchestrates the fallback cascade: OpenRouter -> Groq -> Gemini
- */
+const ApiKey_1 = __importDefault(require("../models/ApiKey"));
+const CASCADE_ORDER = [
+    { provider: 'openrouter', service: openrouter_1.chatWithAgent },
+    { provider: 'deepseek', service: deepseek_1.chatWithAgent },
+    { provider: 'groq', service: groq_1.chatWithAgent },
+    { provider: 'gemini', service: gemini_1.chatWithAgent }
+];
 const processWithAIFallback = async (sessionId, userMessage) => {
-    try {
-        console.log(`[AI Fallback] Attempting OpenRouter for session ${sessionId}...`);
-        return await (0, openrouter_1.chatWithAgent)(sessionId, userMessage);
-    }
-    catch (errOpenRouter) {
-        console.error(`[AI Fallback] OpenRouter failed: ${errOpenRouter.message}. Falling back to Groq...`);
-        try {
-            console.log(`[AI Fallback] Attempting Groq for session ${sessionId}...`);
-            return await (0, groq_1.chatWithAgent)(sessionId, userMessage);
+    for (const step of CASCADE_ORDER) {
+        // 1. Fetch active keys for this provider from DB
+        const apiKeys = await ApiKey_1.default.find({ provider: step.provider, isActive: true });
+        if (apiKeys.length === 0) {
+            console.warn(`[AI Fallback] Skipping ${step.provider} (No active keys found in DB).`);
+            continue; // Move to the next provider
         }
-        catch (errGroq) {
-            console.error(`[AI Fallback] Groq failed: ${errGroq.message}. Falling back to Gemini...`);
+        // 2. Intra-provider rotation
+        for (const keyDoc of apiKeys) {
             try {
-                console.log(`[AI Fallback] Attempting Gemini for session ${sessionId}...`);
-                return await (0, gemini_1.chatWithAgent)(sessionId, userMessage);
+                console.log(`[AI Fallback] Attempting ${step.provider} with key ending in ...${keyDoc.key.slice(-4)}`);
+                return await step.service(sessionId, userMessage, keyDoc.key);
             }
-            catch (errGemini) {
-                console.error(`[AI Fallback] Gemini failed: ${errGemini.message}. All AI services exhausted.`);
-                return "আমি অত্যন্ত দুঃখিত, বর্তমানে সার্ভারে একটি টেকনিক্যাল সমস্যার কারণে রিপ্লাই দিতে পারছি না। আমাদের অ্যাডমিন খুব দ্রুত এটি ঠিক করে দিবেন। দয়া করে কিছুক্ষণ পর আবার মেসেজ দিন। (Error: All API services failed)";
+            catch (err) {
+                console.error(`[AI Fallback] ${step.provider} Key failed: ${err.message}. Rotating...`);
+                // Log the error in DB to help admin
+                keyDoc.lastError = err.message || 'Unknown Error';
+                await keyDoc.save();
             }
         }
     }
+    // If all providers and all keys fail
+    console.error(`[AI Fallback] ALL AI SERVICES FAILED.`);
+    return "আমি অত্যন্ত দুঃখিত, বর্তমানে সার্ভারে একটি টেকনিক্যাল সমস্যার কারণে রিপ্লাই দিতে পারছি না। আমাদের অ্যাডমিন খুব দ্রুত এটি ঠিক করে দিবেন। দয়া করে কিছুক্ষণ পর আবার মেসেজ দিন।";
 };
 exports.processWithAIFallback = processWithAIFallback;

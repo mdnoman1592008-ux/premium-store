@@ -4,7 +4,7 @@ import Order from '../models/Order';
 import ChatHistory from '../models/ChatHistory';
 import { SYSTEM_INSTRUCTION } from './prompt';
 
-// Define Tool Declarations for OpenRouter
+// Define Tool Declarations for DeepSeek
 const tools = [
   {
     type: "function",
@@ -162,16 +162,12 @@ const executeTool = async (functionName: string, args: any) => {
 
 export const chatWithAgent = async (sessionId: string, userMessage: string, apiKey: string): Promise<string> => {
   if (!apiKey) {
-      throw new Error("OpenRouter API key is missing");
+      throw new Error("DeepSeek API key is missing");
   }
 
-  const openrouter = new OpenAI({
-    baseURL: "https://openrouter.ai/api/v1",
-    apiKey: apiKey,
-    defaultHeaders: {
-      "HTTP-Referer": "https://premiumaccountsbd.store",
-      "X-Title": "Premium Accounts BD",
-    }
+  const deepseek = new OpenAI({
+    baseURL: "https://api.deepseek.com/v1",
+    apiKey: apiKey
   });
 
   try {
@@ -183,11 +179,9 @@ export const chatWithAgent = async (sessionId: string, userMessage: string, apiK
     const messages: any[] = [];
     messages.push({ role: 'system', content: SYSTEM_INSTRUCTION });
     
-    // OpenRouter uses standard OpenAI roles, but 'parts' is Gemini-specific. 
-    // We map our DB schema (role, parts.text) to standard (role, content).
     for (const msg of historyDoc.messages) {
       let role = msg.role;
-      if (role === 'model') role = 'assistant' as any; // OpenAI equivalent
+      if (role === 'model') role = 'assistant' as any;
       const text = msg.parts?.[0]?.text || '';
       if (text) {
         messages.push({ role, content: text });
@@ -196,32 +190,17 @@ export const chatWithAgent = async (sessionId: string, userMessage: string, apiK
     
     messages.push({ role: 'user', content: userMessage });
 
-    const FALLBACK_MODELS = [
-      'google/gemini-2.5-pro',
-      'google/gemini-2.5-flash',
-      'meta-llama/llama-3.3-70b-instruct'
-    ];
-
-    const makeOpenRouterRequest = async (currentMessages: any[]) => {
-      let lastError = null;
-      for (const modelName of FALLBACK_MODELS) {
-        try {
-          const completion = await openrouter.chat.completions.create({
-            messages: currentMessages as any,
-            model: modelName,
-            tools: tools as any,
-            tool_choice: 'auto',
-          });
-          return completion; // Success! Return immediately.
-        } catch (err: any) {
-          console.warn(`OpenRouter Model ${modelName} failed. Falling back... Error: ${err.message}`);
-          lastError = err;
-        }
-      }
-      throw lastError; // All models failed
+    const makeDeepSeekRequest = async (currentMessages: any[]) => {
+      const completion = await deepseek.chat.completions.create({
+        messages: currentMessages as any,
+        model: 'deepseek-chat',
+        tools: tools as any,
+        tool_choice: 'auto',
+      });
+      return completion;
     };
 
-    let chatCompletion = await makeOpenRouterRequest(messages);
+    let chatCompletion = await makeDeepSeekRequest(messages);
     let responseMessage = chatCompletion.choices[0]?.message;
     
     while (responseMessage?.tool_calls && responseMessage.tool_calls.length > 0) {
@@ -242,7 +221,7 @@ export const chatWithAgent = async (sessionId: string, userMessage: string, apiK
         });
       }
       
-      chatCompletion = await makeOpenRouterRequest(messages);
+      chatCompletion = await makeDeepSeekRequest(messages);
       responseMessage = chatCompletion.choices[0]?.message;
     }
 
@@ -254,7 +233,7 @@ export const chatWithAgent = async (sessionId: string, userMessage: string, apiK
 
     return replyText;
   } catch (err: any) {
-    console.error('Error in chatWithAgent (OpenRouter):', err);
+    console.error('Error in chatWithAgent (DeepSeek):', err);
     throw err; // Re-throw to allow AI Manager to catch and fallback
   }
 };

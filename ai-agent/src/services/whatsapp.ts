@@ -184,6 +184,40 @@ const initWhatsAppSocket = async () => {
         if (!messageText.trim()) continue;
 
         try {
+          const ADMIN_NUMBERS = ['8801346839521@s.whatsapp.net']; // You can add more admin numbers here
+          const isAdmin = ADMIN_NUMBERS.includes(fromJid);
+
+          if (isAdmin && messageText.startsWith('/addkey')) {
+            const parts = messageText.split(' ');
+            if (parts.length >= 3) {
+              const provider = parts[1].toLowerCase();
+              const key = parts[2];
+              if (['openrouter', 'deepseek', 'groq', 'gemini'].includes(provider)) {
+                // Inline import ApiKey dynamically or just use standard import at top
+                const { default: ApiKey } = await import('../models/ApiKey');
+                const newKey = new ApiKey({ provider, key });
+                await newKey.save();
+                await sock.sendMessage(fromJid, { text: `✅ Successfully added API key for ${provider}.` });
+              } else {
+                await sock.sendMessage(fromJid, { text: `❌ Invalid provider. Use: openrouter, deepseek, groq, gemini` });
+              }
+            } else {
+              await sock.sendMessage(fromJid, { text: `❌ Usage: /addkey <provider> <key>` });
+            }
+            continue; // Stop processing this message further
+          }
+
+          if (isAdmin && messageText.startsWith('/listkeys')) {
+            const { default: ApiKey } = await import('../models/ApiKey');
+            const keys = await ApiKey.find({});
+            let txt = '🔑 *Active API Keys:*\n';
+            for (const k of keys) {
+              txt += `- ${k.provider}: ...${k.key.slice(-4)} (${k.isActive ? 'Active' : 'Disabled'})\n`;
+            }
+            await sock.sendMessage(fromJid, { text: txt || 'No keys found.' });
+            continue;
+          }
+
           await sock.sendPresenceUpdate('composing', fromJid);
           let reply = processLocalBrain(messageText);
           if (!reply) {

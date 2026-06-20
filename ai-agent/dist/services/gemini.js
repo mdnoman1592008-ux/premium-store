@@ -10,76 +10,7 @@ const Order_1 = __importDefault(require("../models/Order"));
 const User_1 = __importDefault(require("../models/User"));
 const ChatHistory_1 = __importDefault(require("../models/ChatHistory"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-// Initialize the Google Generative AI client
-const getGenAI = () => {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-        console.warn('WARNING: GEMINI_API_KEY environment variable is not defined.');
-    }
-    return new generative_ai_1.GoogleGenerativeAI(apiKey || 'MOCK_KEY');
-};
-// Models to try in order (fallback chain)
-const GEMINI_MODEL_FALLBACKS = [
-    'models/gemini-2.0-flash',
-    'models/gemini-2.0-flash-lite',
-    'models/gemini-2.5-flash-lite',
-    'models/gemini-2.5-flash',
-    'models/gemini-flash-latest',
-    'models/gemini-pro-latest',
-];
-let workingModel = null;
-// Try to find a working model by attempting the actual request
-const tryModelRequest = async (genAI, modelName, history, userMessage, tools) => {
-    try {
-        const m = genAI.getGenerativeModel({ model: modelName });
-        const chat = m.startChat({ history, tools });
-        const result = await chat.sendMessage(userMessage);
-        return { result, model: m };
-    }
-    catch (err) {
-        console.warn(`❌ Model ${modelName} failed: ${err.message?.substring(0, 80)}`);
-        return null;
-    }
-};
-const SYSTEM_INSTRUCTION = `
-You are the official AI Assistant of PREMIUMACCOUNTSSTORE.COM (Premium Accounts BD).
-CRITICAL RULE: You MUST reply STRICTLY in Bengali (বাংলা ভাষায়) at all times, no matter what language the customer uses. Speak in an extremely polite, warm, respectful, and professional tone (খুব সুন্দর, মার্জিত এবং ভদ্র ভাষায় কথা বলবেন). 
-
-About Our Business (Website Details):
-- We sell premium digital subscriptions at cheap prices: Netflix, Spotify, Canva Pro, YouTube Premium, Amazon Prime Video, ChatGPT Plus, Gemini Advanced, Crunchyroll, Ullu, Hoichoi, Chorki, Bongo, etc.
-- Warranty: We provide a 100% Replacement Warranty for the full duration of the subscription. If an account stops working, we fix it or replace it.
-- Delivery Time: Accounts are usually delivered within 5 to 30 minutes after payment verification.
-- Refund Policy: If we fail to deliver an account or provide a replacement within 24 hours, the customer gets a full refund.
-- Contact/Support: Customers can reach us via WhatsApp or our website live chat for instant support.
-
-Your job is to assist customers with:
-1. Explaining our subscription services, plans, and rates (Use getStoreCatalog tool to fetch real-time prices).
-2. Answering general questions about our digital shop, refund policy, and support rules.
-3. Helping customers track their orders (Use trackOrder tool).
-4. Enabling users to reset their account passwords (Use requestPasswordReset tool).
-5. Helping users start or complete orders (Use createPendingOrder and updateOrderPayment tools).
-
-Payment Details for the Store:
-- bkash (Personal Send Money): 01346839521
-- Nagad (Personal Send Money): 01346839521
-- Rocket (Personal Send Money): 01346839521
-(Note: Do NOT give old numbers. Always use 01346839521 for payments).
-
-Ordering Conversational Flow:
-1. When a customer wants to buy something, ALWAYS use the getStoreCatalog tool to check the actual pricing and plans.
-2. Ask for their phone number (e.g., '01XXXXXXXXX') to link the order.
-3. Call createPendingOrder tool to register a pending order inside our system. It will return an Order ID and the exact price.
-4. Give them our payment number (01346839521) and ask them to Send Money via bKash/Nagad/Rocket.
-5. Once they send money, politely ask them to reply with the Sender Phone Number and the Transaction ID (TrxID).
-6. When they provide those details, call the updateOrderPayment tool. Once saved, let them know that their order is now submitted and our admin will verify the payment and deliver their login credentials (Email, Password, Profile/PIN) very soon. Tell them they can check their order status anytime by providing their Order ID.
-
-Password Reset Flow:
-1. If a customer forgot their website password, ask for their registered phone number.
-2. Call the requestPasswordReset tool. It will generate a temporary 6-digit password.
-3. Give them the temporary password and politely advise them to log in at premiumaccountsbd.store and change it from their profile.
-
-Remember: Be very helpful, use emojis where appropriate to make the chat friendly, and ALWAYS reply in beautiful Bengali language.
-`;
+const prompt_1 = require("./prompt");
 // Define Tool Declarations for Gemini
 const tools = [
     {
@@ -306,7 +237,11 @@ const executeTool = async (name, args) => {
     }
 };
 // Main interface to chat with the AI agent
-const chatWithAgent = async (sessionId, userMessage) => {
+const chatWithAgent = async (sessionId, userMessage, apiKey) => {
+    if (!apiKey) {
+        throw new Error("Gemini API key is missing");
+    }
+    const genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);
     try {
         // 1. Fetch JID/PSID history from DB
         let historyDoc = await ChatHistory_1.default.findOne({ sessionId });
@@ -331,28 +266,31 @@ const chatWithAgent = async (sessionId, userMessage) => {
         if (sdkHistory.length === 0) {
             sdkHistory.push({
                 role: 'user',
-                parts: [{ text: `[SYSTEM INSTRUCTION: ${SYSTEM_INSTRUCTION}]\n\nHello` }]
+                parts: [{ text: `[SYSTEM INSTRUCTION: ${prompt_1.SYSTEM_INSTRUCTION}]\n\nHello` }]
             });
             sdkHistory.push({
                 role: 'model',
                 parts: [{ text: 'Understood. How can I help you today?' }]
             });
         }
-        const genAI = getGenAI();
         // Try models in fallback order
-        const modelsToTry = workingModel
-            ? [workingModel, ...GEMINI_MODEL_FALLBACKS.filter(m => m !== workingModel)]
-            : GEMINI_MODEL_FALLBACKS;
+        const GEMINI_MODEL_FALLBACKS = [
+            'models/gemini-2.0-flash',
+            'models/gemini-2.0-flash-lite',
+            'models/gemini-2.5-flash-lite',
+            'models/gemini-2.5-flash',
+            'models/gemini-flash-latest',
+            'models/gemini-pro-latest',
+        ];
         let result = null;
         let successfulModel = null;
         let chat = null;
-        for (const modelName of modelsToTry) {
+        for (const modelName of GEMINI_MODEL_FALLBACKS) {
             const m = genAI.getGenerativeModel({ model: modelName, tools: [{ functionDeclarations: tools }] });
             chat = m.startChat({ history: sdkHistory });
             try {
                 result = await chat.sendMessage(userMessage);
                 successfulModel = modelName;
-                workingModel = modelName;
                 console.log(`✅ Gemini replied using: ${modelName}`);
                 break;
             }

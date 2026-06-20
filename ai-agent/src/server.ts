@@ -18,7 +18,7 @@ import {
   verifyWebhook,
   handleWebhookEvent
 } from './services/facebook';
-import { chatWithAgent } from './services/gemini';
+import { processWithAIFallback } from './services/aiManager';
 
 dotenv.config();
 
@@ -164,7 +164,7 @@ app.post('/api/agent/web/chat', async (req, res) => {
     return;
   }
   try {
-    const reply = await chatWithAgent(sessionId, message);
+    const reply = await processWithAIFallback(sessionId, message);
     res.json({ reply });
   } catch (err: any) {
     res.status(500).json({ error: err.message });

@@ -12,7 +12,7 @@ const Admin_1 = __importDefault(require("./models/Admin"));
 const BaileysAuth_1 = __importDefault(require("./models/BaileysAuth"));
 const whatsapp_1 = require("./services/whatsapp");
 const facebook_1 = require("./services/facebook");
-const gemini_1 = require("./services/gemini");
+const aiManager_1 = require("./services/aiManager");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 // Middleware
@@ -151,7 +151,7 @@ app.post('/api/agent/web/chat', async (req, res) => {
         return;
     }
     try {
-        const reply = await (0, gemini_1.chatWithAgent)(sessionId, message);
+        const reply = await (0, aiManager_1.processWithAIFallback)(sessionId, message);
         res.json({ reply });
     }
     catch (err) {
