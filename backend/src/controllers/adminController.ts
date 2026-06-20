@@ -63,3 +63,57 @@ export const resetUserPassword = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+import ApiKey from '../models/ApiKey';
+
+export const getApiKeys = async (req: Request, res: Response) => {
+  try {
+    const keys = await ApiKey.find({}).sort({ createdAt: -1 });
+    res.json(keys);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const addApiKeys = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { provider, keys } = req.body; // 'keys' should be a string (multiline or comma-separated)
+    if (!provider || !keys) {
+      res.status(400).json({ message: 'Provider and keys are required' });
+      return;
+    }
+
+    const keyArray = keys.split(/[\n,]+/).map((k: string) => k.trim()).filter((k: string) => k.length > 0);
+    
+    let addedCount = 0;
+    for (const key of keyArray) {
+      try {
+        await ApiKey.create({ provider, key });
+        addedCount++;
+      } catch (err: any) {
+        // Ignore duplicate key errors
+        if (err.code !== 11000) {
+          console.error('Error adding key:', err);
+        }
+      }
+    }
+
+    res.json({ message: `Successfully added ${addedCount} keys for ${provider}` });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteApiKey = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const deleted = await ApiKey.findByIdAndDelete(id);
+    if (!deleted) {
+      res.status(404).json({ message: 'Key not found' });
+      return;
+    }
+    res.json({ message: 'API Key deleted successfully' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
