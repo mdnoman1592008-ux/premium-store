@@ -39,7 +39,20 @@ export default function DurationPage() {
             if (!selectedPlan && plan === 'Google AI Plus' && product.plans.length > 0) {
                selectedPlan = { durations: product.plans[0].durations };
             }
-            if (selectedPlan && selectedPlan.durations) {
+            if (selectedPlan) {
+              if (!selectedPlan.durations) selectedPlan.durations = [];
+              const has18 = selectedPlan.durations.some((d: any) => d.months === 18 || d.label?.includes('18 Month'));
+              if (!has18 && app.toLowerCase() === 'gemini') {
+                selectedPlan.durations.push({
+                  months: 18,
+                  label: '18 Months',
+                  price: 0,
+                  discount: 0,
+                  saved: 0,
+                  tag: 'Value'
+                });
+              }
+              selectedPlan.durations.sort((a: any, b: any) => (a.months || 0) - (b.months || 0));
               setDurations(selectedPlan.durations);
             }
           }

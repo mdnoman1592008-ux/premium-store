@@ -215,8 +215,26 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
               ];
             }
 
-            // Sort plans: Plus -> Pro -> Ultra
+            // Inject 18 months duration to all Gemini plans
             if (data.plans && Array.isArray(data.plans)) {
+              data.plans.forEach((plan: any) => {
+                if (!plan.durations) plan.durations = [];
+                const has18 = plan.durations.some((d: any) => d.months === 18 || d.label?.includes('18 Month'));
+                if (!has18) {
+                  plan.durations.push({
+                    months: 18,
+                    label: '18 Months',
+                    price: 0,
+                    discount: 0,
+                    saved: 0,
+                    tag: 'Value'
+                  });
+                }
+                // Also sort durations by months to ensure 18 months is at the end
+                plan.durations.sort((a: any, b: any) => (a.months || 0) - (b.months || 0));
+              });
+
+              // Sort plans: Plus -> Pro -> Ultra
               data.plans.sort((a: any, b: any) => {
                 const aName = a.planName.toLowerCase();
                 const bName = b.planName.toLowerCase();
