@@ -4,6 +4,9 @@ import Order from '../models/Order';
 import ChatHistory from '../models/ChatHistory';
 import { SYSTEM_INSTRUCTION } from './prompt';
 
+import bcrypt from 'bcryptjs';
+import User from '../models/User';
+
 // Define Tool Declarations for DeepSeek
 const tools = [
   {
@@ -69,13 +72,13 @@ const tools = [
     type: "function",
     function: {
       name: 'requestPasswordReset',
-      description: 'Reset a user\'s account password to a randomly generated temporary password using their registered phone number.',
+      description: 'Reset a user\'s account password to a randomly generated temporary password using their registered phone number or email address.',
       parameters: {
         type: 'object',
         properties: {
-          phone: { type: 'string', description: 'The registered phone number of the user requesting a reset.' }
+          identifier: { type: 'string', description: 'The registered phone number or email address of the user requesting a reset.' }
         },
-        required: ['phone']
+        required: ['identifier']
       }
     }
   }
@@ -135,8 +138,20 @@ const handleTrackOrder = async (args: any) => {
 
 const handleRequestPasswordReset = async (args: any) => {
   try {
-    const { phone } = args;
+    const { identifier } = args;
+    const user = await User.findOne({ 
+      $or: [ { phone: identifier }, { email: identifier } ] 
+    });
+    
+    if (!user) {
+      return { success: false, error: 'No account found with this phone number or email.' };
+    }
+
     const randomPassword = Math.floor(100000 + Math.random() * 900000).toString();
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(randomPassword, salt);
+    await user.save();
+
     return { success: true, tempPassword: randomPassword, message: `Tell the user to login with this password and change it.` };
   } catch (err: any) {
     return { success: false, error: err.message };

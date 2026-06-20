@@ -83,13 +83,13 @@ const tools: any[] = [
     type: "function",
     function: {
       name: 'requestPasswordReset',
-      description: 'Reset a user\'s account password to a randomly generated temporary password using their registered phone number.',
+      description: 'Reset a user\'s account password to a randomly generated temporary password using their registered phone number or email address.',
       parameters: {
         type: 'object',
         properties: {
-          phone: { type: 'string', description: 'The registered phone number of the user requesting a reset.' }
+          identifier: { type: 'string', description: 'The registered phone number or email address of the user requesting a reset.' }
         },
-        required: ['phone']
+        required: ['identifier']
       }
     }
   }
@@ -178,10 +178,12 @@ const handleUpdateOrderPayment = async (orderId: string, paymentMethod: string, 
   }
 };
 
-const handleRequestPasswordReset = async (phone: string) => {
+const handleRequestPasswordReset = async (identifier: string) => {
   try {
-    const user = await User.findOne({ phone });
-    if (!user) return { success: false, error: 'No account found with this phone number.' };
+    const user = await User.findOne({ 
+      $or: [ { phone: identifier }, { email: identifier } ] 
+    });
+    if (!user) return { success: false, error: 'No account found with this phone number or email.' };
     
     const tempPassword = Math.floor(100000 + Math.random() * 900000).toString();
     const salt = await bcrypt.genSalt(10);
@@ -203,7 +205,7 @@ const executeTool = async (name: string, args: any) => {
     case 'cancelOrder': return await handleCancelOrder(args.orderId);
     case 'createPendingOrder': return await handleCreatePendingOrder(args.phone, args.appId, args.planName, args.durationLabel);
     case 'updateOrderPayment': return await handleUpdateOrderPayment(args.orderId, args.paymentMethod, args.transactionId, args.senderNumber);
-    case 'requestPasswordReset': return await handleRequestPasswordReset(args.phone);
+    case 'requestPasswordReset': return await handleRequestPasswordReset(args.identifier);
     default: throw new Error(`Unknown function: ${name}`);
   }
 };

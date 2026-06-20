@@ -68,13 +68,13 @@ const tools: any[] = [
       },
       {
         name: 'requestPasswordReset',
-        description: 'Reset a user\'s account password to a randomly generated temporary password using their registered phone number.',
+        description: 'Reset a user\'s account password to a randomly generated temporary password using their registered phone number or email address.',
         parameters: {
           type: 'object',
           properties: {
-            phone: { type: 'string', description: 'The registered phone number of the user requesting a reset.' }
+            identifier: { type: 'string', description: 'The registered phone number or email address of the user requesting a reset.' }
           },
-          required: ['phone']
+          required: ['identifier']
         }
       }
     ]
@@ -204,11 +204,14 @@ const handleUpdateOrderPayment = async (args: { orderId: string; paymentMethod: 
   }
 };
 
-const handleRequestPasswordReset = async (args: { phone: string }) => {
+const handleRequestPasswordReset = async (args: { identifier: string }) => {
   try {
-    const user = await User.findOne({ phone: args.phone });
+    const user = await User.findOne({ 
+      $or: [ { phone: args.identifier }, { email: args.identifier } ] 
+    });
+    
     if (!user) {
-      return { success: false, message: `No registered user found with phone number: ${args.phone}` };
+      return { success: false, message: `No registered user found with phone number or email: ${args.identifier}` };
     }
 
     const tempPassword = Math.floor(100000 + Math.random() * 900000).toString();
@@ -218,7 +221,7 @@ const handleRequestPasswordReset = async (args: { phone: string }) => {
     user.password = hashedPassword;
     await user.save();
 
-    return { success: true, tempPassword, message: `Password reset successfully for ${args.phone}.` };
+    return { success: true, tempPassword, message: `Password reset successfully for ${args.identifier}.` };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
