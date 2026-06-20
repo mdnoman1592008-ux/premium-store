@@ -246,7 +246,11 @@ export const chatWithAgent = async (sessionId: string, userMessage: string, apiK
       responseMessage = chatCompletion.choices[0]?.message;
     }
 
-    const replyText = responseMessage?.content || "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";
+    let replyText = responseMessage?.content || "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";
+
+    // Clean up any hallucinated JSON tool calls from the text
+    replyText = replyText.replace(/\{[\s\S]*"type"\s*:\s*"function"[\s\S]*\}/g, '').trim();
+    if (!replyText) replyText = "আপনার রিকোয়েস্টটি প্রসেস করা হচ্ছে...";
 
     historyDoc.messages.push({ role: 'user', parts: [{ text: userMessage }] });
     historyDoc.messages.push({ role: 'model', parts: [{ text: replyText }] });

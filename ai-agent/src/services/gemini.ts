@@ -343,6 +343,10 @@ export const chatWithAgent = async (
       replyText = "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";
     }
 
+    // Clean up any hallucinated JSON tool calls from the text
+    replyText = replyText.replace(/\{[\s\S]*"type"\s*:\s*"function"[\s\S]*\}/g, '').trim();
+    if (!replyText) replyText = "আপনার রিকোয়েস্টটি প্রসেস করা হচ্ছে...";
+
     // Save updated history back to MongoDB
     const updatedHistory = await chat.getHistory();
     historyDoc.messages = updatedHistory.map((m: any) => ({
