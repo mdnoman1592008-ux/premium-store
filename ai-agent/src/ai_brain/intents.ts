@@ -53,7 +53,21 @@ export const INTENT_KEYWORDS = [
   }
 ];
 
-// Lightweight Levenshtein Distance for mathematical fuzzy matching (100T+ variations)
+// Phonetic Normalization (Soundex-style) to handle Banglish pronunciation shifts
+const phoneticNormalize = (word: string): string => {
+  return word
+    .replace(/bh/g, 'v')
+    .replace(/ph/g, 'f')
+    .replace(/sh/g, 's')
+    .replace(/ch/g, 'c')
+    .replace(/z/g, 'j')
+    .replace(/ee/g, 'i')
+    .replace(/oo/g, 'u')
+    .replace(/ou/g, 'o')
+    .replace(/(.)\1+/g, '$1'); // Remove double letters (e.g., 'bhalll' -> 'bhal' -> 'val')
+};
+
+// Lightweight Levenshtein Distance for mathematical fuzzy matching
 const levenshteinDistance = (a: string, b: string): number => {
   if (a.length === 0) return b.length;
   if (b.length === 0) return a.length;
@@ -72,14 +86,16 @@ const levenshteinDistance = (a: string, b: string): number => {
 };
 
 const isFuzzyMatch = (inputWords: string[], targetKeyword: string): boolean => {
-  // If the word exists perfectly
+  const normTarget = phoneticNormalize(targetKeyword);
   if (inputWords.includes(targetKeyword)) return true;
   
-  // Allow 1 character typo for words length 4-5, 2 characters for 6+
-  for (const word of inputWords) {
-    if (Math.abs(word.length - targetKeyword.length) > 2) continue; // Too different in length
-    const allowedDistance = targetKeyword.length >= 6 ? 2 : (targetKeyword.length >= 4 ? 1 : 0);
-    if (allowedDistance > 0 && levenshteinDistance(word, targetKeyword) <= allowedDistance) {
+  for (const rawWord of inputWords) {
+    const word = phoneticNormalize(rawWord);
+    if (word === normTarget) return true;
+    
+    if (Math.abs(word.length - normTarget.length) > 2) continue;
+    const allowedDistance = normTarget.length >= 6 ? 2 : (normTarget.length >= 4 ? 1 : 0);
+    if (allowedDistance > 0 && levenshteinDistance(word, normTarget) <= allowedDistance) {
       return true;
     }
   }
