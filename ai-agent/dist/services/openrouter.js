@@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chatWithAgent = void 0;
 const openai_1 = __importDefault(require("openai"));
-const Product_1 = require("../models/Product");
-const Order_1 = require("../models/Order");
-const ChatHistory_1 = require("../models/ChatHistory");
+const Product_1 = __importDefault(require("../models/Product"));
+const Order_1 = __importDefault(require("../models/Order"));
+const ChatHistory_1 = __importDefault(require("../models/ChatHistory"));
 // OpenRouter initialization
 const openrouter = new openai_1.default({
     baseURL: "https://openrouter.ai/api/v1",
@@ -148,7 +148,7 @@ const tools = [
 // Tool Implementation Handlers
 const handleGetStoreCatalog = async () => {
     try {
-        const products = await Product_1.Product.find({});
+        const products = await Product_1.default.find({});
         return { success: true, products };
     }
     catch (err) {
@@ -158,7 +158,7 @@ const handleGetStoreCatalog = async () => {
 const handleCreatePendingOrder = async (args) => {
     try {
         const { customerPhone, productName, duration, price } = args;
-        const newOrder = new Order_1.Order({
+        const newOrder = new Order_1.default({
             customerPhone,
             productName,
             duration,
@@ -176,7 +176,7 @@ const handleCreatePendingOrder = async (args) => {
 const handleUpdateOrderPayment = async (args) => {
     try {
         const { orderId, paymentSenderNumber, trxId } = args;
-        const order = await Order_1.Order.findById(orderId);
+        const order = await Order_1.default.findById(orderId);
         if (!order)
             return { success: false, error: 'Order not found' };
         order.paymentSenderNumber = paymentSenderNumber;
@@ -190,7 +190,7 @@ const handleUpdateOrderPayment = async (args) => {
 };
 const handleTrackOrder = async (args) => {
     try {
-        const order = await Order_1.Order.findById(args.orderId);
+        const order = await Order_1.default.findById(args.orderId);
         if (!order)
             return { success: false, error: 'Order not found' };
         return { success: true, order };
@@ -230,9 +230,9 @@ const chatWithAgent = async (sessionId, userMessage) => {
         throw new Error("OpenRouter API key is missing");
     }
     try {
-        let historyDoc = await ChatHistory_1.ChatHistory.findOne({ sessionId });
+        let historyDoc = await ChatHistory_1.default.findOne({ sessionId });
         if (!historyDoc) {
-            historyDoc = new ChatHistory_1.ChatHistory({ sessionId, messages: [] });
+            historyDoc = new ChatHistory_1.default({ sessionId, messages: [] });
         }
         const messages = [];
         messages.push({ role: 'system', content: SYSTEM_INSTRUCTION });
@@ -276,7 +276,8 @@ const chatWithAgent = async (sessionId, userMessage) => {
         let responseMessage = chatCompletion.choices[0]?.message;
         while (responseMessage?.tool_calls && responseMessage.tool_calls.length > 0) {
             messages.push(responseMessage);
-            for (const toolCall of responseMessage.tool_calls) {
+            for (const tCall of responseMessage.tool_calls) {
+                const toolCall = tCall;
                 let args = {};
                 try {
                     args = JSON.parse(toolCall.function.arguments || '{}');

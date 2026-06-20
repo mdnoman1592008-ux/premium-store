@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
-import { Product } from '../models/Product';
-import { Order } from '../models/Order';
-import { ChatHistory } from '../models/ChatHistory';
+import Product from '../models/Product';
+import Order from '../models/Order';
+import ChatHistory from '../models/ChatHistory';
 
 // OpenRouter initialization
 const openrouter = new OpenAI({
@@ -281,7 +281,8 @@ export const chatWithAgent = async (sessionId: string, userMessage: string): Pro
     while (responseMessage?.tool_calls && responseMessage.tool_calls.length > 0) {
       messages.push(responseMessage);
       
-      for (const toolCall of responseMessage.tool_calls) {
+      for (const tCall of responseMessage.tool_calls) {
+        const toolCall = tCall as any;
         let args = {};
         try { args = JSON.parse(toolCall.function.arguments || '{}'); } catch(e) {}
         
