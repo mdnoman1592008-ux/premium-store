@@ -173,7 +173,7 @@ export default function AppDetailsPage({ params }: { params: { appId: string } }
   const router = useRouter();
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products/${params.appId}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products/${params.appId}?t=${Date.now()}`)
       .then(res => {
         if (!res.ok) throw new Error('Server error');
         return res.json();

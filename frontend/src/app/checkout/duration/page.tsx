@@ -30,7 +30,7 @@ export default function DurationPage() {
       setPlanName(plan);
 
       // Fetch dynamic durations
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products`)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products?t=${Date.now()}`)
         .then(res => res.json())
         .then(data => {
           const product = data.find((p: any) => p.appName === app);
