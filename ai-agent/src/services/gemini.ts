@@ -313,7 +313,13 @@ export const chatWithAgent = async (
     // Translate our database history format to Gemini SDK format
     const sdkHistory = historyDoc.messages.map((m: any) => ({
       role: m.role,
-      parts: m.parts
+      parts: m.parts.map((p: any) => {
+        const cleanPart: any = {};
+        if (p.text !== undefined) cleanPart.text = p.text;
+        if (p.functionCall !== undefined) cleanPart.functionCall = p.functionCall;
+        if (p.functionResponse !== undefined) cleanPart.functionResponse = p.functionResponse;
+        return cleanPart;
+      })
     }));
 
     // Inject system instruction if history is empty
