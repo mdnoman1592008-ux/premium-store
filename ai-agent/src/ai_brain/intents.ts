@@ -1,35 +1,39 @@
 export const INTENT_PATTERNS = [
   {
     intent: 'GREETING',
-    regex: /^(hi|hello|hey|assalamu|salam|hi vai|hello vai|vai|vaiya|hy|hlo|হ্যালো|হাই|আসসালামু|সালাম)\s*$/i
+    regex: /^(hi|hello|hey|assalamu|salam|hi vai|hello vai|vai|vaiya|hy|hlo|হ্যালো|হাই|আসসালামু|সালাম|helo|holla|ki obstha|kemon achen|kmn asen|kemon asen|bhai|brother|bro|hlw|namaskar|nomoskar|adab)\s*$/i
   },
   {
     intent: 'PAYMENT_NUMBER',
-    regex: /(number dao|number den|number daben|bkash number|nagad number|rocket number|payment number|number ta den|payment kivabe korbo|send money number|নাম্বার|বিকাশ নাম্বার|নগদ নাম্বার|পেমেন্ট নাম্বার)/i
+    regex: /(number dao|number den|number daben|bkash number|nagad number|rocket number|payment number|number ta den|payment kivabe korbo|send money number|নাম্বার|বিকাশ নাম্বার|নগদ নাম্বার|পেমেন্ট নাম্বার|bkas number|bksh num|nagd no|rocket no|taka pathabo kemne|taka dibo kivabe|tk pathabo koi|send money|payment details|pay korbo|kivabe pay korbo|bks no|bkash no)/i
   },
   {
     intent: 'HOW_TO_ORDER',
-    regex: /(kivabe order|kivabe nibo|order process|kivabe kinbo|kivabe payment korbo|order korbo kivabe|how to order|how to buy|কিভাবে কিনবো|কিভাবে অর্ডার করবো)/i
+    regex: /(kivabe order|kivabe nibo|order process|kivabe kinbo|kivabe payment korbo|order korbo kivabe|how to order|how to buy|কিভাবে কিনবো|কিভাবে অর্ডার করবো|order kemne|kemne order dibo|order dewar niom|order rules|kinbo kivabe|kini kemne|purchase process|how do i buy|buy process|kibhabe nibo)/i
   },
   {
     intent: 'PASSWORD_RESET_INFO',
-    regex: /(password vule gechi|password reset|forget password|password mone nai|password haray felse|পাসওয়ার্ড ভুলে গেছি|পাসওয়ার্ড রিসেট)/i
+    regex: /(password vule gechi|password reset|forget password|password mone nai|password haray felse|পাসওয়ার্ড ভুলে গেছি|পাসওয়ার্ড রিসেট|pass vule gesi|pass mone nai|forgot pass|reset pass|password change|pass change|recover account|recover password|password ki|amar password ki|account e dhukte parchina)/i
   },
   {
     intent: 'WEBSITE_LINK',
-    regex: /(website link|website|site link|link den|link dao|ওয়েবসাইট লিংক|ওয়েবসাইট)/i
+    regex: /(website link|website|site link|link den|link dao|ওয়েবসাইট লিংক|ওয়েবসাইট|web link|site address|url den|url dao|kotha theke kinbo|app link)/i
   },
   {
     intent: 'SUPPORT_CONTACT',
-    regex: /(support number|contact number|admin number|kotha bolbo kivabe|kotha bolte chai|help lagbe|help chai|সাপোর্ট নাম্বার|কথা বলতে চাই)/i
+    regex: /(support number|contact number|admin number|kotha bolbo kivabe|kotha bolte chai|help lagbe|help chai|সাপোর্ট নাম্বার|কথা বলতে চাই|admin er sathe kotha bolbo|support team|customer care|helpline|help me|sajjo lagbe|shomossa|problem hoise|somossa|kaj korchena|account nosto)/i
   },
   {
     intent: 'THANKS',
-    regex: /^(thanks|dhonnobad|thank you|tk|thx|tq|tnx|ধন্যবাদ|থ্যাংকস)\s*$/i
+    regex: /^(thanks|dhonnobad|thank you|tk|thx|tq|tnx|ধন্যবাদ|থ্যাংকস|ty|thank u|jazakallah|sukriya|shukriya|valobasha|love you|thnx)\s*$/i
   },
   {
     intent: 'WARRANTY_INFO',
-    regex: /(warranty|guarantee|nischoyota|problem hole ki korben|warranty ase|replace pabo|রিপ্লেস পাবো|ওয়ারেন্টি|গ্যারান্টি)/i
+    regex: /(warranty|guarantee|nischoyota|problem hole ki korben|warranty ase|replace pabo|রিপ্লেস পাবো|ওয়ারেন্টি|গ্যারান্টি|kono somossa hole|account bondho hole|bondho hoye gele|koto din tikbe|koydin cholbe|guaranty|replacement|nonguarantee)/i
+  },
+  {
+    intent: 'PRICE_INQUIRY',
+    regex: /(price koto|dam koto|koto taka|koto tk|dam janben|rate koto|monthly koto|yearly koto|subscription koto|netflix er dam koto|chatgpt dam koto|dam bolen|koto rakhben|discount pabo|kom hobe|দাম কত|কত টাকা|রেট কত|ডিসকাউন্ট)/i
   }
 ];
 
