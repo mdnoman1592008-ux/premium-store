@@ -48,6 +48,9 @@ export const handleWebhookEvent = async (req: any, res: any) => {
         return;
       }
 
+      // IMPORTANT: Respond 200 OK immediately to prevent Meta from retrying the webhook and causing infinite loops
+      res.status(200).send('EVENT_RECEIVED');
+
       for (const entry of body.entry) {
         if (!entry.messaging) continue;
         for (const event of entry.messaging) {
@@ -59,14 +62,17 @@ export const handleWebhookEvent = async (req: any, res: any) => {
 
           console.log(`Received FB message from ${senderId}: ${messageText}`);
 
-          // Process using AI Fallback (OpenRouter/DeepSeek/Groq/Gemini)
-          const reply = await processWithAIFallback(senderId, messageText);
-
-          // Send reply back via Facebook Send API
-          await sendFacebookMessage(senderId, reply, accessToken);
+          // Process using AI Fallback in the background to not block the webhook
+          processWithAIFallback(senderId, messageText)
+            .then(async (reply) => {
+              // Send reply back via Facebook Send API
+              await sendFacebookMessage(senderId, reply, accessToken);
+            })
+            .catch(err => {
+              console.error('Error in background AI processing for FB:', err);
+            });
         }
       }
-      res.status(200).send('EVENT_RECEIVED');
     } catch (err: any) {
       console.error('Error handling Facebook Webhook event:', err);
       res.status(500).send(err.message);

@@ -218,10 +218,17 @@ const initWhatsAppSocket = async () => {
             continue;
           }
 
-          await sock.sendPresenceUpdate('composing', fromJid);
-          const reply = await processWithAIFallback(fromJid, messageText);
-          await sock.sendPresenceUpdate('paused', fromJid);
-          await sock.sendMessage(fromJid, { text: reply });
+          // Process AI in the background so we don't block the message loop
+          (async () => {
+            try {
+              await sock.sendPresenceUpdate('composing', fromJid);
+              const reply = await processWithAIFallback(fromJid, messageText);
+              await sock.sendPresenceUpdate('paused', fromJid);
+              await sock.sendMessage(fromJid, { text: reply });
+            } catch (err) {
+              console.error('Error in WhatsApp background AI processing:', err);
+            }
+          })();
         } catch (err) {
           console.error('Error handling WhatsApp message:', err);
         }
