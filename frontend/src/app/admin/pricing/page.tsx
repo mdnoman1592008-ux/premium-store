@@ -81,13 +81,18 @@ export default function PricingPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {[
+                            {(product.appId.toLowerCase() === 'gemini' ? [
                               { months: 1, label: '1 Month' },
                               { months: 3, label: '3 Months' },
                               { months: 6, label: '6 Months' },
                               { months: 12, label: '12 Months' },
                               { months: 18, label: '18 Months' }
-                            ].map((stdDuration: any, idx: number) => {
+                            ] : [
+                              { months: 1, label: '1 Month' },
+                              { months: 3, label: '3 Months' },
+                              { months: 6, label: '6 Months' },
+                              { months: 12, label: '12 Months' }
+                            ]).map((stdDuration: any, idx: number) => {
                               const existing = plan.durations?.find((d: any) => d.months === stdDuration.months || d.label === stdDuration.label);
                               return (
                                 <tr key={idx} style={{ borderBottom: '1px solid #f8fafc' }}>
@@ -119,12 +124,17 @@ export default function PricingPage() {
                             className="btn-primary" 
                             style={{ padding: '10px 24px', borderRadius: '8px', fontSize: '0.95rem' }}
                             onClick={() => {
-                              const targetDurations = [
+                              const targetDurations = product.appId.toLowerCase() === 'gemini' ? [
                                 { months: 1, label: '1 Month' },
                                 { months: 3, label: '3 Months' },
                                 { months: 6, label: '6 Months' },
                                 { months: 12, label: '12 Months' },
                                 { months: 18, label: '18 Months' }
+                              ] : [
+                                { months: 1, label: '1 Month' },
+                                { months: 3, label: '3 Months' },
+                                { months: 6, label: '6 Months' },
+                                { months: 12, label: '12 Months' }
                               ];
                               const updatedDurations = targetDurations.map((d: any, idx: number) => ({
                                 ...d,
