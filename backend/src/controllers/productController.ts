@@ -51,3 +51,28 @@ export const updatePlanPrice = async (req: Request, res: Response): Promise<void
     res.status(500).json({ message: error.message });
   }
 };
+
+export const cleanup18Months = async (req: Request, res: Response) => {
+  try {
+    const products = await Product.find({});
+    let updatedCount = 0;
+    for (const product of products) {
+      if (product.appId.toLowerCase() === 'gemini') continue;
+      let updated = false;
+      product.plans.forEach((plan: any) => {
+        const initialLength = plan.durations.length;
+        plan.durations = plan.durations.filter((d: any) => d.months !== 18 && !d.label.includes('18 Month'));
+        if (plan.durations.length !== initialLength) {
+          updated = true;
+        }
+      });
+      if (updated) {
+        await product.save();
+        updatedCount++;
+      }
+    }
+    res.json({ message: `Successfully cleaned up 18 months from ${updatedCount} non-Gemini apps.` });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
