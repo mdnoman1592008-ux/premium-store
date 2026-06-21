@@ -196,6 +196,11 @@ export default function PaymentDetailsPage({ params }: { params: { method: strin
       formData.append('senderNumber', 'hidden_in_ui'); // Dummy sender number for backend
       formData.append('transactionId', transactionId);
       
+      const couponCode = localStorage.getItem('checkout_coupon');
+      if (couponCode) {
+        formData.append('couponCode', couponCode);
+      }
+      
       const token = localStorage.getItem('userToken');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/orders`, {
         method: 'POST',

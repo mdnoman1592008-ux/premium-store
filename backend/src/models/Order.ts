@@ -15,6 +15,7 @@ const orderSchema = new mongoose.Schema({
   credentialsEmail: { type: String },
   credentialsPassword: { type: String },
   credentialsPin: { type: String },
+  couponCode: { type: String, default: '' },
 }, { timestamps: true });
 
 const Order = mongoose.model('Order', orderSchema);

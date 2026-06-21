@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import Order from '../models/Order';
 
+import Coupon from '../models/Coupon';
+
 export const createOrder = async (req: Request, res: Response) => {
   try {
     const {
@@ -11,6 +13,7 @@ export const createOrder = async (req: Request, res: Response) => {
       paymentMethod,
       transactionId,
       senderNumber,
+      couponCode,
     } = req.body;
 
     const screenshotUrl = req.file ? `/uploads/${req.file.filename}` : '';
@@ -27,9 +30,18 @@ export const createOrder = async (req: Request, res: Response) => {
       transactionId,
       senderNumber,
       screenshotUrl,
+      couponCode,
     });
 
     const createdOrder = await order.save();
+
+    if (couponCode) {
+      await Coupon.findOneAndUpdate(
+        { code: couponCode.toUpperCase() },
+        { $inc: { usesCount: 1 } }
+      ).catch(err => console.error('Failed to increment coupon uses:', err));
+    }
+
     res.status(201).json(createdOrder);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
