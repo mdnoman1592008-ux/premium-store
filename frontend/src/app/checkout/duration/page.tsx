@@ -93,8 +93,8 @@ export default function DurationPage() {
         setAppliedCoupon(null);
         localStorage.removeItem('checkout_coupon');
       }
-    } catch (err) {
-      setCouponMsg({ text: 'Server error', type: 'error' });
+    } catch (err: any) {
+      setCouponMsg({ text: 'Server error: ' + err.message, type: 'error' });
     } finally {
       setApplying(false);
     }

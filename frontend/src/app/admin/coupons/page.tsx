@@ -69,8 +69,9 @@ export default function CouponsPage() {
         const errorData = await res.json();
         alert(`Failed to add coupon: ${errorData.message}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert('Error: ' + err.message);
     }
   };
 
