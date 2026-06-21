@@ -11,6 +11,11 @@ export default function DurationPage() {
   const [durations, setDurations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{ discountPercentage: number } | null>(null);
+  const [couponMsg, setCouponMsg] = useState({ text: '', type: '' });
+  const [applying, setApplying] = useState(false);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('userToken');
@@ -28,6 +33,12 @@ export default function DurationPage() {
 
       setAppName(app);
       setPlanName(plan);
+      
+      // Load saved coupon if any
+      const savedCoupon = localStorage.getItem('checkout_coupon');
+      if (savedCoupon) {
+        setCouponCode(savedCoupon);
+      }
 
       // Fetch dynamic durations
       fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products?t=${Date.now()}`)
@@ -62,10 +73,46 @@ export default function DurationPage() {
     }
   }, [router]);
 
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setApplying(true);
+    setCouponMsg({ text: '', type: '' });
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/coupons/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponCode })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAppliedCoupon({ discountPercentage: data.discountPercentage });
+        setCouponMsg({ text: `Coupon applied! ${data.discountPercentage}% off.`, type: 'success' });
+        localStorage.setItem('checkout_coupon', couponCode);
+      } else {
+        setCouponMsg({ text: data.message || 'Invalid coupon', type: 'error' });
+        setAppliedCoupon(null);
+        localStorage.removeItem('checkout_coupon');
+      }
+    } catch (err) {
+      setCouponMsg({ text: 'Server error', type: 'error' });
+    } finally {
+      setApplying(false);
+    }
+  };
+
   const handleSelectDuration = (duration: any) => {
     if (typeof window !== 'undefined') {
+      const finalPrice = appliedCoupon 
+        ? Math.round(duration.price * (1 - appliedCoupon.discountPercentage / 100))
+        : duration.price;
+        
       localStorage.setItem('checkout_duration', duration.label);
-      localStorage.setItem('checkout_price', duration.price.toString());
+      localStorage.setItem('checkout_price', finalPrice.toString());
+      if (appliedCoupon) {
+        localStorage.setItem('checkout_coupon', couponCode);
+      } else {
+        localStorage.removeItem('checkout_coupon');
+      }
     }
     router.push('/checkout/payment');
   };
@@ -104,10 +151,42 @@ export default function DurationPage() {
           </p>
         </div>
 
+        {/* Coupon Section */}
+        <div style={{ background: 'white', padding: '24px', borderRadius: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', marginBottom: '32px', border: '1px solid #f1f5f9' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '16px', color: '#0f172a' }}>Have a Promo Code?</h3>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <input 
+              type="text" 
+              placeholder="Enter coupon code" 
+              value={couponCode} 
+              onChange={e => setCouponCode(e.target.value)}
+              style={{ flex: 1, padding: '12px 16px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '1rem', textTransform: 'uppercase', outline: 'none' }}
+              disabled={appliedCoupon !== null}
+            />
+            <button 
+              onClick={appliedCoupon ? () => { setAppliedCoupon(null); setCouponCode(''); setCouponMsg({text:'', type:''}); localStorage.removeItem('checkout_coupon'); } : handleApplyCoupon}
+              disabled={applying || (!couponCode && !appliedCoupon)}
+              style={{ padding: '0 24px', borderRadius: '12px', fontWeight: 600, background: appliedCoupon ? '#ef4444' : 'var(--primary)', color: 'white', border: 'none', cursor: (!couponCode && !appliedCoupon) ? 'not-allowed' : 'pointer', opacity: (!couponCode && !appliedCoupon) ? 0.6 : 1 }}
+            >
+              {applying ? 'Applying...' : appliedCoupon ? 'Remove' : 'Apply'}
+            </button>
+          </div>
+          {couponMsg.text && (
+            <div style={{ marginTop: '12px', fontSize: '0.9rem', color: couponMsg.type === 'error' ? '#ef4444' : '#10b981', fontWeight: 500 }}>
+              {couponMsg.text}
+            </div>
+          )}
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
           {loading ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>Loading durations...</div>
-          ) : (durations || []).map((d, i) => (
+          ) : (durations || []).map((d, i) => {
+            const currentPrice = appliedCoupon 
+              ? Math.round(d.price * (1 - appliedCoupon.discountPercentage / 100))
+              : d.price;
+            
+            return (
             <div 
               key={i} 
               className="glass-card" 
@@ -169,13 +248,27 @@ export default function DurationPage() {
                 ) : (
                   <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Standard monthly subscription rate</span>
                 )}
+                {appliedCoupon && (
+                  <div style={{ color: '#10b981', fontSize: '0.85rem', fontWeight: 600, marginTop: '4px' }}>
+                    Coupon applied: {appliedCoupon.discountPercentage}% OFF
+                  </div>
+                )}
               </div>
               
               <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--primary)' }}>৳{d.price}</div>
+                  {appliedCoupon ? (
+                    <>
+                      <div style={{ fontSize: '1.2rem', fontWeight: 600, color: '#94a3b8', textDecoration: 'line-through', marginBottom: '2px' }}>৳{d.price}</div>
+                      <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#10b981' }}>
+                        ৳{currentPrice}
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--primary)' }}>৳{d.price}</div>
+                  )}
                   <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px' }}>
-                    ৳{Math.round(d.price / d.months)}/mo
+                    ৳{Math.round(currentPrice / d.months)}/mo
                   </div>
                 </div>
                 <div style={{
@@ -194,7 +287,7 @@ export default function DurationPage() {
                 </div>
               </div>
             </div>
-          ))}
+          )})}
         </div>
       </div>
     </div>
