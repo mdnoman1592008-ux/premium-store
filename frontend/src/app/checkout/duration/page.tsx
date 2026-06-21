@@ -81,7 +81,7 @@ export default function DurationPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/coupons/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: couponCode, appName: app })
+        body: JSON.stringify({ code: couponCode, appName })
       });
       const data = await res.json();
       if (res.ok) {

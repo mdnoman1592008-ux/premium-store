@@ -16,6 +16,8 @@ export default function CouponsPage() {
 
   const router = useRouter();
 
+  const [apps, setApps] = useState<string[]>([]);
+
   const fetchCoupons = async () => {
     const token = localStorage.getItem('adminToken');
     if (!token) {
@@ -35,8 +37,22 @@ export default function CouponsPage() {
     }
   };
 
+  const fetchApps = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        const uniqueApps = Array.from(new Set(data.map((p: any) => p.appName)));
+        setApps(uniqueApps as string[]);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchCoupons();
+    fetchApps();
   }, [router]);
 
   const addCoupon = async (e: React.FormEvent) => {
@@ -114,8 +130,13 @@ export default function CouponsPage() {
               <input type="datetime-local" value={validUntil} onChange={e => setValidUntil(e.target.value)} required style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
             </div>
             <div style={{ flex: 1, minWidth: '150px' }}>
-              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '6px', color: '#64748b' }}>App (e.g. Gemini, or All)</label>
-              <input type="text" value={applicableApp} onChange={e => setApplicableApp(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} placeholder="All" />
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '6px', color: '#64748b' }}>App</label>
+              <select value={applicableApp} onChange={e => setApplicableApp(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white' }}>
+                <option value="All">All Apps</option>
+                {apps.map(app => (
+                  <option key={app} value={app}>{app}</option>
+                ))}
+              </select>
             </div>
             <div style={{ flex: 1, minWidth: '100px' }}>
               <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '6px', color: '#64748b' }}>Max Limit (0=No limit)</label>
