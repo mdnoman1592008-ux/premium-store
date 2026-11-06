@@ -2,6 +2,8 @@
 import Link from 'next/link';
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { signOut } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 
 const Navbar = () => {
   const [userToken, setUserToken] = useState<string | null>(null);
@@ -69,6 +71,7 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
+    signOut(auth).catch(() => {});
     if (typeof window !== 'undefined') {
       localStorage.removeItem('userToken');
       localStorage.removeItem('userPhone');

@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../../lib/firebase';
 
 export default function UserSignUpPage() {
   const [firstName, setFirstName] = useState('');
@@ -17,8 +19,25 @@ export default function UserSignUpPage() {
   
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   
   const router = useRouter();
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+  const getFirebaseErrorMessage = (code?: string, fallback?: string) => {
+    switch (code) {
+      case 'auth/email-already-in-use':
+        return 'This email is already registered. Please log in instead.';
+      case 'auth/invalid-email':
+        return 'Please enter a valid email address.';
+      case 'auth/weak-password':
+        return 'Password is too weak. Please use at least 6 characters.';
+      case 'auth/popup-closed-by-user':
+        return 'Google sign-in popup was closed before completing.';
+      default:
+        return fallback || 'Registration failed. Please try again.';
+    }
+  };
 
   const handleSignUp = async (e: any) => {
     e.preventDefault();
@@ -45,20 +64,35 @@ export default function UserSignUpPage() {
     }
 
     setLoading(true);
+    const fullName = `${firstName} ${lastName}`.trim();
 
     try {
-      // Note: Backend currently only uses phone and password for auth/register.
-      // We pass phone as identifier.
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/register`, {
+      // 1. Create live account in Firebase Auth with Email & Password
+      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      const firebaseUser = userCredential.user;
+
+      if (fullName) {
+        await updateProfile(firebaseUser, { displayName: fullName }).catch(() => {});
+      }
+
+      // 2. Sync user account with Backend MongoDB & receive backend JWT
+      const res = await fetch(`${apiUrl}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: `${firstName} ${lastName}`.trim(), email, phone, password }) 
+        body: JSON.stringify({
+          name: fullName,
+          email: email.trim(),
+          phone: phone.trim(),
+          password,
+          firebaseUid: firebaseUser.uid
+        })
       });
       const data = await res.json();
+
       if (res.ok) {
         if (typeof window !== 'undefined') {
           localStorage.setItem('userToken', data.token);
-          localStorage.setItem('userPhone', data.phone);
+          localStorage.setItem('userPhone', data.phone || email.trim());
           window.dispatchEvent(new Event('storage'));
         }
         
@@ -68,10 +102,47 @@ export default function UserSignUpPage() {
       } else {
         setError(data.message || 'Registration failed');
       }
-    } catch (err) {
-      setError('Connection error. Please ensure backend is running.');
+    } catch (err: any) {
+      setError(getFirebaseErrorMessage(err?.code, err?.message));
     }
     setLoading(false);
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setGoogleLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      const res = await fetch(`${apiUrl}/api/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: user.displayName || '',
+          email: user.email || '',
+          photo: user.photoURL || '',
+          firebaseUid: user.uid
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('userToken', data.token);
+          localStorage.setItem('userPhone', data.phone || data.email || '');
+          window.dispatchEvent(new Event('storage'));
+        }
+        const searchParams = new URLSearchParams(window.location.search);
+        const redirectUrl = searchParams.get('redirect') || '/';
+        router.push(redirectUrl);
+      } else {
+        setError(data.message || 'Google sign-in failed');
+      }
+    } catch (err: any) {
+      setError(getFirebaseErrorMessage(err?.code, err?.message));
+    }
+    setGoogleLoading(false);
   };
 
   const inputStyle = {
@@ -100,15 +171,53 @@ export default function UserSignUpPage() {
         <h1 style={{ fontSize: '1.8rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
           Sign Up to your Account
         </h1>
-        <p style={{ color: '#475569', fontSize: '1rem', marginBottom: '32px', lineHeight: '1.5' }}>
+        <p style={{ color: '#475569', fontSize: '1rem', marginBottom: '24px', lineHeight: '1.5' }}>
           Welcome! Please enter your details to create an account.
         </p>
         
         {error && (
-          <div style={{ color: '#ef4444', marginBottom: '20px', fontSize: '0.9rem', padding: '10px', background: '#fef2f2', borderRadius: '8px', border: '1px solid #fecaca' }}>
+          <div style={{ color: '#ef4444', marginBottom: '20px', fontSize: '0.9rem', padding: '12px', background: '#fef2f2', borderRadius: '10px', border: '1px solid #fecaca', fontWeight: 500 }}>
             {error}
           </div>
         )}
+
+        {/* Google Sign-In Button */}
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={googleLoading || loading}
+          style={{
+            width: '100%',
+            padding: '13px 16px',
+            background: 'white',
+            color: '#1e293b',
+            border: '1.5px solid #cbd5e1',
+            borderRadius: '12px',
+            fontSize: '0.98rem',
+            fontWeight: 600,
+            cursor: (googleLoading || loading) ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
+            transition: 'all 0.2s'
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 48 48">
+            <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+            <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+            <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+            <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+          </svg>
+          {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '20px 0' }}>
+          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>or sign up with email</span>
+          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+        </div>
 
         <form onSubmit={handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Row 1: First Name & Last Name */}
@@ -239,8 +348,8 @@ export default function UserSignUpPage() {
             />
             <label htmlFor="terms" style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.4' }}>
               By creating an account means you agree to the{' '}
-              <a href="#" style={{ color: '#2563eb', textDecoration: 'none' }}>Terms & Conditions</a> and our{' '}
-              <a href="#" style={{ color: '#2563eb', textDecoration: 'none' }}>Privacy Policy</a>
+              <Link href="/terms" style={{ color: '#2563eb', textDecoration: 'none' }}>Terms & Conditions</Link> and our{' '}
+              <Link href="/privacy-policy" style={{ color: '#2563eb', textDecoration: 'none' }}>Privacy Policy</Link>
             </label>
           </div>
 
@@ -285,7 +394,7 @@ export default function UserSignUpPage() {
 
           <button 
             type="submit" 
-            disabled={loading}
+            disabled={loading || googleLoading}
             style={{ 
               width: '100%',
               padding: '16px',
@@ -295,13 +404,13 @@ export default function UserSignUpPage() {
               borderRadius: '12px',
               fontSize: '1.05rem',
               fontWeight: 600,
-              cursor: loading ? 'not-allowed' : 'pointer',
+              cursor: (loading || googleLoading) ? 'not-allowed' : 'pointer',
               marginTop: '12px',
               transition: 'background 0.2s',
-              opacity: loading ? 0.7 : 1
+              opacity: (loading || googleLoading) ? 0.7 : 1
             }}
           >
-            {loading ? 'Signing Up...' : 'Sign Up'}
+            {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
         
