@@ -19,6 +19,7 @@ import {
   handleWebhookEvent
 } from './services/facebook';
 import { processWithAIFallback } from './services/aiManager';
+import { getCachedProducts, getCachedApiKeys } from './services/cache';
 
 dotenv.config();
 
@@ -171,8 +172,10 @@ app.post('/api/agent/web/chat', async (req, res) => {
   }
 });
 
-// Default root route
+// Default root route (also pre-warms catalog & API key cache)
 app.get('/', (req, res) => {
+  getCachedProducts().catch(() => {});
+  getCachedApiKeys('openrouter').catch(() => {});
   res.send('AI Agent Service API is running...');
 });
 
@@ -199,6 +202,9 @@ connectDB().then(async () => {
   app.listen(PORT, () => {
     console.log(`AI Agent server running on port ${PORT}`);
   });
+
+  // Pre-warm catalog and API keys cache on startup
+  Promise.all([getCachedProducts(), getCachedApiKeys('openrouter')]).catch(() => {});
 
   // Auto-reconnect WhatsApp if a session exists in the database
   try {

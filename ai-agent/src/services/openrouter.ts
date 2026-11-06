@@ -1,18 +1,17 @@
 import OpenAI from 'openai';
-import Product from '../models/Product';
 import Order from '../models/Order';
 import ChatHistory from '../models/ChatHistory';
 import { SYSTEM_INSTRUCTION } from './prompt';
-
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
+import { getCachedProducts, getCachedCatalogSummaryText, saveChatHistoryAsync } from './cache';
 
 const tools = [
   {
     type: "function",
     function: {
       name: 'getStoreCatalog',
-      description: 'Fetch the entire store catalog of Premium Accounts BD. Returns a list of apps, pricing, and durations available. Use this whenever the user asks for a price.',
+      description: 'Fetch the entire store catalog of Premium Accounts BD.',
       parameters: {
         type: 'object',
         properties: {},
@@ -31,7 +30,7 @@ const tools = [
           customerPhone: { type: 'string', description: 'The phone number of the customer placing the order.' },
           productName: { type: 'string', description: 'The exact name of the app/product they want.' },
           duration: { type: 'string', description: 'Duration of the package (e.g., "1 Month", "3 Months", "6 Months", "1 Year", "18 Months").' },
-          price: { type: 'number', description: 'The exact price in BDT. You must get this from the getStoreCatalog tool first.' }
+          price: { type: 'number', description: 'The exact price in BDT.' }
         },
         required: ['customerPhone', 'productName', 'duration', 'price']
       }
@@ -57,7 +56,7 @@ const tools = [
     type: "function",
     function: {
       name: 'trackOrder',
-      description: 'Look up an order status by Order ID. Returns order details including status (Pending, Verified, Delivered).',
+      description: 'Look up an order status by Order ID (e.g. ORD-123456). Returns order details including status.',
       parameters: {
         type: 'object',
         properties: {
@@ -83,10 +82,9 @@ const tools = [
   }
 ];
 
-// Tool Implementation Handlers
 const handleGetStoreCatalog = async () => {
   try {
-    const products = await Product.find({});
+    const products = await getCachedProducts();
     return { success: true, products };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -96,16 +94,20 @@ const handleGetStoreCatalog = async () => {
 const handleCreatePendingOrder = async (args: any) => {
   try {
     const { customerPhone, productName, duration, price } = args;
+    const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
     const newOrder = new Order({
-      customerPhone,
-      productName,
+      orderId,
+      appName: productName,
+      planName: productName,
       duration,
       price,
-      status: 'Pending',
-      orderDate: new Date()
+      paymentMethod: 'Pending',
+      transactionId: 'Pending',
+      senderNumber: customerPhone,
+      status: 'Pending'
     });
     const saved = await newOrder.save();
-    return { success: true, message: 'Order created', orderId: saved._id };
+    return { success: true, message: 'Order created', orderId: saved.orderId || saved._id };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -114,7 +116,7 @@ const handleCreatePendingOrder = async (args: any) => {
 const handleUpdateOrderPayment = async (args: any) => {
   try {
     const { orderId, paymentSenderNumber, trxId } = args;
-    const order = await Order.findById(orderId);
+    const order = await Order.findOne({ $or: [{ orderId }, ...(orderId?.match(/^[0-9a-fA-F]{24}$/) ? [{ _id: orderId }] : [])] });
     if (!order) return { success: false, error: 'Order not found' };
     order.senderNumber = paymentSenderNumber;
     order.transactionId = trxId;
@@ -127,7 +129,8 @@ const handleUpdateOrderPayment = async (args: any) => {
 
 const handleTrackOrder = async (args: any) => {
   try {
-    const order = await Order.findById(args.orderId);
+    const { orderId } = args;
+    const order = await Order.findOne({ $or: [{ orderId }, ...(orderId?.match(/^[0-9a-fA-F]{24}$/) ? [{ _id: orderId }] : [])] }).lean();
     if (!order) return { success: false, error: 'Order not found' };
     return { success: true, order };
   } catch (err: any) {
@@ -138,10 +141,10 @@ const handleTrackOrder = async (args: any) => {
 const handleRequestPasswordReset = async (args: any) => {
   try {
     const { identifier } = args;
-    const user = await User.findOne({ 
-      $or: [ { phone: identifier }, { email: identifier } ] 
+    const user = await User.findOne({
+      $or: [{ phone: identifier }, { email: identifier }]
     });
-    
+
     if (!user) {
       return { success: false, error: 'No account found with this phone number or email.' };
     }
@@ -174,80 +177,88 @@ const executeTool = async (functionName: string, args: any) => {
   }
 };
 
+const FALLBACK_MODELS = [
+  'google/gemini-2.0-flash-001',
+  'google/gemini-2.5-flash',
+  'meta-llama/llama-3.3-70b-instruct'
+];
+
+let preferredModel: string | null = null;
+
 export const chatWithAgent = async (sessionId: string, userMessage: string, apiKey: string): Promise<string> => {
   if (!apiKey) {
-      throw new Error("OpenRouter API key is missing");
+    throw new Error("OpenRouter API key is missing");
   }
 
   const openrouter = new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
     apiKey: apiKey,
     defaultHeaders: {
-      "HTTP-Referer": "https://premiumaccountsbd.store",
+      "HTTP-Referer": "https://premium-store-tau-six.vercel.app",
       "X-Title": "Premium Accounts BD",
     }
   });
 
   try {
-    let historyDoc = await ChatHistory.findOne({ sessionId });
-    if (!historyDoc) {
-      historyDoc = new ChatHistory({ sessionId, messages: [] });
-    }
+    const [historyDoc, catalogSummary] = await Promise.all([
+      ChatHistory.findOne({ sessionId }).lean(),
+      getCachedCatalogSummaryText()
+    ]);
 
     const messages: any[] = [];
-    messages.push({ role: 'system', content: SYSTEM_INSTRUCTION });
-    
-    // OpenRouter uses standard OpenAI roles, but 'parts' is Gemini-specific. 
-    // We map our DB schema (role, parts.text) to standard (role, content).
-    for (const msg of historyDoc.messages) {
-      let role = msg.role;
-      if (role === 'model') role = 'assistant' as any; // OpenAI equivalent
+    messages.push({ role: 'system', content: SYSTEM_INSTRUCTION + catalogSummary });
+
+    const recentMessages = (historyDoc?.messages || []).slice(-6);
+    for (const msg of recentMessages) {
+      let role: any = msg.role;
+      if (role === 'model') role = 'assistant';
       const text = msg.parts?.[0]?.text || '';
       if (text) {
         messages.push({ role, content: text });
       }
     }
-    
+
     messages.push({ role: 'user', content: userMessage });
 
-    const FALLBACK_MODELS = [
-      'google/gemini-2.5-pro',
-      'google/gemini-2.5-flash',
-      'meta-llama/llama-3.3-70b-instruct'
-    ];
+    const orderedModels = preferredModel
+      ? [preferredModel, ...FALLBACK_MODELS.filter(m => m !== preferredModel)]
+      : FALLBACK_MODELS;
 
     const makeOpenRouterRequest = async (currentMessages: any[]) => {
       let lastError = null;
-      for (const modelName of FALLBACK_MODELS) {
+      for (const modelName of orderedModels) {
         try {
           const completion = await openrouter.chat.completions.create({
             messages: currentMessages as any,
             model: modelName,
+            max_tokens: 450,
+            temperature: 0.4,
             tools: tools as any,
             tool_choice: 'auto',
           });
-          return completion; // Success! Return immediately.
+          preferredModel = modelName;
+          return completion;
         } catch (err: any) {
           console.warn(`OpenRouter Model ${modelName} failed. Falling back... Error: ${err.message}`);
           lastError = err;
         }
       }
-      throw lastError; // All models failed
+      throw lastError;
     };
 
     let chatCompletion = await makeOpenRouterRequest(messages);
     let responseMessage = chatCompletion.choices[0]?.message;
-    
+
     while (responseMessage?.tool_calls && responseMessage.tool_calls.length > 0) {
       messages.push(responseMessage);
-      
+
       for (const tCall of responseMessage.tool_calls) {
         const toolCall = tCall as any;
         let args = {};
-        try { args = JSON.parse(toolCall.function.arguments || '{}'); } catch(e) {}
-        
+        try { args = JSON.parse(toolCall.function.arguments || '{}'); } catch (e) {}
+
         const toolResult = await executeTool(toolCall.function.name, args);
-        
+
         messages.push({
           tool_call_id: toolCall.id,
           role: 'tool',
@@ -255,24 +266,22 @@ export const chatWithAgent = async (sessionId: string, userMessage: string, apiK
           content: JSON.stringify(toolResult),
         });
       }
-      
+
       chatCompletion = await makeOpenRouterRequest(messages);
       responseMessage = chatCompletion.choices[0]?.message;
     }
 
     let replyText = responseMessage?.content || "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";
 
-    // Clean up any hallucinated JSON tool calls from the text
     replyText = replyText.replace(/\{[\s\S]*"type"\s*:\s*"function"[\s\S]*\}/g, '').trim();
     if (!replyText) replyText = "আপনার রিকোয়েস্টটি প্রসেস করা হচ্ছে...";
 
-    historyDoc.messages.push({ role: 'user', parts: [{ text: userMessage }] });
-    historyDoc.messages.push({ role: 'model', parts: [{ text: replyText }] });
-    await historyDoc.save();
+    // Save history asynchronously without blocking response
+    saveChatHistoryAsync(sessionId, userMessage, replyText);
 
     return replyText;
   } catch (err: any) {
     console.error('Error in chatWithAgent (OpenRouter):', err);
-    throw err; // Re-throw to allow AI Manager to catch and fallback
+    throw err;
   }
 };

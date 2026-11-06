@@ -11,7 +11,7 @@ export default function AIChatWidget() {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const agentApiUrl = (process.env.NEXT_PUBLIC_AGENT_API_URL || 'http://localhost:5001').replace(/\/$/, '');
 
-  // Initialize unique session ID
+  // Initialize unique session ID & pre-warm AI Agent service immediately
   useEffect(() => {
     if (typeof window !== 'undefined') {
       let sid = localStorage.getItem('chat_session_id');
@@ -21,12 +21,18 @@ export default function AIChatWidget() {
       }
       setSessionId(sid);
 
-      // Load initial message
       setMessages([
-        { sender: 'bot', text: 'হ্যালো! PREMIUMACCOUNTSSTORE.COM-এ আপনাকে স্বাগতম। আমি আপনার কীভাবে সাহায্য করতে পারি? (Hello! How can I assist you today?)' }
+        { sender: 'bot', text: 'হ্যালো! **Premium Account Store**-এ আপনাকে স্বাগতম। 😊\nআমি আপনাকে কীভাবে সাহায্য করতে পারি? নিচের কুইক বাটনে ক্লিক করুন অথবা যেকোনো অ্যাপের নাম লিখে প্রাইস জানুন!' }
       ]);
+
+      // Pre-warm AI Agent server & cache so the first message is instant
+      fetch(`${agentApiUrl}/`, { method: 'GET', mode: 'cors' }).catch(() => {});
+      const keepAlive = setInterval(() => {
+        fetch(`${agentApiUrl}/`, { method: 'GET', mode: 'cors' }).catch(() => {});
+      }, 4 * 60 * 1000);
+      return () => clearInterval(keepAlive);
     }
-  }, []);
+  }, [agentApiUrl]);
 
   // Auto-scroll to bottom of conversation
   useEffect(() => {
@@ -36,7 +42,6 @@ export default function AIChatWidget() {
   const handleSendMessage = async (textToSend: string) => {
     if (!textToSend.trim() || loading) return;
 
-    // 1. Add user message
     const userMsg = textToSend.trim();
     setMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
     setInputText('');
@@ -66,6 +71,34 @@ export default function AIChatWidget() {
     handleSendMessage(actionText);
   };
 
+  // Render simple **bold** and `code` markdown cleanly
+  const renderFormattedText = (text: string) => {
+    const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+    return parts.map((part, idx) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={idx} style={{ fontWeight: 700 }}>{part.slice(2, -2)}</strong>;
+      }
+      if (part.startsWith('`') && part.endsWith('`')) {
+        return (
+          <code
+            key={idx}
+            style={{
+              background: '#f1f5f9',
+              padding: '2px 6px',
+              borderRadius: '6px',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              color: '#2563eb'
+            }}
+          >
+            {part.slice(1, -1)}
+          </code>
+        );
+      }
+      return <React.Fragment key={idx}>{part}</React.Fragment>;
+    });
+  };
+
   return (
     <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999, fontFamily: 'system-ui, sans-serif' }}>
       
@@ -92,6 +125,7 @@ export default function AIChatWidget() {
           onMouseEnter={e => {
             e.currentTarget.style.transform = 'scale(1.08) translateY(-3px)';
             e.currentTarget.style.boxShadow = '0 12px 35px rgba(37,99,235,0.5)';
+            fetch(`${agentApiUrl}/`, { method: 'GET', mode: 'cors' }).catch(() => {});
           }}
           onMouseLeave={e => {
             e.currentTarget.style.transform = 'scale(1) translateY(0)';
@@ -115,13 +149,13 @@ export default function AIChatWidget() {
           flexDirection: 'column',
           overflow: 'hidden',
           transition: 'all 0.3s ease',
-          animation: 'slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+          animation: 'slideUp 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
         }}>
           {/* Header */}
           <div style={{
             background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
             color: 'white',
-            padding: '20px 24px',
+            padding: '18px 22px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -132,9 +166,9 @@ export default function AIChatWidget() {
                 🤖
               </div>
               <div>
-                <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, letterSpacing: '0.3px' }}>Premium Store Bot</h3>
-                <span style={{ fontSize: '0.75rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 500 }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }} /> Active now
+                <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, letterSpacing: '0.3px' }}>Premium Store AI</h3>
+                <span style={{ fontSize: '0.75rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
+                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', display: 'inline-block', boxShadow: '0 0 8px #10b981' }} /> Turbo Fast Reply Active
                 </span>
               </div>
             </div>
@@ -159,25 +193,25 @@ export default function AIChatWidget() {
           </div>
 
           {/* Conversation Area */}
-          <div style={{ flex: 1, padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px', background: '#f8fafc' }}>
+          <div style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px', background: '#f8fafc' }}>
             {messages.map((m, i) => (
               <div 
                 key={i} 
                 style={{
                   alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start',
-                  maxWidth: '80%',
+                  maxWidth: '84%',
                   background: m.sender === 'user' ? '#2563eb' : 'white',
                   color: m.sender === 'user' ? 'white' : '#1e293b',
                   padding: '12px 16px',
                   borderRadius: m.sender === 'user' ? '18px 18px 2px 18px' : '18px 18px 18px 2px',
-                  boxShadow: m.sender === 'user' ? '0 4px 12px rgba(37,99,235,0.15)' : '0 4px 12px rgba(0,0,0,0.02)',
+                  boxShadow: m.sender === 'user' ? '0 4px 12px rgba(37,99,235,0.15)' : '0 4px 12px rgba(0,0,0,0.03)',
                   border: m.sender === 'user' ? 'none' : '1px solid #e2e8f0',
-                  fontSize: '0.9rem',
-                  lineHeight: 1.45,
+                  fontSize: '0.88rem',
+                  lineHeight: 1.5,
                   whiteSpace: 'pre-wrap'
                 }}
               >
-                {m.text}
+                {renderFormattedText(m.text)}
               </div>
             ))}
             {loading && (
@@ -192,16 +226,16 @@ export default function AIChatWidget() {
                 gap: '4px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
               }}>
-                <span className="dot" style={{ width: '6px', height: '6px', background: '#94a3b8', borderRadius: '50%', display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out' }} />
-                <span className="dot" style={{ width: '6px', height: '6px', background: '#94a3b8', borderRadius: '50%', display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out 0.2s' }} style-id="dot2" />
-                <span className="dot" style={{ width: '6px', height: '6px', background: '#94a3b8', borderRadius: '50%', display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out 0.4s' }} style-id="dot3" />
+                <span className="dot" style={{ width: '6px', height: '6px', background: '#3b82f6', borderRadius: '50%', display: 'inline-block', animation: 'bounce 1.2s infinite ease-in-out' }} />
+                <span className="dot" style={{ width: '6px', height: '6px', background: '#3b82f6', borderRadius: '50%', display: 'inline-block', animation: 'bounce 1.2s infinite ease-in-out 0.15s' }} />
+                <span className="dot" style={{ width: '6px', height: '6px', background: '#3b82f6', borderRadius: '50%', display: 'inline-block', animation: 'bounce 1.2s infinite ease-in-out 0.3s' }} />
               </div>
             )}
             <div ref={chatEndRef} />
           </div>
 
           {/* Quick Actions / Pills */}
-          <div style={{ padding: '8px 16px', background: '#f1f5f9', display: 'flex', gap: '8px', overflowX: 'auto', borderTop: '1px solid #e2e8f0', scrollbarWidth: 'none' }}>
+          <div style={{ padding: '8px 14px', background: '#f1f5f9', display: 'flex', gap: '8px', overflowX: 'auto', borderTop: '1px solid #e2e8f0', scrollbarWidth: 'none' }}>
             <button 
               onClick={() => handleQuickAction('Show catalog prices')}
               style={{ padding: '6px 12px', borderRadius: '50px', background: 'white', border: '1px solid #cbd5e1', fontSize: '0.75rem', fontWeight: 600, color: '#475569', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
@@ -223,7 +257,7 @@ export default function AIChatWidget() {
           </div>
 
           {/* Input Area */}
-          <div style={{ padding: '16px 20px', borderTop: '1px solid #cbd5e1', background: 'white' }}>
+          <div style={{ padding: '14px 18px', borderTop: '1px solid #cbd5e1', background: 'white' }}>
             <form 
               onSubmit={e => { e.preventDefault(); handleSendMessage(inputText); }}
               style={{ display: 'flex', gap: '10px' }}
@@ -276,7 +310,7 @@ export default function AIChatWidget() {
           40% { transform: scale(1.0); }
         }
         .dot {
-          animation: bounce 1.4s infinite ease-in-out both;
+          animation: bounce 1.2s infinite ease-in-out both;
         }
       `}} />
     </div>

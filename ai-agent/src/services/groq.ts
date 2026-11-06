@@ -4,10 +4,9 @@ import Order from '../models/Order';
 import User from '../models/User';
 import ChatHistory from '../models/ChatHistory';
 import bcrypt from 'bcryptjs';
-
 import { SYSTEM_INSTRUCTION } from './prompt';
+import { getCachedProducts, getCachedCatalogSummaryText, saveChatHistoryAsync } from './cache';
 
-// Define Tool Declarations for Groq
 const tools: any[] = [
   {
     type: "function",
@@ -55,8 +54,8 @@ const tools: any[] = [
         properties: {
           phone: { type: 'string', description: 'The customer\'s registered phone number (e.g. 01712345678).' },
           appId: { type: 'string', description: 'The application ID (e.g. chatgpt, netflix, gemini, spotify).' },
-          planName: { type: 'string', description: 'The specific name of the plan (e.g. ChatGPT Plus, Netflix Premium Ultra HD, Spotify Premium Individual, Google AI Plus).' },
-          durationLabel: { type: 'string', description: 'Duration of the package (e.g., "1 Month", "3 Months", "6 Months", "1 Year", "18 Months").' }
+          planName: { type: 'string', description: 'The specific name of the plan.' },
+          durationLabel: { type: 'string', description: 'Duration of the package (e.g., "1 Month", "3 Months", "6 Months", "12 Months").' }
         },
         required: ['phone', 'appId', 'planName', 'durationLabel']
       }
@@ -71,8 +70,8 @@ const tools: any[] = [
         type: 'object',
         properties: {
           orderId: { type: 'string', description: 'The unique Order ID to update.' },
-          paymentMethod: { type: 'string', description: 'The selected payment method used (e.g. bkash, nagad, rocket, upay).' },
-          transactionId: { type: 'string', description: 'The transaction ID of the send money payment (e.g. TRX99283726).' },
+          paymentMethod: { type: 'string', description: 'The selected payment method used (e.g. bkash, nagad, rocket).' },
+          transactionId: { type: 'string', description: 'The transaction ID of the send money payment.' },
           senderNumber: { type: 'string', description: 'The sender phone number used to send the money.' }
         },
         required: ['orderId', 'paymentMethod', 'transactionId', 'senderNumber']
@@ -95,10 +94,9 @@ const tools: any[] = [
   }
 ];
 
-// Tool Implementation Handlers
 const handleGetStoreCatalog = async () => {
   try {
-    const products = await Product.find({});
+    const products = await getCachedProducts();
     return { success: true, products };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -107,7 +105,7 @@ const handleGetStoreCatalog = async () => {
 
 const handleTrackOrder = async (orderId: string) => {
   try {
-    const order = await Order.findOne({ orderId }).populate('product');
+    const order = await Order.findOne({ orderId }).lean();
     if (!order) return { success: false, error: 'Order not found.' };
     return { success: true, order };
   } catch (err: any) {
@@ -133,13 +131,13 @@ const handleCancelOrder = async (orderId: string) => {
 const handleCreatePendingOrder = async (phone: string, appId: string, planName: string, durationLabel: string) => {
   try {
     const user = await User.findOne({ phone });
-    const product = await Product.findOne({ id: appId });
+    const product = await Product.findOne({ appId: appId.toLowerCase() });
     if (!product) return { success: false, error: 'Product/App not found in catalog.' };
-    
-    const plan = product.plans.find((p: any) => p.planName === planName);
+
+    const plan = product.plans.find((p: any) => p.planName.toLowerCase().includes(planName.toLowerCase()));
     if (!plan) return { success: false, error: 'Plan not found.' };
-    
-    const duration = plan.durations.find((d: any) => d.label === durationLabel);
+
+    const duration = plan.durations.find((d: any) => d.label.toLowerCase().includes(durationLabel.toLowerCase()));
     if (!duration) return { success: false, error: 'Duration not found for this plan.' };
 
     const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
@@ -166,13 +164,13 @@ const handleUpdateOrderPayment = async (orderId: string, paymentMethod: string, 
   try {
     const order = await Order.findOne({ orderId });
     if (!order) return { success: false, error: 'Order not found.' };
-    
+
     order.paymentMethod = paymentMethod;
     order.transactionId = transactionId;
     order.senderNumber = senderNumber;
-    order.status = 'Verified';
+    order.status = 'Pending';
     await order.save();
-    return { success: true, message: 'Payment details added. Order is now Verified.' };
+    return { success: true, message: 'Payment details added. Order is now Pending admin verification.' };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -180,25 +178,23 @@ const handleUpdateOrderPayment = async (orderId: string, paymentMethod: string, 
 
 const handleRequestPasswordReset = async (identifier: string) => {
   try {
-    const user = await User.findOne({ 
-      $or: [ { phone: identifier }, { email: identifier } ] 
+    const user = await User.findOne({
+      $or: [{ phone: identifier }, { email: identifier }]
     });
     if (!user) return { success: false, error: 'No account found with this phone number or email.' };
-    
+
     const tempPassword = Math.floor(100000 + Math.random() * 900000).toString();
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(tempPassword, salt);
     await user.save();
-    
+
     return { success: true, tempPassword, message: 'Password has been reset to temporary password.' };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
 };
 
-// Dispatcher
 const executeTool = async (name: string, args: any) => {
-  console.log(`Executing tool: ${name} with args:`, args);
   switch (name) {
     case 'getStoreCatalog': return await handleGetStoreCatalog();
     case 'trackOrder': return await handleTrackOrder(args.orderId);
@@ -210,65 +206,42 @@ const executeTool = async (name: string, args: any) => {
   }
 };
 
-// Main interface to chat with the AI agent
+const FALLBACK_MODELS = [
+  'llama-3.3-70b-versatile',
+  'llama-3.1-8b-instant',
+  'gemma2-9b-it'
+];
+
 export const chatWithAgent = async (sessionId: string, userMessage: string, apiKey: string): Promise<string> => {
   if (!apiKey) {
-      throw new Error("Groq API key is missing");
+    throw new Error("Groq API key is missing");
   }
   try {
     const groq = new Groq({ apiKey });
-    let historyDoc = await ChatHistory.findOne({ sessionId });
-    if (!historyDoc) {
-      historyDoc = new ChatHistory({ sessionId, messages: [] });
-    }
+    const [historyDoc, catalogSummary] = await Promise.all([
+      ChatHistory.findOne({ sessionId }).lean(),
+      getCachedCatalogSummaryText()
+    ]);
 
-    const messages = [];
-    messages.push({ role: 'system', content: SYSTEM_INSTRUCTION });
-    
-    for (const msg of historyDoc.messages) {
+    const messages: any[] = [];
+    messages.push({ role: 'system', content: SYSTEM_INSTRUCTION + catalogSummary });
+
+    const recentMessages = (historyDoc?.messages || []).slice(-6);
+    for (const msg of recentMessages) {
       if (msg.role === 'model') {
         const textParts = msg.parts?.filter((p: any) => p.text).map((p: any) => p.text).join('') || '';
-        const functionCalls = msg.parts?.filter((p: any) => p.functionCall).map((p: any) => ({
-          id: p.functionCall.id || Math.random().toString(36).substring(7),
-          type: 'function',
-          function: { name: p.functionCall.name, arguments: JSON.stringify(p.functionCall.args || {}) }
-        }));
-        
-        if (textParts || (functionCalls && functionCalls.length > 0)) {
-          messages.push({
-            role: 'assistant',
-            content: textParts || null,
-            ...(functionCalls && functionCalls.length > 0 ? { tool_calls: functionCalls } : {})
-          });
+        if (textParts) {
+          messages.push({ role: 'assistant', content: textParts });
         }
       } else if (msg.role === 'user') {
         const textParts = msg.parts?.filter((p: any) => p.text).map((p: any) => p.text).join('') || '';
-        const functionResponses = msg.parts?.filter((p: any) => p.functionResponse);
-        
         if (textParts) {
           messages.push({ role: 'user', content: textParts });
         }
-        
-        if (functionResponses && functionResponses.length > 0) {
-          for (const fr of functionResponses) {
-            messages.push({
-              role: 'tool',
-              tool_call_id: fr.functionResponse.id || 'unknown_id',
-              name: fr.functionResponse.name,
-              content: JSON.stringify(fr.functionResponse.response)
-            });
-          }
-        }
       }
     }
-    
-    messages.push({ role: 'user', content: userMessage });
 
-    const FALLBACK_MODELS = [
-      'llama-3.3-70b-versatile',
-      'llama-3.1-8b-instant',
-      'gemma2-9b-it'
-    ];
+    messages.push({ role: 'user', content: userMessage });
 
     const makeGroqRequest = async (currentMessages: any[]) => {
       let lastError = null;
@@ -277,31 +250,32 @@ export const chatWithAgent = async (sessionId: string, userMessage: string, apiK
           const completion = await groq.chat.completions.create({
             messages: currentMessages,
             model: modelName,
+            max_tokens: 450,
+            temperature: 0.4,
             tools: tools as any,
             tool_choice: 'auto',
           });
-          return completion; // Success! Return immediately.
+          return completion;
         } catch (err: any) {
           console.warn(`Groq Model ${modelName} failed. Falling back... Error: ${err.message}`);
           lastError = err;
         }
       }
-      throw lastError; // All models failed
+      throw lastError;
     };
 
     let chatCompletion = await makeGroqRequest(messages);
-
     let responseMessage = chatCompletion.choices[0]?.message;
-    
+
     while (responseMessage?.tool_calls && responseMessage.tool_calls.length > 0) {
       messages.push(responseMessage);
-      
+
       for (const toolCall of responseMessage.tool_calls) {
         let args = {};
-        try { args = JSON.parse(toolCall.function.arguments); } catch(e) {}
-        
+        try { args = JSON.parse(toolCall.function.arguments); } catch (e) {}
+
         const toolResult = await executeTool(toolCall.function.name, args);
-        
+
         messages.push({
           tool_call_id: toolCall.id,
           role: 'tool',
@@ -309,26 +283,21 @@ export const chatWithAgent = async (sessionId: string, userMessage: string, apiK
           content: JSON.stringify(toolResult),
         });
       }
-      
+
       chatCompletion = await makeGroqRequest(messages);
-      
       responseMessage = chatCompletion.choices[0]?.message;
     }
 
     let replyText = responseMessage?.content || "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";
 
-    // Clean up any hallucinated JSON tool calls from the text
     replyText = replyText.replace(/\{[\s\S]*"type"\s*:\s*"function"[\s\S]*\}/g, '').trim();
     if (!replyText) replyText = "আপনার রিকোয়েস্টটি প্রসেস করা হচ্ছে...";
 
-    // Reconstruct history to save back to DB in our standard schema
-    historyDoc.messages.push({ role: 'user', parts: [{ text: userMessage }] });
-    historyDoc.messages.push({ role: 'model', parts: [{ text: replyText }] });
-    await historyDoc.save();
+    saveChatHistoryAsync(sessionId, userMessage, replyText);
 
     return replyText;
   } catch (err: any) {
     console.error('Error in chatWithAgent (Groq):', err);
-    throw err; // Re-throw to allow AI Manager to catch and fallback
+    throw err;
   }
 };

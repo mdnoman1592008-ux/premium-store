@@ -4,10 +4,9 @@ import Order from '../models/Order';
 import User from '../models/User';
 import ChatHistory from '../models/ChatHistory';
 import bcrypt from 'bcryptjs';
-
 import { SYSTEM_INSTRUCTION } from './prompt';
+import { getCachedProducts, getCachedCatalogSummaryText, saveChatHistoryAsync } from './cache';
 
-// Define Tool Declarations for Gemini
 const tools: any[] = [
   {
     functionDeclarations: [
@@ -18,7 +17,7 @@ const tools: any[] = [
       },
       {
         name: 'trackOrder',
-        description: 'Fetch the current status, app/plan details, price, payment info, and credentials (email/password/pin) of a subscription order by its unique Order ID.',
+        description: 'Fetch the current status, app/plan details, price, payment info, and credentials of a subscription order by its unique Order ID.',
         parameters: {
           type: 'object',
           properties: {
@@ -46,8 +45,8 @@ const tools: any[] = [
           properties: {
             phone: { type: 'string', description: 'The customer\'s registered phone number (e.g. 01712345678).' },
             appId: { type: 'string', description: 'The application ID (e.g. chatgpt, netflix, gemini, spotify).' },
-            planName: { type: 'string', description: 'The specific name of the plan (e.g. ChatGPT Plus, Netflix Premium Ultra HD, Spotify Premium Individual, Google AI Plus).' },
-            durationLabel: { type: 'string', description: 'Duration of the package (e.g., "1 Month", "3 Months", "6 Months", "1 Year", "18 Months").' }
+            planName: { type: 'string', description: 'The specific name of the plan.' },
+            durationLabel: { type: 'string', description: 'Duration of the package (e.g., "1 Month", "3 Months", "6 Months", "12 Months").' }
           },
           required: ['phone', 'appId', 'planName', 'durationLabel']
         }
@@ -59,8 +58,8 @@ const tools: any[] = [
           type: 'object',
           properties: {
             orderId: { type: 'string', description: 'The unique Order ID to update.' },
-            paymentMethod: { type: 'string', description: 'The selected payment method used (e.g. bkash, nagad, rocket, upay).' },
-            transactionId: { type: 'string', description: 'The transaction ID of the send money payment (e.g. TRX99283726).' },
+            paymentMethod: { type: 'string', description: 'The selected payment method used (e.g. bkash, nagad, rocket).' },
+            transactionId: { type: 'string', description: 'The transaction ID of the send money payment.' },
             senderNumber: { type: 'string', description: 'The sender phone number used to send the money.' }
           },
           required: ['orderId', 'paymentMethod', 'transactionId', 'senderNumber']
@@ -81,10 +80,9 @@ const tools: any[] = [
   }
 ];
 
-// Tool Implementation Handlers
 const handleGetStoreCatalog = async () => {
   try {
-    const products = await Product.find({});
+    const products = await getCachedProducts();
     return { success: true, products };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -93,7 +91,7 @@ const handleGetStoreCatalog = async () => {
 
 const handleTrackOrder = async (args: { orderId: string }) => {
   try {
-    const order = await Order.findOne({ orderId: args.orderId });
+    const order = await Order.findOne({ orderId: args.orderId }).lean();
     if (!order) {
       return { success: false, message: `No order found with ID: ${args.orderId}` };
     }
@@ -122,10 +120,8 @@ const handleCancelOrder = async (args: { orderId: string }) => {
 
 const handleCreatePendingOrder = async (args: { phone: string; appId: string; planName: string; durationLabel: string }) => {
   try {
-    // 1. Ensure user exists or create a temporary one
     let user = await User.findOne({ phone: args.phone });
     if (!user) {
-      // Create user with a random password if it doesn't exist
       const tempPass = Math.floor(100000 + Math.random() * 900000).toString();
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(tempPass, salt);
@@ -136,28 +132,23 @@ const handleCreatePendingOrder = async (args: { phone: string; appId: string; pl
       });
     }
 
-    // 2. Fetch product details
-    const product = await Product.findOne({ appId: args.appId });
+    const product = await Product.findOne({ appId: args.appId.toLowerCase() });
     if (!product) {
       return { success: false, message: `Product not found with App ID: ${args.appId}` };
     }
 
-    // 3. Find plan
     const plan = product.plans.find(p => p.planName.toLowerCase() === args.planName.toLowerCase() || p.planName.toLowerCase().includes(args.planName.toLowerCase()));
     if (!plan) {
       return { success: false, message: `Plan '${args.planName}' not found. Available plans: ${product.plans.map(p => p.planName).join(', ')}` };
     }
 
-    // 4. Find duration
     const duration = plan.durations.find(d => d.label.toLowerCase() === args.durationLabel.toLowerCase() || d.label.toLowerCase().includes(args.durationLabel.toLowerCase()));
     if (!duration) {
       return { success: false, message: `Duration '${args.durationLabel}' not found. Available: ${plan.durations.map(d => d.label).join(', ')}` };
     }
 
-    // 5. Generate Order ID
     const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
 
-    // 6. Create Pending Order
     const newOrder = await Order.create({
       orderId,
       userId: user._id,
@@ -191,11 +182,11 @@ const handleUpdateOrderPayment = async (args: { orderId: string; paymentMethod: 
     if (!order) {
       return { success: false, message: `No order found with ID: ${args.orderId}` };
     }
-    
+
     order.paymentMethod = args.paymentMethod;
     order.transactionId = args.transactionId;
     order.senderNumber = args.senderNumber;
-    order.status = 'Pending'; // Ensure reset to Pending for admin verification
+    order.status = 'Pending';
     await order.save();
 
     return { success: true, message: `Order #${args.orderId} payment details updated successfully. Pending admin verification.` };
@@ -206,10 +197,10 @@ const handleUpdateOrderPayment = async (args: { orderId: string; paymentMethod: 
 
 const handleRequestPasswordReset = async (args: { identifier: string }) => {
   try {
-    const user = await User.findOne({ 
-      $or: [ { phone: args.identifier }, { email: args.identifier } ] 
+    const user = await User.findOne({
+      $or: [{ phone: args.identifier }, { email: args.identifier }]
     });
-    
+
     if (!user) {
       return { success: false, message: `No registered user found with phone number or email: ${args.identifier}` };
     }
@@ -227,9 +218,7 @@ const handleRequestPasswordReset = async (args: { identifier: string }) => {
   }
 };
 
-// Dispatcher for Tool Execution
 const executeTool = async (name: string, args: any) => {
-  console.log(`AI Agent tool call: ${name}`, args);
   switch (name) {
     case 'getStoreCatalog':
       return await handleGetStoreCatalog();
@@ -248,71 +237,70 @@ const executeTool = async (name: string, args: any) => {
   }
 };
 
-// Main interface to chat with the AI agent
+const GEMINI_MODEL_FALLBACKS = [
+  'models/gemini-2.0-flash',
+  'models/gemini-2.0-flash-lite',
+  'models/gemini-2.5-flash-lite',
+  'models/gemini-2.5-flash',
+];
+
+let preferredGeminiModel: string | null = null;
+
 export const chatWithAgent = async (
   sessionId: string,
   userMessage: string,
   apiKey: string
 ): Promise<string> => {
   if (!apiKey) {
-      throw new Error("Gemini API key is missing");
+    throw new Error("Gemini API key is missing");
   }
   const genAI = new GoogleGenerativeAI(apiKey);
 
-
-
   try {
-    // 1. Fetch JID/PSID history from DB
-    let historyDoc = await ChatHistory.findOne({ sessionId });
-    if (!historyDoc) {
-      historyDoc = new ChatHistory({ sessionId, messages: [] });
-    }
+    const [historyDoc, catalogSummary] = await Promise.all([
+      ChatHistory.findOne({ sessionId }).lean(),
+      getCachedCatalogSummaryText()
+    ]);
 
-    // Translate our database history format to Gemini SDK format
-    const sdkHistory = historyDoc.messages.map((m: any) => ({
-      role: m.role,
-      parts: m.parts.map((p: any) => {
-        const cleanPart: any = {};
-        if (p.text !== undefined) cleanPart.text = p.text;
-        if (p.functionCall !== undefined) cleanPart.functionCall = p.functionCall;
-        if (p.functionResponse !== undefined) cleanPart.functionResponse = p.functionResponse;
-        return cleanPart;
-      })
-    }));
-
-    // Inject system instruction if history is empty
-    if (sdkHistory.length === 0) {
-      sdkHistory.push({
+    const recentMessages = (historyDoc?.messages || []).slice(-6);
+    const sdkHistory: any[] = [
+      {
         role: 'user',
-        parts: [{ text: `[SYSTEM INSTRUCTION: ${SYSTEM_INSTRUCTION}]\n\nHello` }]
-      });
-      sdkHistory.push({
+        parts: [{ text: `[SYSTEM INSTRUCTION: ${SYSTEM_INSTRUCTION + catalogSummary}]\n\nHello` }]
+      },
+      {
         role: 'model',
         parts: [{ text: 'Understood. How can I help you today?' }]
-      });
-    }
-
-    // Try models in fallback order
-    const GEMINI_MODEL_FALLBACKS = [
-      'models/gemini-2.0-flash',
-      'models/gemini-2.0-flash-lite',
-      'models/gemini-2.5-flash-lite',
-      'models/gemini-2.5-flash',
-      'models/gemini-flash-latest',
-      'models/gemini-pro-latest',
+      }
     ];
 
+    for (const m of recentMessages) {
+      const textParts = (m.parts || []).filter((p: any) => p.text).map((p: any) => ({ text: p.text }));
+      if (textParts.length > 0) {
+        sdkHistory.push({
+          role: m.role === 'model' ? 'model' : 'user',
+          parts: textParts
+        });
+      }
+    }
+
+    const orderedModels = preferredGeminiModel
+      ? [preferredGeminiModel, ...GEMINI_MODEL_FALLBACKS.filter(m => m !== preferredGeminiModel)]
+      : GEMINI_MODEL_FALLBACKS;
+
     let result: any = null;
-    let successfulModel: string | null = null;
     let chat: any = null;
 
-    for (const modelName of GEMINI_MODEL_FALLBACKS) {
-      const m = genAI.getGenerativeModel({ model: modelName, tools: [{ functionDeclarations: tools }] });
+    for (const modelName of orderedModels) {
+      const m = genAI.getGenerativeModel({
+        model: modelName,
+        tools,
+        generationConfig: { maxOutputTokens: 450, temperature: 0.4 }
+      });
       chat = m.startChat({ history: sdkHistory });
       try {
         result = await chat.sendMessage(userMessage);
-        successfulModel = modelName;
-        console.log(`✅ Gemini replied using: ${modelName}`);
+        preferredGeminiModel = modelName;
         break;
       } catch (err: any) {
         console.warn(`❌ Model ${modelName} failed: ${err.message?.substring(0, 80)}`);
@@ -322,10 +310,9 @@ export const chatWithAgent = async (
     }
 
     if (!result || !chat) {
-      return 'দুঃখিত, বর্তমানে AI সার্ভিস উপলব্ধ নেই। আপনার API Key চেক করুন অথবা পরে আবার চেষ্টা করুন।';
+      throw new Error('All Gemini models failed for this API key.');
     }
 
-    // Loop to handle tool/function calls recursively
     let calls = typeof result.functionCalls === 'function' ? result.functionCalls() : result.functionCalls;
     while (calls && calls.length > 0) {
       const toolCall = calls[0];
@@ -334,33 +321,25 @@ export const chatWithAgent = async (
       calls = typeof result.functionCalls === 'function' ? result.functionCalls() : result.functionCalls;
     }
 
-    // Fetch the final generated text
     let replyText = '';
     try {
       replyText = result.response.text();
     } catch (err) {
-      console.warn("Gemini didn't return text. Falling back.");
+      console.warn("Gemini didn't return text.");
     }
-    
+
     if (!replyText || replyText.trim() === '') {
       replyText = "আমি দুঃখিত, আমি আপনার রিকুয়েস্টটি প্রসেস করতে পারছি না। দয়া করে আবার মেসেজ দিন।";
     }
 
-    // Clean up any hallucinated JSON tool calls from the text
     replyText = replyText.replace(/\{[\s\S]*"type"\s*:\s*"function"[\s\S]*\}/g, '').trim();
     if (!replyText) replyText = "আপনার রিকোয়েস্টটি প্রসেস করা হচ্ছে...";
 
-    // Save updated history back to MongoDB
-    const updatedHistory = await chat.getHistory();
-    historyDoc.messages = updatedHistory.map((m: any) => ({
-      role: m.role,
-      parts: m.parts
-    })) as any;
-    await historyDoc.save();
+    saveChatHistoryAsync(sessionId, userMessage, replyText);
 
     return replyText;
   } catch (err: any) {
     console.error('Error in chatWithAgent (Gemini):', err);
-    throw err; // Re-throw to allow AI Manager to catch and fallback
+    throw err;
   }
 };
