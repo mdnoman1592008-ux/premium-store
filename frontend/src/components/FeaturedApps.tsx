@@ -108,9 +108,29 @@ const FeaturedApps = () => {
     <section className="mobile-p-sm" style={{ padding: '80px 0', background: 'var(--bg)' }}>
       <div className="container">
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '0' }}>
-            Top Selling Accounts
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '6px 16px',
+            borderRadius: '999px',
+            background: '#eff6ff',
+            border: '1px solid #bfdbfe',
+            color: '#2563eb',
+            fontSize: '0.78rem',
+            fontWeight: 800,
+            textTransform: 'uppercase',
+            letterSpacing: '0.6px',
+            marginBottom: '12px'
+          }}>
+            ⚡ Most Popular Subscriptions
+          </div>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '10px', letterSpacing: '-0.5px' }}>
+            Top Selling <span style={{ background: 'linear-gradient(90deg, #2563eb, #7c3aed)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Premium Accounts</span>
           </h2>
+          <p style={{ color: '#64748b', fontSize: '1.02rem', maxWidth: '560px', margin: '0 auto' }}>
+            Choose from our best-selling digital subscriptions with instant activation and full warranty support.
+          </p>
         </div>
 
         {loading ? (
