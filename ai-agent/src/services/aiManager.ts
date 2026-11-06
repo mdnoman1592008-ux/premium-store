@@ -12,16 +12,16 @@ import {
 } from './cache';
 
 const CASCADE_ORDER = [
+  { provider: 'openrouter', service: openRouterChat },
   { provider: 'groq', service: groqChat },
   { provider: 'gemini', service: geminiChat },
-  { provider: 'openrouter', service: openRouterChat },
   { provider: 'deepseek', service: deepseekChat }
 ];
 
-let lastWorkingProvider: string | null = null;
+let lastWorkingProvider: string | null = 'openrouter';
 
 export const processWithAIFallback = async (sessionId: string, userMessage: string): Promise<string> => {
-  // 0. Ultra-Fast Instant Reply Path (< 15ms) for Quick Actions, Catalog, Single Product Prices, and Common Intents
+  // 0. Ultra-Fast Instant Reply Path (< 15ms) for Quick Actions, Catalog, Single Product Prices/Buy Info, and Common Intents
   try {
     const instantReply = await getInstantFastReply(userMessage);
     if (instantReply) {

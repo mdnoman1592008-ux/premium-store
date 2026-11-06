@@ -85,8 +85,8 @@ export const saveChatHistoryAsync = (sessionId: string, userMessage: string, rep
   });
 };
 
-// Format a single product's plans & prices in Bengali
-const formatSingleProductReply = (product: any): string => {
+// Format a single product's plans, prices, and buying instructions in Bengali
+const formatSingleProductReply = (product: any, includeBuyGuide: boolean): string => {
   const planBlocks = (product.plans || []).map((plan: any) => {
     const durLines = (plan.durations || [])
       .map((d: any) => `   • ${d.label}: **৳${d.price}**${d.tag ? ` (${d.tag})` : ''}`)
@@ -94,7 +94,11 @@ const formatSingleProductReply = (product: any): string => {
     return `🔹 **${plan.planName}**\n${durLines}`;
   });
 
-  return `হ্যাঁ, আমাদের কাছে **${product.appName}** এভেইলেবল আছে! 🎉\n\nনিচে আমাদের অফিশিয়াল প্ল্যান ও প্রাইস লিস্ট দেওয়া হলো:\n\n${planBlocks.join('\n\n')}\n\n✅ ১০০% ফুল-টার্ম রিপ্লেসমেন্ট ওয়ারেন্টি\n⚡ পেমেন্টের ৫–১০ মিনিটে ইনস্ট্যান্ট ডেলিভারি\n\nআপনি কোন প্ল্যানটি কতদিনের জন্য নিতে চাচ্ছেন? 😊`;
+  const buySection = includeBuyGuide
+    ? `\n\n💳 **কীভাবে অর্ডার ও পেমেন্ট করবেন:**\n১. আমাদের ওয়েবসাইটের হোমপেইজ থেকে **${product.appName}** সিলেক্ট করে আপনার পছন্দের মেয়াদ বেছে নিন।\n২. **bKash / Nagad / Rocket** (` + '`01346839521`' + ` - Personal Send Money) নাম্বারে পেমেন্ট করে TrxID ও সেন্ডার নাম্বার সাবমিট করুন।\n৩. পেমেন্টের **৫–১০ মিনিটের মধ্যে** আপনার একাউন্ট ডেলিভারি পেয়ে যাবেন! 🚀`
+    : `\n\n✅ ১০০% ফুল-টার্ম রিপ্লেসমেন্ট ওয়ারেন্টি\n⚡ পেমেন্টের ৫–১০ মিনিটে ইনস্ট্যান্ট ডেলিভারি\n\nআপনি কোন প্ল্যানটি কতদিনের জন্য নিতে চাচ্ছেন? 😊`;
+
+  return `হ্যাঁ, আমাদের কাছে **${product.appName}** এভেইলেবল আছে! 🎉\n\nনিচে আমাদের অফিশিয়াল প্ল্যান ও প্রাইস লিস্ট দেওয়া হলো:\n\n${planBlocks.join('\n\n')}${buySection}`;
 };
 
 // Format the entire store catalog in Bengali
@@ -116,7 +120,7 @@ const formatFullCatalogReply = (products: any[]): string => {
   return `🏷️ **আমাদের সকল প্রিমিয়াম সাবস্ক্রিপশনের আপডেট প্রাইস লিস্ট:**\n\n${lines.join('\n\n')}\n\n✅ সব প্যাকেজেই পাচ্ছেন ১০০% ফুল মেয়াদের গ্যারান্টি!\nআপনি কোন অ্যাপটি নিতে চাচ্ছেন তার নাম বলুন। 😊`;
 };
 
-// Ultra-fast instant responder (< 15ms) for quick actions, catalog prices, single-app prices, and common FAQs
+// Ultra-fast instant responder (< 15ms) for quick actions, catalog prices, single-app prices/buying, and common FAQs
 export const getInstantFastReply = async (userMessage: string): Promise<string | null> => {
   const clean = userMessage.toLowerCase().trim();
 
@@ -127,7 +131,10 @@ export const getInstantFastReply = async (userMessage: string): Promise<string |
     clean === 'all prices' ||
     clean === 'price list' ||
     clean === 'sob price' ||
-    clean === 'dam koto sob'
+    clean === 'dam koto sob' ||
+    clean.includes('all product') ||
+    clean.includes('প্রাইস লিস্ট') ||
+    clean.includes('সবগুলোর দাম')
   ) {
     const products = await getCachedProducts();
     return formatFullCatalogReply(products);
@@ -150,23 +157,23 @@ export const getInstantFastReply = async (userMessage: string): Promise<string |
     return `🔑 **পাসওয়ার্ড রিসেট করার নিয়ম:**\n\n১. আমাদের ওয়েবসাইটের **Login** পেইজে গিয়ে **"Forgot Password?"** অপশনে ক্লিক করে আপনার ইমেইল দিলেই সাথে সাথে পাসওয়ার্ড রিসেট লিংক পেয়ে যাবেন।\n২. অথবা আপনি চাইলে আপনার একাউন্টের **ইমেইল বা ফোন নাম্বারটি** এখানে চ্যাটে দিন, আমি আপনাকে একটি টেম্পোরারি পাসওয়ার্ড তৈরি করে দিচ্ছি! 😊`;
   }
 
-  // 2. If user is passing an Order ID (ORD-...) or phone number (01...) or TrxID, let the LLM + tools handle it!
+  // 2. If user is passing an Order ID (ORD-...) or phone number (01...) or TrxID or email address, let the LLM + tools handle it!
   if (/ord-\d+/i.test(clean) || /\b01[3-9]\d{8}\b/.test(clean) || /trx/i.test(clean) || /@/.test(clean)) {
     return null;
   }
 
-  // 3. Check if user is asking about a specific product in our catalog (e.g., "chatgpt price", "gemini dam koto", "youtube", "spotify")
+  // 3. Check if user is asking about a specific product in our catalog (price, availability, or how to buy/pay for it)
   const products = await getCachedProducts();
   const productAliases: Record<string, string[]> = {
-    chatgpt: ['chatgpt', 'chat gpt', 'gpt', 'openai'],
-    gemini: ['gemini', 'google ai', 'bard'],
+    chatgpt: ['chatgpt', 'chat gpt', 'gpt', 'openai', 'চ্যাটজিপিটি'],
+    gemini: ['gemini', 'google ai', 'bard', 'জেমিনি'],
     youtube: ['youtube', 'yt', 'ইউটিউব'],
     spotify: ['spotify', 'স্পটিফাই'],
     capcut: ['capcut', 'cap cut', 'ক্যাপকাট'],
-    inshot: ['inshot', 'in shot'],
-    claude: ['claude', 'anthropic'],
-    grok: ['grok', 'supergrok'],
-    veo: ['veo', 'veo 3', 'veo3']
+    inshot: ['inshot', 'in shot', 'ইনশট'],
+    claude: ['claude', 'anthropic', 'ক্লড'],
+    grok: ['grok', 'supergrok', 'গ্রক'],
+    veo: ['veo', 'veo 3', 'veo3', 'ভিও']
   };
 
   const matchedApps: any[] = [];
@@ -179,14 +186,14 @@ export const getInstantFastReply = async (userMessage: string): Promise<string |
     }
   }
 
-  // If user mentioned exactly 1 product and is asking a short question (<= 8 words), give instant accurate price table!
   const wordCount = clean.split(/\s+/).length;
-  if (matchedApps.length === 1 && wordCount <= 8) {
-    return formatSingleProductReply(matchedApps[0]);
+  if (matchedApps.length === 1 && wordCount <= 20) {
+    const hasBuyOrPayKeyword = /buy|order|pay|bkash|nagad|rocket|kinbo|nibo|nite|kivabe|kemne|কিনব|নিতে|অর্ডার|বিকাশ|নগদ|পেমেন্ট/i.test(clean);
+    return formatSingleProductReply(matchedApps[0], hasBuyOrPayKeyword);
   }
 
   // 4. Check Local Brain for fast static intents (Greetings, Payment Number, Warranty, Support, Thanks, etc.)
-  if (wordCount <= 7) {
+  if (wordCount <= 10) {
     const localReply = processLocalBrain(userMessage);
     if (localReply) {
       return localReply;

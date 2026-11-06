@@ -178,12 +178,11 @@ const executeTool = async (functionName: string, args: any) => {
 };
 
 const FALLBACK_MODELS = [
-  'google/gemini-2.0-flash-001',
   'google/gemini-2.5-flash',
   'meta-llama/llama-3.3-70b-instruct'
 ];
 
-let preferredModel: string | null = null;
+let preferredModel: string | null = 'google/gemini-2.5-flash';
 
 export const chatWithAgent = async (sessionId: string, userMessage: string, apiKey: string): Promise<string> => {
   if (!apiKey) {
@@ -231,8 +230,8 @@ export const chatWithAgent = async (sessionId: string, userMessage: string, apiK
           const completion = await openrouter.chat.completions.create({
             messages: currentMessages as any,
             model: modelName,
-            max_tokens: 450,
-            temperature: 0.4,
+            max_tokens: 320,
+            temperature: 0.3,
             tools: tools as any,
             tool_choice: 'auto',
           });
