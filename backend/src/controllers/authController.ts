@@ -177,3 +177,24 @@ export const googleAuth = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ message: error.message });
   }
 };
+
+export const resetPasswordSync = async (req: Request, res: Response): Promise<void> => {
+  const { email, newPassword } = req.body;
+
+  if (!email || !newPassword) {
+    res.status(400).json({ message: 'Email and new password are required' });
+    return;
+  }
+
+  try {
+    const user = await User.findOne({ $or: [{ email }, { phone: email }] });
+    if (user) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+      await user.save();
+    }
+    res.status(200).json({ message: 'Password synced successfully' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};

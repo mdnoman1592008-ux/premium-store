@@ -1,14 +1,25 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 
 export default function ForgotPasswordPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('oobCode')) {
+        router.replace(`/reset-password${window.location.search}`);
+      }
+    }
+  }, [router]);
 
   const getFirebaseErrorMessage = (code?: string, fallback?: string) => {
     switch (code) {
@@ -35,7 +46,14 @@ export default function ForgotPasswordPage() {
     setSuccess(false);
 
     try {
-      await sendPasswordResetEmail(auth, email.trim());
+      const actionCodeSettings = typeof window !== 'undefined'
+        ? { url: `${window.location.origin}/login`, handleCodeInApp: false }
+        : undefined;
+      try {
+        await sendPasswordResetEmail(auth, email.trim(), actionCodeSettings);
+      } catch {
+        await sendPasswordResetEmail(auth, email.trim());
+      }
       setSuccess(true);
     } catch (err: any) {
       setError(getFirebaseErrorMessage(err?.code, err?.message));
