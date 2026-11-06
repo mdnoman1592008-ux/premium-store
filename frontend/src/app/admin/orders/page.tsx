@@ -123,7 +123,7 @@ export default function AdminOrdersPage() {
                       <td style={{ padding: '20px 24px' }}>
                         {o.screenshotUrl ? (
                           <a 
-                            href={`http://localhost:5000${o.screenshotUrl}`} 
+                            href={o.screenshotUrl.startsWith('http') || o.screenshotUrl.startsWith('data:') ? o.screenshotUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${o.screenshotUrl}`} 
                             target="_blank" 
                             rel="noopener noreferrer" 
                             style={{ 

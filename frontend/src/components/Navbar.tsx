@@ -206,7 +206,7 @@ const Navbar = () => {
                 <Link href="/profile" title="My Profile" style={{ display: 'flex', alignItems: 'center' }}>
                   {userProfile?.photo ? (
                     <img 
-                      src={userProfile.photo.startsWith('http') ? userProfile.photo : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${userProfile.photo}`} 
+                      src={userProfile.photo.startsWith('http') || userProfile.photo.startsWith('data:') ? userProfile.photo : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${userProfile.photo}`} 
                       alt="Profile" 
                       style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} 
                     />

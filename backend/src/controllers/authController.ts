@@ -8,10 +8,12 @@ const generateToken = (id: string) => {
 };
 
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
-  const { phone, password } = req.body;
+  const { name, email, phone, password } = req.body;
 
   try {
-    const userExists = await User.findOne({ phone });
+    const query: any[] = [{ phone }];
+    if (email) query.push({ email });
+    const userExists = await User.findOne({ $or: query });
     if (userExists) {
       res.status(400).json({ message: 'User already exists' });
       return;
@@ -21,6 +23,8 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const user = await User.create({
+      name,
+      email,
       phone,
       password: hashedPassword,
     });
@@ -28,6 +32,8 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     if (user) {
       res.status(201).json({
         _id: user._id,
+        name: user.name,
+        email: (user as any).email,
         phone: user.phone,
         token: generateToken(user._id.toString()),
       });
@@ -43,11 +49,13 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   const { phone, password } = req.body;
 
   try {
-    const user = await User.findOne({ phone });
+    const user = await User.findOne({ $or: [{ phone }, { email: phone }] });
 
     if (user && (await bcrypt.compare(password, user.password))) {
       res.json({
         _id: user._id,
+        name: user.name,
+        email: (user as any).email,
         phone: user.phone,
         token: generateToken(user._id.toString()),
       });

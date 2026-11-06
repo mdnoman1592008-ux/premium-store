@@ -11,7 +11,7 @@ const orderSchema = new mongoose.Schema({
   transactionId: { type: String, required: true },
   senderNumber: { type: String, required: true },
   screenshotUrl: { type: String },
-  status: { type: String, enum: ['Pending', 'Verified', 'Delivered'], default: 'Pending' },
+  status: { type: String, enum: ['Pending', 'Verified', 'Delivered', 'Cancelled'], default: 'Pending' },
   credentialsEmail: { type: String },
   credentialsPassword: { type: String },
   credentialsPin: { type: String },

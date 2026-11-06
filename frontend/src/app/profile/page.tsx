@@ -32,7 +32,7 @@ export default function ProfilePage() {
         setProfile(data);
         setName(data.name || '');
         setPhone(data.phone || '');
-        setPhotoPreview(data.photo ? (data.photo.startsWith('http') ? data.photo : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${data.photo}`) : '');
+        setPhotoPreview(data.photo ? (data.photo.startsWith('http') || data.photo.startsWith('data:') ? data.photo : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${data.photo}`) : '');
       } else {
         router.push('/login');
       }

@@ -52,7 +52,7 @@ export default function UserSignUpPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, password }) 
+        body: JSON.stringify({ name: `${firstName} ${lastName}`.trim(), email, phone, password }) 
       });
       const data = await res.json();
       if (res.ok) {

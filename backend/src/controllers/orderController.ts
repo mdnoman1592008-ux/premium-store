@@ -16,7 +16,11 @@ export const createOrder = async (req: Request, res: Response) => {
       couponCode,
     } = req.body;
 
-    const screenshotUrl = req.file ? `/uploads/${req.file.filename}` : '';
+    const screenshotUrl = req.file
+      ? (req.file.buffer
+          ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`
+          : `/uploads/${req.file.filename}`)
+      : '';
     const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
 
     const order = new Order({

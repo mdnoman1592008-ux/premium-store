@@ -5,17 +5,7 @@ import { protect } from '../middleware/auth';
 
 const router = express.Router();
 
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename(req, file, cb) {
-    cb(
-      null,
-      `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`
-    );
-  },
-});
+const storage = multer.memoryStorage();
 
 function checkFileType(file: Express.Multer.File, cb: multer.FileFilterCallback) {
   const filetypes = /jpg|jpeg|png|webp|gif/;
@@ -38,7 +28,8 @@ const upload = multer({
 
 router.post('/', protect, upload.single('image'), (req, res) => {
   if (req.file) {
-    res.send(`/${req.file.path.replace(/\\/g, '/')}`);
+    const b64 = req.file.buffer.toString('base64');
+    res.send(`data:${req.file.mimetype};base64,${b64}`);
   } else {
     res.status(400).send('No file uploaded');
   }
