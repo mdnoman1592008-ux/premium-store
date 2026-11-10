@@ -16,7 +16,7 @@ export default function ForgotPasswordPage() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       if (params.get('oobCode')) {
-        router.replace(`/reset-password${window.location.search}`);
+        router.replace(`/auth${window.location.search}`);
       }
     }
   }, [router]);
@@ -46,9 +46,10 @@ export default function ForgotPasswordPage() {
     setSuccess(false);
 
     try {
-      const actionCodeSettings = typeof window !== 'undefined'
-        ? { url: `${window.location.origin}/login`, handleCodeInApp: false }
-        : undefined;
+      const actionCodeSettings = {
+        url: 'https://premiumaccountsbd.store/login',
+        handleCodeInApp: false
+      };
       try {
         await sendPasswordResetEmail(auth, email.trim(), actionCodeSettings);
       } catch {

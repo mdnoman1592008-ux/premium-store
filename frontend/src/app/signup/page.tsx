@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createUserWithEmailAndPassword, updateProfile, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, sendEmailVerification } from 'firebase/auth';
 import { auth, googleProvider } from '../../lib/firebase';
 
 export default function UserSignUpPage() {
@@ -74,6 +74,12 @@ export default function UserSignUpPage() {
       if (fullName) {
         await updateProfile(firebaseUser, { displayName: fullName }).catch(() => {});
       }
+
+      // Send official verification email via Firebase (from support@premiumaccountsbd.store)
+      sendEmailVerification(firebaseUser, {
+        url: 'https://premiumaccountsbd.store/login',
+        handleCodeInApp: false
+      }).catch(() => {});
 
       // 2. Sync user account with Backend MongoDB & receive backend JWT
       const res = await fetch(`${apiUrl}/api/auth/register`, {
